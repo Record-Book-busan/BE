@@ -35,7 +35,4 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
 
-	public User() {
-
-	}
 }

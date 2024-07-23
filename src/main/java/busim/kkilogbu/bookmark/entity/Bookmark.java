@@ -33,7 +33,4 @@ public class Bookmark {
 	@JoinColumn(name = "contents_id")
 	private Place map;
 
-	public Bookmark() {
-
-	}
 }

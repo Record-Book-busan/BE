@@ -31,7 +31,4 @@ public class AddressInfo {
 	@OneToMany(mappedBy = "addressInfo")
 	private List<Place> map = new ArrayList<>();
 
-	public AddressInfo() {
-
-	}
 }

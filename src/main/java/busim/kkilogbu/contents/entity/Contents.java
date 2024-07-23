@@ -32,7 +32,5 @@ public class Contents {
 	@JoinColumn(name = "map_id")
 	private Place map;
 
-	public Contents() {
 
-	}
 }

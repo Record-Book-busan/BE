@@ -43,7 +43,4 @@ public class Place {
 	@OneToMany(mappedBy = "map")
 	private List<Bookmark> bookmark = new ArrayList<>();
 
-	public Place() {
-
-	}
 }

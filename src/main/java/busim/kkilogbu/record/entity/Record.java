@@ -48,7 +48,4 @@ public class Record {
 	@OneToMany(mappedBy = "record")
 	private List<Bookmark> bookmark = new ArrayList<>();
 
-	public Record() {
-
-	}
 }
