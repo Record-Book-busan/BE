@@ -1,4 +1,4 @@
-package busim.kkilogbu.map.entity;
+package busim.kkilogbu.place.entity;
 
 import static jakarta.persistence.EnumType.*;
 import static jakarta.persistence.FetchType.*;
@@ -12,7 +12,6 @@ import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.Category1;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -20,10 +19,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
 
 @Entity
 @Table
-public class Map {
+@Builder
+@Getter
+public class Place {
 	@Id @GeneratedValue
 	private Long id;
 	@Enumerated(STRING)
@@ -39,4 +42,5 @@ public class Map {
 
 	@OneToMany(mappedBy = "map")
 	private List<Bookmark> bookmark = new ArrayList<>();
+
 }
