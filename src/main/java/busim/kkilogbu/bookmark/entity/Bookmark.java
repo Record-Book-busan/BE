@@ -6,7 +6,6 @@ import busim.kkilogbu.map.entity.Map;
 import busim.kkilogbu.record.entity.Record;
 import busim.kkilogbu.user.entity.User;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
