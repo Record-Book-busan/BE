@@ -2,7 +2,7 @@ package busim.kkilogbu.bookmark.entity;
 
 import static jakarta.persistence.FetchType.*;
 
-import busim.kkilogbu.map.entity.Map;
+import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.record.entity.Record;
 import busim.kkilogbu.user.entity.User;
 import jakarta.persistence.Entity;
@@ -11,9 +11,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
 
 @Entity
 @Table
+@Builder
+@Getter
 public class Bookmark {
 	@Id @GeneratedValue
 	private Long id;
@@ -27,7 +31,9 @@ public class Bookmark {
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "contents_id")
-	private Map map;
+	private Place map;
 
+	public Bookmark() {
 
+	}
 }

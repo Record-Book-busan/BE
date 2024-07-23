@@ -11,9 +11,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
 
 @Entity
 @Table
+@Builder
+@Getter
 public class User {
 	@Id @GeneratedValue
 	private Long id;
@@ -30,4 +34,8 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
+
+	public User() {
+
+	}
 }
