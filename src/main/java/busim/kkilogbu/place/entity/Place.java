@@ -1,7 +1,8 @@
-package busim.kkilogbu.map.entity;
+package busim.kkilogbu.place.entity;
 
 import static jakarta.persistence.EnumType.*;
 import static jakarta.persistence.FetchType.*;
+import static lombok.AccessLevel.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.Category1;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -20,10 +20,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table
-public class Map {
+@NoArgsConstructor(access = PROTECTED)
+@Getter
+public class Place {
 	@Id @GeneratedValue
 	private Long id;
 	@Enumerated(STRING)
@@ -39,4 +44,12 @@ public class Map {
 
 	@OneToMany(mappedBy = "map")
 	private List<Bookmark> bookmark = new ArrayList<>();
+
+	@Builder
+	public Place(Category1 cat1, Long cat2, String operatingTime, String phone) {
+		this.cat1 = cat1;
+		this.cat2 = cat2;
+		this.operatingTime = operatingTime;
+		this.phone = phone;
+	}
 }
