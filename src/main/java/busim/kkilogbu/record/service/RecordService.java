@@ -35,7 +35,7 @@ public class RecordService {
 	}
 
 	public RecordDetailResponse getPlaceDetail(Long id){
-		Record record = recordRepository.findById(id).orElseThrow(() -> {
+		Record record = recordRepository.findFetchById(id).orElseThrow(() -> {
 			// TODO : custom exception 추가?
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
@@ -86,7 +86,7 @@ public class RecordService {
 
 	@Transactional
 	public void updateRecord(Long markId, UpdateRecordRequest request) {
-		Record record = recordRepository.findById(markId).orElseThrow(() -> {
+		Record record = recordRepository.findFetchById(markId).orElseThrow(() -> {
 			// TODO : custom exception 추가
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
@@ -119,7 +119,7 @@ public class RecordService {
 
 	@Transactional
 	public void deleteRecord(Long markId) {
-		Record record = recordRepository.findById(markId).orElseThrow(() ->{
+		Record record = recordRepository.findFetchById(markId).orElseThrow(() ->{
 			// TODO : custom exception 추가
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
