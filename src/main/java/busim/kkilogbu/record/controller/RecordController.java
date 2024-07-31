@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
@@ -22,10 +23,11 @@ import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/mark")
+@RequestMapping("/api/record")
 @RequiredArgsConstructor
 public class RecordController {
 	private final RecordService service;
+	private final BookmarkService bookmarkService;
 
 	@GetMapping
 	public ResponseEntity<List<Record>> getPlace(@PathParam("lat1") double lat1, @PathParam("lng1") double lng1, @PathParam("lat2") double lat2, @PathParam("lng2") double lng2){
@@ -40,6 +42,18 @@ public class RecordController {
 	@PostMapping
 	public ResponseEntity<?> createPlace(@RequestBody @Valid CreateRecordRequest request) {
 		service.createRecord(request);
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/{markId}/bookmark")
+	public ResponseEntity<?> bookmark(@PathVariable Long markId) {
+		bookmarkService.bookmark(markId, "record");
+		return ResponseEntity.ok().build();
+	}
+
+	@DeleteMapping("/{markId}/bookmark")
+	public ResponseEntity<?> deleteBookmark(@PathVariable Long markId) {
+		bookmarkService.unbookmark(markId, "record");
 		return ResponseEntity.ok().build();
 	}
 
