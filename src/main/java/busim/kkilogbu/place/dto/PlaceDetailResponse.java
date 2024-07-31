@@ -1,14 +1,12 @@
-package busim.kkilogbu.record.dto;
-
-import java.time.LocalDateTime;
+package busim.kkilogbu.place.dto;
 
 import busim.kkilogbu.global.Category1;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
-public class RecordDetailResponse {
+@Builder
+public class PlaceDetailResponse {
 	private Long id;
 	private String title;
 	private String content;
@@ -20,7 +18,7 @@ public class RecordDetailResponse {
 	private double lng;
 	private Category1 cat1;
 	private Long cat2;
-	private String nickName;
-	private LocalDateTime createdAt;
+	private String operatingTime;
+	private String phone;
 	// TODO : 북마크 여부?
 }
