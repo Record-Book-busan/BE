@@ -2,6 +2,7 @@ package busim.kkilogbu.place.entity;
 
 import static jakarta.persistence.EnumType.*;
 import static jakarta.persistence.FetchType.*;
+import static lombok.AccessLevel.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +22,11 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table
-@Builder
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Place {
 	@Id @GeneratedValue
@@ -43,4 +45,11 @@ public class Place {
 	@OneToMany(mappedBy = "map")
 	private List<Bookmark> bookmark = new ArrayList<>();
 
+	@Builder
+	public Place(Category1 cat1, Long cat2, String operatingTime, String phone) {
+		this.cat1 = cat1;
+		this.cat2 = cat2;
+		this.operatingTime = operatingTime;
+		this.phone = phone;
+	}
 }
