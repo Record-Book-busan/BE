@@ -54,7 +54,10 @@ public class Record {
 	private AddressInfo addressInfo;
 
 	// TODO : bookmark 구현 후 다시 작업
-	@OneToMany(mappedBy = "record")
+	@OneToMany(mappedBy = "record"
+		// , cascade = PERSIST
+		, orphanRemoval = true
+	)
 	private List<Bookmark> bookmark = new ArrayList<>();
 
 	public void connect(User user, AddressInfo addressInfo, Contents contents) {

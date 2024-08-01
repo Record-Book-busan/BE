@@ -33,8 +33,8 @@ public class Contents {
 	private Record record;
 
 	@OneToOne(fetch = LAZY)
-	@JoinColumn(name = "map_id")
-	private Place map;
+	@JoinColumn(name = "place_id")
+	private Place place;
 
 	@Builder
 	public Contents(String title, String content, String imageUrl) {
@@ -42,9 +42,9 @@ public class Contents {
 		this.content = content;
 		this.imageUrl = imageUrl;
 	}
-	public void connect(Record record, Place map) {
+	public void connect(Record record, Place place) {
 		this.record = record;
-		this.map = map;
+		this.place = place;
 	}
 
 	public void update(String content, String title, String imageUrl) {

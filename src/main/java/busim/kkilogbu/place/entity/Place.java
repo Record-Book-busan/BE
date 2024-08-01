@@ -34,7 +34,7 @@ public class Place {
 	@Enumerated(STRING)
 	private Category1 cat1;
 	private Long cat2;
-	@OneToOne(mappedBy = "map", fetch = LAZY)
+	@OneToOne(mappedBy = "place", fetch = LAZY)
 	private Contents contents;
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "address_info_id")
@@ -42,7 +42,7 @@ public class Place {
 	private String operatingTime;
 	private String phone;
 
-	@OneToMany(mappedBy = "map")
+	@OneToMany(mappedBy = "place")
 	private List<Bookmark> bookmark = new ArrayList<>();
 
 	@Builder
