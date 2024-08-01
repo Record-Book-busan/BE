@@ -1,16 +1,32 @@
 spring:
+  profiles:
+    include: oauth
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${TMP_SQL_URL}
-    username: ${SQL_USERNAME}
-    password: ${SQL_PASSWORD}
+    url: jdbc:mysql://34.145.68.144/bussim_map?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: junyeop
+    password: 0801
   jpa:
-    hibernate:
-      ddl-auto: update
+    database: mysql
+    hibernate.hbm2ddl.auto: update
     properties:
       hibernate:
         format_sql: true
-        default_batch_fetch_size: 100
+
+#cloud:
+#  aws:
+#    s3:
+#      bucket: ${AWS_S3_BUCKET}
+#    credentials:
+#      access-key: ${AWS_ACCESS_KEY}
+#      secret-key: ${AWS_SECRET_KEY}
+#    region:
+#      static: ${AWS_REGION}
+#      auto: false
+#    stack:
+#      auto: false
+
+
 springdoc:
   version: '@project.version@'
   api-docs:

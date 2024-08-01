@@ -1,5 +1,7 @@
 package busim.kkilogbu.user.entity;
 
+import static lombok.AccessLevel.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +13,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table
-@Builder
+@NoArgsConstructor(access = PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor
 public class User {
 	@Id @GeneratedValue
 	private Long id;
