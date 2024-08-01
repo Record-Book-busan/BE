@@ -32,20 +32,22 @@ public class PlaceController {
 
 	/**
 	 * 장소 상세 조회
+	 *
 	 */
+
 	@GetMapping("/{placeId}")
-	public ResponseEntity<PlaceDetailResponse> getPlaceDetail(@PathVariable Long placeId) {
+	public ResponseEntity<PlaceDetailResponse> getPlaceDetail(@PathVariable("placeId") Long placeId) {
 		return ResponseEntity.ok(placeService.getPlaceDetail(placeId));
 	}
 
 	@PostMapping("/{placeId}/bookmark")
-	public ResponseEntity<?> bookmark(@PathVariable Long placeId) {
+	public ResponseEntity<?> bookmark(@PathVariable("placeId") Long placeId) {
 		bookmarkService.bookmark(placeId, "place");
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping("/{placeId}/bookmark")
-	public ResponseEntity<?> deleteBookmark(@PathVariable Long placeId) {
+	public ResponseEntity<?> deleteBookmark(@PathVariable("placeID") Long placeId) {
 		bookmarkService.unbookmark(placeId, "place");
 		return ResponseEntity.ok().build();
 	}
