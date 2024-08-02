@@ -1,4 +1,4 @@
-package busim.kkilogbu.api.restroomAPI.entity;
+package busim.kkilogbu.api.restroomAPI.domain.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,13 +39,14 @@ public class ToiletData {
     private double longitude; // 경도
 
     @Builder
-    public ToiletData(String toiletName, String locationRoadNameAddress, String locationJibunAddress,
+    public ToiletData(Long id, String toiletName, String locationRoadNameAddress, String locationJibunAddress,
                       String unisexToilet, int maleToiletCount, int maleUrinalCount, int maleDisabledToiletCount,
                       int maleDisabledUrinalCount, int maleChildToiletCount, int maleChildUrinalCount,
                       int femaleToiletCount, int femaleDisabledToiletCount, int femaleChildToiletCount,
                       String managementAgency, String phoneNumber, String openingHours, String installationYear,
                       double latitude, double longitude) {
 
+        this.id = id;
         this.toiletName = toiletName;
         this.locationRoadNameAddress = locationRoadNameAddress;
         this.locationJibunAddress = locationJibunAddress;
