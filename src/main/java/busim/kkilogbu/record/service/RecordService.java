@@ -41,22 +41,7 @@ public class RecordService {
 			// TODO : custom exception 추가?
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
-		return RecordDetailResponse.builder()
-			.id(record.getId())
-			.cat1(record.getCat1())
-			.cat2(record.getCat2())
-			.createdAt(record.getCreatedAt())
-			.address(record.getAddressInfo().getAddress())
-			.addressDetail(record.getAddressInfo().getAddressDetail())
-			.zipcode(record.getAddressInfo().getZipcode())
-			.lat(record.getAddressInfo().getLatitude())
-			.lng(record.getAddressInfo().getLongitude())
-			.content(record.getContents().getContent())
-			.imageUrl(record.getContents().getImageUrl())
-			.title(record.getContents().getTitle())
-			// TODO : 로그인 구현후 추가
-			// .nickName(record.getUser().getNickName())
-			.build();
+		return createRecordDetailResponse(record);
 	}
 
 	@Transactional
@@ -85,7 +70,8 @@ public class RecordService {
 		record.connect(null, addressInfo, contents);
 		recordRepository.save(record);
 		// TODO : 무한 참조 발생, DTO 생성후 수정
-		// redisService.saveRecordsInRedis(request.getLat(), request.getLng(), record);
+		createRecordDetailResponse(record);
+		redisService.savePlacesInRedis(request.getLat(), request.getLng(), createRecordDetailResponse(record), "record", record.getCat2());
 	}
 
 	@Transactional
@@ -133,5 +119,25 @@ public class RecordService {
 			addressInfoRepository.delete(oldAddress);
 		}
 		recordRepository.delete(record);
+	}
+
+
+	private RecordDetailResponse createRecordDetailResponse(Record record) {
+		return RecordDetailResponse.builder()
+			.id(record.getId())
+			.cat1(record.getCat1())
+			.cat2(record.getCat2())
+			.createdAt(record.getCreatedAt())
+			.address(record.getAddressInfo().getAddress())
+			.addressDetail(record.getAddressInfo().getAddressDetail())
+			.zipcode(record.getAddressInfo().getZipcode())
+			.lat(record.getAddressInfo().getLatitude())
+			.lng(record.getAddressInfo().getLongitude())
+			.content(record.getContents().getContent())
+			.imageUrl(record.getContents().getImageUrl())
+			.title(record.getContents().getTitle())
+			// TODO : 로그인 구현후 추가
+			// .nickName(record.getUser().getNickName())
+			.build();
 	}
 }

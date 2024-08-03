@@ -3,7 +3,7 @@ spring:
     include: oauth
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${TMP_SQL_URL}
+    url: ${SQL_URL}
     username: ${SQL_USERNAME}
     password: ${SQL_PASSWORD}
   jpa:
