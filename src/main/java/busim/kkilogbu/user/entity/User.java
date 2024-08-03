@@ -22,6 +22,8 @@ import lombok.NoArgsConstructor;
 @Table
 @NoArgsConstructor(access = PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor
 public class User {
 	@Id @GeneratedValue
 	private Long id;
@@ -38,12 +40,5 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
-	@Builder
-	public User(String username, String nickname, Long category, LocalDateTime createdAt, boolean agreePrivacy) {
-		this.username = username;
-		this.nickname = nickname;
-		this.category = category;
-		this.createdAt = createdAt;
-		this.agreePrivacy = agreePrivacy;
-	}
+
 }
