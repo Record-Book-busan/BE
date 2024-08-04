@@ -71,7 +71,8 @@ public class RecordService {
 		recordRepository.save(record);
 		// TODO : 무한 참조 발생, DTO 생성후 수정
 		createRecordDetailResponse(record);
-		redisService.savePlacesInRedis(request.getLat(), request.getLng(), createRecordDetailResponse(record), "record", record.getCat2());
+		redisService.savePlacesInRedis(request.getLat(), request.getLng(), createRecordDetailResponse(record), "record",
+			record.getCat2());
 	}
 
 	@Transactional

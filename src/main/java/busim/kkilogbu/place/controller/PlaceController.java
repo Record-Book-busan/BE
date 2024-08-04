@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.place.service.PlaceService;
@@ -30,7 +31,7 @@ public class PlaceController {
 	 * 장소 목록 조회
 	 */
 	@GetMapping
-	public ResponseEntity<List<Object>> getPlace(@PathParam("lat") double lat, @PathParam("lng") double lng,
+	public ResponseEntity<List<Cluster>> getPlace(@PathParam("lat") double lat, @PathParam("lng") double lng,
 		@PathParam("radius") double radius, @PathParam("category") Long category) {
 		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, radius, "place", category));
 	}

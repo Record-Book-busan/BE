@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
@@ -30,13 +31,8 @@ public class RecordController {
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
 
-	// @GetMapping
-	// public ResponseEntity<List<Record>> getRecord(@PathParam("lat1") double lat1, @PathParam("lng1") double lng1, @PathParam("lat2") double lat2, @PathParam("lng2") double lng2){
-	// 	return ResponseEntity.ok(service.getRecords(lat1, lng1, lat2, lng2));
-	// }
-
 	@GetMapping
-	public ResponseEntity<List<Object>> getRecordInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
+	public ResponseEntity<List<Cluster>> getRecordInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
 		@PathParam("radius") double radius, @PathParam("category") Long category) {
 		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, radius, "record", category));
 	}
