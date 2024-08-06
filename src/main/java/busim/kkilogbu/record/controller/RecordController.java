@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import busim.kkilogbu.bookmark.service.BookmarkService;
+import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
-import busim.kkilogbu.record.entity.Record;
 import busim.kkilogbu.record.service.RecordService;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
@@ -27,20 +28,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RecordController {
 	private final RecordService service;
+	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
 
 	@GetMapping
-	public ResponseEntity<List<Record>> getPlace(@PathParam("lat1") double lat1, @PathParam("lng1") double lng1, @PathParam("lat2") double lat2, @PathParam("lng2") double lng2){
-		return ResponseEntity.ok(service.getRecords(lat1, lng1, lat2, lng2));
+	public ResponseEntity<List<Cluster>> getRecordInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
+		@PathParam("radius") double radius, @PathParam("category") Long category) {
+		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, radius, "record", category));
 	}
 
 	@GetMapping("/{markId}")
-	public ResponseEntity<RecordDetailResponse> getPlaceDetail(@PathVariable Long markId){
+	public ResponseEntity<RecordDetailResponse> getRecordDetail(@PathVariable Long markId){
 		return ResponseEntity.ok(service.getPlaceDetail(markId));
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createPlace(@RequestBody @Valid CreateRecordRequest request) {
+	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
 		service.createRecord(request);
 		return ResponseEntity.ok().build();
 	}

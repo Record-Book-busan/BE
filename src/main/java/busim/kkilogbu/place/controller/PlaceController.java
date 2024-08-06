@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import busim.kkilogbu.bookmark.service.BookmarkService;
+import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.place.service.PlaceService;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,20 +24,22 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/place")
 public class PlaceController {
 	private final PlaceService placeService;
+	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
+
 	/**
 	 * 장소 목록 조회
 	 */
 	@GetMapping
-	public List<Place> getPlace(){
-		return null;
+	public ResponseEntity<List<Cluster>> getPlace(@PathParam("lat") double lat, @PathParam("lng") double lng,
+		@PathParam("radius") double radius, @PathParam("category") Long category) {
+		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, radius, "place", category));
 	}
 
 	/**
 	 * 장소 상세 조회
 	 *
 	 */
-
 	@GetMapping("/{placeId}")
 	public ResponseEntity<PlaceDetailResponse> getPlaceDetail(@PathVariable("placeId") Long placeId) {
 		return ResponseEntity.ok(placeService.getPlaceDetail(placeId));
