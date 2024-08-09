@@ -1,9 +1,7 @@
 package busim.kkilogbu.api.ParkingAPI.controller;
 
-import busim.kkilogbu.api.ParkingAPI.domain.entity.ParkingData;
 import busim.kkilogbu.api.ParkingAPI.service.ParkingDataService;
 
-import busim.kkilogbu.api.ParkingAPI.service.ParkingLocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Slf4j
 @RestController
 @RequestMapping("/api/parking")
@@ -25,13 +21,13 @@ public class ParkingDataController {
 
     private final ParkingDataService parkingDataService;
 
-    private final ParkingLocationService parkingLocationService;
+   // private final ParkingLocationService parkingLocationService;
 
     @GetMapping("/nearby")
-    public ResponseEntity<List<ParkingData>> getNearbyParking(@RequestParam(name = "latitude") double latitude, @RequestParam(name = "longitude") double longitude) {
+    public void getNearbyParking(@RequestParam(name = "latitude") double latitude, @RequestParam(name = "longitude") double longitude) {
         log.info("위도: " + latitude + ", 경도: " + longitude);
-        List<ParkingData> parkingData = parkingLocationService.findParkingWithinRadius(latitude, longitude);
-        return new ResponseEntity<>(parkingData, HttpStatus.OK);
+      //  List<ParkingData> parkingData = parkingLocationService.findParkingWithinRadius(latitude, longitude);
+    //    return new ResponseEntity<>(parkingData, HttpStatus.OK);
     }
 
     @GetMapping("/fetch-and-save")
