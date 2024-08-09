@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
+import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class RecordService {
 	private final RecordRepository recordRepository;
 	private final AddressInfoRepository addressInfoRepository;
+	private final RedisService redisService;
 
 	// TODO : 주변 반경 설정이 있으면 좋을거 같기두 하고 아닌거 같기두 하고(1km당 0.01+-)
 	public List<Record> getRecords(double lat1, double lng1, double lat2, double lng2){
@@ -39,22 +41,7 @@ public class RecordService {
 			// TODO : custom exception 추가?
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
-		return RecordDetailResponse.builder()
-			.id(record.getId())
-			.cat1(record.getCat1())
-			.cat2(record.getCat2())
-			.createdAt(record.getCreatedAt())
-			.address(record.getAddressInfo().getAddress())
-			.addressDetail(record.getAddressInfo().getAddressDetail())
-			.zipcode(record.getAddressInfo().getZipcode())
-			.lat(record.getAddressInfo().getLatitude())
-			.lng(record.getAddressInfo().getLongitude())
-			.content(record.getContents().getContent())
-			.imageUrl(record.getContents().getImageUrl())
-			.title(record.getContents().getTitle())
-			// TODO : 로그인 구현후 추가
-			// .nickName(record.getUser().getNickName())
-			.build();
+		return createRecordDetailResponse(record);
 	}
 
 	@Transactional
@@ -82,6 +69,10 @@ public class RecordService {
 		// TODO : 로그인 기능 제작후 수정
 		record.connect(null, addressInfo, contents);
 		recordRepository.save(record);
+		// TODO : 무한 참조 발생, DTO 생성후 수정
+		createRecordDetailResponse(record);
+		redisService.savePlacesInRedis(request.getLat(), request.getLng(), createRecordDetailResponse(record), "record",
+			record.getCat2());
 	}
 
 	@Transactional
@@ -129,5 +120,25 @@ public class RecordService {
 			addressInfoRepository.delete(oldAddress);
 		}
 		recordRepository.delete(record);
+	}
+
+
+	private RecordDetailResponse createRecordDetailResponse(Record record) {
+		return RecordDetailResponse.builder()
+			.id(record.getId())
+			.cat1(record.getCat1())
+			.cat2(record.getCat2())
+			.createdAt(record.getCreatedAt())
+			.address(record.getAddressInfo().getAddress())
+			.addressDetail(record.getAddressInfo().getAddressDetail())
+			.zipcode(record.getAddressInfo().getZipcode())
+			.lat(record.getAddressInfo().getLatitude())
+			.lng(record.getAddressInfo().getLongitude())
+			.content(record.getContents().getContent())
+			.imageUrl(record.getContents().getImageUrl())
+			.title(record.getContents().getTitle())
+			// TODO : 로그인 구현후 추가
+			// .nickName(record.getUser().getNickName())
+			.build();
 	}
 }
