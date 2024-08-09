@@ -58,8 +58,8 @@ public class ParkingDataService {
                             .tenMin(item.path("tenMin").asInt())
                             .ftDay(item.path("ftDay").asInt())
                             .ftMon(item.path("ftMon").asInt())
-                            .xCdnt(item.path("xCdnt").asDouble())
-                            .yCdnt(item.path("yCdnt").asDouble())
+                            .yCdnt(item.path("xCdnt").asDouble()) // xCdnt와 yCdnt 위치 변경
+                            .xCdnt(item.path("yCdnt").asDouble()) // xCdnt와 yCdnt 위치 변경
                             .fnlDt(item.path("fnlDt").asText())
                             .pkGubun(item.path("pkGubun").asText())
                             .build();

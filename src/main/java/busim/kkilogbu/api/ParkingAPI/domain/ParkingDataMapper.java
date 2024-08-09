@@ -19,8 +19,8 @@ public class ParkingDataMapper {
                 .tenMin(dto.getTenMin())
                 .ftDay(dto.getFtDay())
                 .ftMon(dto.getFtMon())
-                .xCdnt(dto.getXCdnt())
-                .yCdnt(dto.getYCdnt())
+                .xCdnt(dto.getYCdnt()) // xCdnt와 yCdnt 위치 변경
+                .yCdnt(dto.getXCdnt()) // xCdnt와 yCdnt 위치 변경
                 .fnlDt(dto.getFnlDt())
                 .pkGubun(dto.getPkGubun())
                 .build();
@@ -40,8 +40,8 @@ public class ParkingDataMapper {
                 .tenMin(entity.getTenMin())
                 .ftDay(entity.getFtDay())
                 .ftMon(entity.getFtMon())
-                .xCdnt(entity.getXCdnt())
-                .yCdnt(entity.getYCdnt())
+                .xCdnt(entity.getYCdnt()) // xCdnt와 yCdnt 위치 변경
+                .yCdnt(entity.getXCdnt()) // xCdnt와 yCdnt 위치 변경
                 .fnlDt(entity.getFnlDt())
                 .pkGubun(entity.getPkGubun())
                 .build();

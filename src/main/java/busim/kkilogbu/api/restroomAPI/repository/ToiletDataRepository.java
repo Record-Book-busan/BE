@@ -11,8 +11,9 @@ public interface ToiletDataRepository extends JpaRepository<ToiletData, Long> {
 
 
     @Query(value = "SELECT *, (6371 * acos(cos(radians(:latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:longitude)) + sin(radians(:latitude)) * sin(radians(latitude)))) AS distance " +
-            "FROM toilets " +
+            "FROM toilet_data " +
             "HAVING distance <= 1 " +
             "ORDER BY distance", nativeQuery = true)
     List<ToiletData> findToiletsWithinRadius(@Param("latitude") double latitude, @Param("longitude") double longitude);
+
 }
