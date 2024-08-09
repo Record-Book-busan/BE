@@ -24,21 +24,29 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor
-public class User {
+public class Users {
 	@Id @GeneratedValue
 	private Long id;
+	private String email;
+	private String provider;
 	private String username;
 	private String nickname;
 	private Long category;
 	private LocalDateTime createdAt;
+	private String refreshToken;
 
+	public void createRefreshToken(String refreshToken){
+		if(refreshToken != null){
+			this.refreshToken = refreshToken;
+		}
+	}
 	//약관 동의 체크
 	private boolean agreePrivacy;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "users")
 	private List<Record> records = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "users")
 	private List<Bookmark> bookmarks = new ArrayList<>();
 
 }
