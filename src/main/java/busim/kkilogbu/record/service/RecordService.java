@@ -138,7 +138,7 @@ public class RecordService {
 			.imageUrl(record.getContents().getImageUrl())
 			.title(record.getContents().getTitle())
 			// TODO : 로그인 구현후 추가
-			// .nickName(record.getUser().getNickName())
+			// .nickName(record.getUsers().getNickName())
 			.build();
 	}
 }

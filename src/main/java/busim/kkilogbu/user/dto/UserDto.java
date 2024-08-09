@@ -1,12 +1,10 @@
 package busim.kkilogbu.user.dto;
 
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -20,8 +18,8 @@ public class UserDto {
     private String nickname;
 
 
-    public User toUser(UserDto userDto){
-        return User.builder()
+    public Users toUser(UserDto userDto){
+        return Users.builder()
                 .id(id)
                 .username(userDto.username)
                 .nickname(userDto.nickname)

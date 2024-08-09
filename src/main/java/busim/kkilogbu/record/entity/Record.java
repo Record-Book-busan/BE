@@ -13,8 +13,7 @@ import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.Category1;
-import busim.kkilogbu.user.entity.User;
-import jakarta.persistence.CascadeType;
+import busim.kkilogbu.user.entity.Users;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -38,7 +37,7 @@ public class Record {
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")
-	private User user;
+	private Users users;
 
 	@Enumerated(STRING)
 	private Category1 cat1;
@@ -60,10 +59,10 @@ public class Record {
 	)
 	private List<Bookmark> bookmark = new ArrayList<>();
 
-	public void connect(User user, AddressInfo addressInfo, Contents contents) {
+	public void connect(Users users, AddressInfo addressInfo, Contents contents) {
 		// TODO : 로그인 구현시 추가
-		// this.user = user;
-		// user.getRecords().add(this);
+		// this.users = users;
+		// users.getRecords().add(this);
 		this.addressInfo = addressInfo;
 		addressInfo.getRecord().add(this);
 		this.contents = contents;
