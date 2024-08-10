@@ -146,7 +146,14 @@ public class RedisService {
 	}
 	public <T> List<T> getPublicPlacesList(double lat, double lng, double radius, Class<T> type){
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo:" + (type.isInstance(ToiletDataResponse.class) ? "toilet" : "park");
+		String key = "geo";
+		if(type == ToiletDataResponse.class){
+			key += ":toilet";
+		}else if(type == ParkingDataResponse.class){
+			key += ":park";
+		}else{
+			throw new BaseException("지원하지 않는 타입입니다", BAD_GATEWAY);
+		}
 		Point point = new Point(lng, lat);
 		Circle circle = new Circle(point, new Distance(radius, KILOMETERS));
 
@@ -189,6 +196,7 @@ public class RedisService {
 		List<ParkingData> all = parkingRepository.findAll();
 		all.forEach(parking -> {
 			ParkingDataResponse input = ParkingDataResponse.builder()
+				// TODO : 변수명이 너무 복잡함
 				.id(parking.getId())
 				.lat(parking.getXCdnt())
 				.lng(parking.getYCdnt())
