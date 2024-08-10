@@ -1,3 +1,4 @@
+
 	package busim.kkilogbu.global.config;
 
 	import org.springframework.beans.factory.annotation.Value;
