@@ -22,6 +22,9 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import busim.kkilogbu.api.ParkingAPI.domain.dto.ParkingDataResponse;
+import busim.kkilogbu.api.ParkingAPI.domain.entity.ParkingData;
+import busim.kkilogbu.api.ParkingAPI.repository.ParkingRepository;
 import busim.kkilogbu.api.restroomAPI.domain.dto.ToiletDataResponse;
 import busim.kkilogbu.api.restroomAPI.domain.entity.ToiletData;
 import busim.kkilogbu.api.restroomAPI.repository.ToiletDataRepository;
@@ -40,6 +43,7 @@ public class RedisService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 	private final ToiletDataRepository toiletDataRepository;
+	private final ParkingRepository parkingRepository;
 	/**
 	 * redis에 위치 정보 저장
 	 */
@@ -140,9 +144,9 @@ public class RedisService {
 			return 8; // 높은 precision (작은 클러스터)
 		}
 	}
-	public List<ToiletDataResponse> getToiletList(double lat, double lng, double radius){
+	public <T> List<T> getPublicPlacesList(double lat, double lng, double radius, Class<T> type){
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo:toilet";
+		String key = "geo:" + (type.isInstance(ToiletDataResponse.class) ? "toilet" : "park");
 		Point point = new Point(lng, lat);
 		Circle circle = new Circle(point, new Distance(radius, KILOMETERS));
 
@@ -154,7 +158,7 @@ public class RedisService {
 			.map(RedisGeoCommands.GeoLocation::getName)
 			.map(json -> {
 				try {
-					return objectMapper.readValue(json, ToiletDataResponse.class);
+					return objectMapper.readValue(json, type);
 				} catch (IOException e) {
 					e.printStackTrace();
 					return null;
@@ -178,6 +182,27 @@ public class RedisService {
 				.toiletName(toilet.getToiletName())
 				.build();
 			this.savePlacesInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet", null);
+		});
+	}
+
+	public void saveParkDataInRedis() {
+		List<ParkingData> all = parkingRepository.findAll();
+		all.forEach(parking -> {
+			ParkingDataResponse input = ParkingDataResponse.builder()
+				.id(parking.getId())
+				.lat(parking.getXCdnt())
+				.lng(parking.getYCdnt())
+				.jibunAddr(parking.getJibunAddr())
+				.pkFm(parking.getPkFm())
+				.pkCnt(parking.getPkCnt())
+				.svcSrtTe(parking.getSvcSrtTe())
+				.svcEndTe(parking.getSvcEndTe())
+				.tenMin(parking.getTenMin())
+				.ftDay(parking.getFtDay())
+				.ftMon(parking.getFtMon())
+				.pkGubun(parking.getPkGubun())
+				.build();
+			this.savePlacesInRedis(parking.getXCdnt(), parking.getYCdnt(), input, "park", null);
 		});
 	}
 }

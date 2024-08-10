@@ -46,7 +46,8 @@ public class ToiletDataController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ToiletDataResponse>> getNearToilets(@PathParam("latitude") double lat, @PathParam("longitude") double lng, @PathParam("radius") double radius) {
-        return ResponseEntity.ok(redisService.getToiletList(lat, lng, radius));
+    public ResponseEntity<List<ToiletDataResponse>> getNearToilets(@PathParam("latitude") double lat,
+        @PathParam("longitude") double lng, @PathParam("radius") double radius) {
+        return ResponseEntity.ok(redisService.getPublicPlacesList(lat, lng, radius, ToiletDataResponse.class));
     }
 }
