@@ -32,7 +32,9 @@ import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
+import busim.kkilogbu.place.repository.PlaceRepository;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
+import busim.kkilogbu.record.repository.RecordRepository;
 import ch.hsr.geohash.GeoHash;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
+	private final RecordRepository recordRepository;
+	private final PlaceRepository placeRepository;
 	private final ToiletDataRepository toiletDataRepository;
 	private final ParkingRepository parkingRepository;
 
@@ -158,6 +162,26 @@ public class RedisService {
 				.build();
 			saveTotalPlaceInRedis(parking.getXCdnt(), parking.getYCdnt(), input, "park", null);
 		});
+	}
+	public void saveRecordDataInRedis(){
+		List<RecordDetailResponse> all = recordRepository.findAll().stream()
+			.map(record -> RecordDetailResponse.builder()
+				.id(record.getId())
+				.lat(record.getAddressInfo().getLatitude())
+				.lng(record.getAddressInfo().getLongitude())
+				.build())
+			.toList();
+		all.forEach(record -> saveTotalPlaceInRedis(record.getLat(), record.getLng(), record, "record", record.getId()));
+	}
+	public void savePlaceDataInRedis(){
+		List<PlaceDetailResponse> all = placeRepository.findAll().stream()
+			.map(place -> PlaceDetailResponse.builder()
+				.id(place.getId())
+				.lat(place.getAddressInfo().getLatitude())
+				.lng(place.getAddressInfo().getLongitude())
+				.build())
+			.toList();
+		all.forEach(place -> saveTotalPlaceInRedis(place.getLat(), place.getLng(), place, "place", place.getId()));
 	}
 
 	/*--------------- front 와 논의후 사용결정 ------------------*/
