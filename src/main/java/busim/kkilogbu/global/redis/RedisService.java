@@ -54,8 +54,8 @@ public class RedisService {
 	 * cluster 생성 책임을 front에게 넘김
 	 */
 	public <T> List<T> getPlacesInRedis(double lat, double lng, ZoomLevel level, Class<T> type, Long category){
-		String key = "geo:" + ((type == RecordDetailResponse.class)? "record" : "place") + ":" + category;
-		log.info("key : {}", key);
+		String key = "geo:" + getRedisKeyByType(type) + ":" + category;
+
 		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = getGeoResultsInRedis(
 			lat, lng, level, key);
 
@@ -64,7 +64,7 @@ public class RedisService {
 	}
 
 	public <T> List<T> getPublicPlacesInRedis(double lat, double lng, ZoomLevel level, Class<T> type){
-		String key = (type == ToiletDataResponse.class) ? "geo:toilet" : "geo:park";
+		String key = "geo:" + getRedisKeyByType(type);
 
 		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = getGeoResultsInRedis(
 			lat, lng, level, key);
@@ -72,6 +72,19 @@ public class RedisService {
 		// 조회된 결과를 ToiletDataResponse 객체로 변환
 		return changeGeoHashToClassType(type, geoResults);
 	}
+	public String getRedisKeyByType(Class type){
+		if(type == RecordDetailResponse.class) {
+			return "record";
+		}else if(type == PlaceDetailResponse.class) {
+			return "place";
+		}else if(type == ToiletDataResponse.class) {
+			return "toilet";
+		}else if(type == ParkingDataResponse.class) {
+			return "park";
+		}
+		throw new BaseException("type이 없습니다.", BAD_REQUEST);
+	}
+
 
 	private List<GeoResult<RedisGeoCommands.GeoLocation<String>>> getGeoResultsInRedis(double lat, double lng, ZoomLevel level,
 		String key) {
@@ -103,11 +116,11 @@ public class RedisService {
 	 */
 	public void saveTotalPlaceInRedis(double lat, double lng, Object object, String type, Long category) {
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "";
+		String key = "geo:";
 		if(type.equals("record") || type.equals("place")) {
-			key = "geo:" + type + ":" + category;
+			key = type + ":" + category;
 		}else if(type.equals("toilet") || type.equals("park")){
-			key = "geo:" + type;
+			key = type;
 		}
 		else if(!StringUtils.hasText(type)) {
 			log.error("type이 없습니다.");
@@ -117,7 +130,6 @@ public class RedisService {
 		try {
 			String input = objectMapper.writeValueAsString(object);
 			log.info("input : {}", input);
-			log.info("point : {}", point.toString());
 			Long added = geoOperations.add(key, point, input);
 			log.info("Added {} elements to {}", added, key);
 		} catch (JsonProcessingException e) {
