@@ -5,7 +5,7 @@ import java.util.List;
 import busim.kkilogbu.api.ParkingAPI.domain.dto.ParkingDataResponse;
 import busim.kkilogbu.api.ParkingAPI.service.ParkingDataService;
 
-import busim.kkilogbu.api.restroomAPI.domain.dto.ToiletDataResponse;
+import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class ParkingDataController {
 
     @GetMapping
     public ResponseEntity<List<ParkingDataResponse>> getNearToilets(@PathParam("latitude") double lat,
-        @PathParam("longitude") double lng, @PathParam("radius") double radius) {
-        return ResponseEntity.ok(redisService.getPublicPlacesList(lat, lng, radius, ParkingDataResponse.class));
+        @PathParam("longitude") double lng, @PathParam("level") ZoomLevel level) {
+        return ResponseEntity.ok(redisService.getPublicPlacesInRedis(lat, lng, level, ParkingDataResponse.class));
     }
 }

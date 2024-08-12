@@ -29,6 +29,7 @@ import busim.kkilogbu.api.restroomAPI.domain.dto.ToiletDataResponse;
 import busim.kkilogbu.api.restroomAPI.domain.entity.ToiletData;
 import busim.kkilogbu.api.restroomAPI.repository.ToiletDataRepository;
 import busim.kkilogbu.global.Ex.BaseException;
+import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
@@ -44,10 +45,59 @@ public class RedisService {
 	private final ObjectMapper objectMapper;
 	private final ToiletDataRepository toiletDataRepository;
 	private final ParkingRepository parkingRepository;
+
+	/**
+	 * cluster 생성 책임을 front에게 넘김
+	 */
+	public <T> List<T> getPlacesInRedis(double lat, double lng, ZoomLevel level, Class<T> type, Long category){
+		String key = "geo:" + ((type == RecordDetailResponse.class)? "record" : "place") + ":" + category;
+		log.info("key : {}", key);
+		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = getGeoResultsInRedis(
+			lat, lng, level, key);
+
+		// 조회된 결과를 RecordDetail 또는 PlaceDetail 객체로 변환
+		return changeGeoHashToClassType(type, geoResults);
+	}
+
+	public <T> List<T> getPublicPlacesInRedis(double lat, double lng, ZoomLevel level, Class<T> type){
+		String key = (type == ToiletDataResponse.class) ? "geo:toilet" : "geo:park";
+
+		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = getGeoResultsInRedis(
+			lat, lng, level, key);
+
+		// 조회된 결과를 ToiletDataResponse 객체로 변환
+		return changeGeoHashToClassType(type, geoResults);
+	}
+
+	private List<GeoResult<RedisGeoCommands.GeoLocation<String>>> getGeoResultsInRedis(double lat, double lng, ZoomLevel level,
+		String key) {
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		Point point = new Point(lng, lat);
+		Circle circle = new Circle(point, new Distance(level.getKilometer(), KILOMETERS));
+
+		return geoOperations.radius(key, circle).getContent();
+	}
+
+	private <T> List<T> changeGeoHashToClassType(Class<T> type, List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults) {
+		return geoResults.stream()
+			.map(GeoResult::getContent)
+			.map(RedisGeoCommands.GeoLocation::getName)
+			.map(json -> {
+				try {
+					return objectMapper.readValue(json, type);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return null;
+				}
+			})
+			.filter(Objects::nonNull) // null 필터링
+			.collect(Collectors.toList());
+	}
+
 	/**
 	 * redis에 위치 정보 저장
 	 */
-	public void savePlacesInRedis(double lat, double lng, Object object, String type, Long category) {
+	public void saveTotalPlaceInRedis(double lat, double lng, Object object, String type, Long category) {
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
 		String key = "";
 		if(type.equals("record") || type.equals("place")) {
@@ -72,13 +122,53 @@ public class RedisService {
 	}
 
 	/**
+	 * 화장실 데이터를 Redis에 저장
+	 */
+	public void saveToiletDataInRedis() {
+		List<ToiletData> all = toiletDataRepository.findAll();
+		all.forEach(toilet -> {
+			ToiletDataResponse input = ToiletDataResponse.builder()
+				.latitude(toilet.getLatitude())
+				.longitude(toilet.getLongitude())
+				.phoneNumber(toilet.getPhoneNumber())
+				.openingHours(toilet.getOpeningHours())
+				.toiletName(toilet.getToiletName())
+				.build();
+			saveTotalPlaceInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet", null);
+		});
+	}
+
+	public void saveParkDataInRedis() {
+		List<ParkingData> all = parkingRepository.findAll();
+		all.forEach(parking -> {
+			ParkingDataResponse input = ParkingDataResponse.builder()
+				// TODO : 변수명이 너무 복잡함
+				.id(parking.getId())
+				.lat(parking.getXCdnt())
+				.lng(parking.getYCdnt())
+				.jibunAddr(parking.getJibunAddr())
+				.pkFm(parking.getPkFm())
+				.pkCnt(parking.getPkCnt())
+				.svcSrtTe(parking.getSvcSrtTe())
+				.svcEndTe(parking.getSvcEndTe())
+				.tenMin(parking.getTenMin())
+				.ftDay(parking.getFtDay())
+				.ftMon(parking.getFtMon())
+				.pkGubun(parking.getPkGubun())
+				.build();
+			saveTotalPlaceInRedis(parking.getXCdnt(), parking.getYCdnt(), input, "park", null);
+		});
+	}
+
+	/*--------------- front 와 논의후 사용결정 ------------------*/
+	/**
 	 * redis에 위치 정보 조회
 	 */
-	public List<Cluster> getPlacesInRedis(double lat, double lng, double radius, String type, Long category){
+	public List<Cluster> getPlacesInRedis(double lat, double lng, ZoomLevel level, String type, Long category){
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
 		String key = "geo:" + type + ":" + category;
 		Point point = new Point(lng, lat);
-		Circle circle = new Circle(point, new Distance(radius, KILOMETERS));
+		Circle circle = new Circle(point, new Distance(level.getKilometer(), KILOMETERS));
 
 		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = geoOperations.radius(key, circle).getContent();
 
@@ -143,74 +233,5 @@ public class RedisService {
 		} else {
 			return 8; // 높은 precision (작은 클러스터)
 		}
-	}
-	public <T> List<T> getPublicPlacesList(double lat, double lng, double radius, Class<T> type){
-		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo";
-		if(type == ToiletDataResponse.class){
-			key += ":toilet";
-		}else if(type == ParkingDataResponse.class){
-			key += ":park";
-		}else{
-			throw new BaseException("지원하지 않는 타입입니다", BAD_GATEWAY);
-		}
-		Point point = new Point(lng, lat);
-		Circle circle = new Circle(point, new Distance(radius, KILOMETERS));
-
-		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = geoOperations.radius(key, circle).getContent();
-
-		// 조회된 결과를 ToiletDataResponse 객체로 변환
-		return geoResults.stream()
-			.map(GeoResult::getContent)
-			.map(RedisGeoCommands.GeoLocation::getName)
-			.map(json -> {
-				try {
-					return objectMapper.readValue(json, type);
-				} catch (IOException e) {
-					e.printStackTrace();
-					return null;
-				}
-			})
-			.filter(Objects::nonNull) // null 필터링
-			.collect(Collectors.toList());
-	}
-
-	/**
-	 * 화장실 데이터를 Redis에 저장
-	 */
-	public void saveToiletDataInRedis() {
-		List<ToiletData> all = toiletDataRepository.findAll();
-		all.forEach(toilet -> {
-			ToiletDataResponse input = ToiletDataResponse.builder()
-				.latitude(toilet.getLatitude())
-				.longitude(toilet.getLongitude())
-				.phoneNumber(toilet.getPhoneNumber())
-				.openingHours(toilet.getOpeningHours())
-				.toiletName(toilet.getToiletName())
-				.build();
-			this.savePlacesInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet", null);
-		});
-	}
-
-	public void saveParkDataInRedis() {
-		List<ParkingData> all = parkingRepository.findAll();
-		all.forEach(parking -> {
-			ParkingDataResponse input = ParkingDataResponse.builder()
-				// TODO : 변수명이 너무 복잡함
-				.id(parking.getId())
-				.lat(parking.getXCdnt())
-				.lng(parking.getYCdnt())
-				.jibunAddr(parking.getJibunAddr())
-				.pkFm(parking.getPkFm())
-				.pkCnt(parking.getPkCnt())
-				.svcSrtTe(parking.getSvcSrtTe())
-				.svcEndTe(parking.getSvcEndTe())
-				.tenMin(parking.getTenMin())
-				.ftDay(parking.getFtDay())
-				.ftMon(parking.getFtMon())
-				.pkGubun(parking.getPkGubun())
-				.build();
-			this.savePlacesInRedis(parking.getXCdnt(), parking.getYCdnt(), input, "park", null);
-		});
 	}
 }
