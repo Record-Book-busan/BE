@@ -60,7 +60,7 @@ public class RedisService {
 			lat, lng, level, key);
 
 		// 조회된 결과를 RecordDetail 또는 PlaceDetail 객체로 변환
-		return changeGeoHashToClassType(type, geoResults);
+		return changeGeoHashToReturnType(type, geoResults);
 	}
 
 	public <T> List<T> getPublicPlacesInRedis(double lat, double lng, ZoomLevel level, Class<T> type){
@@ -70,7 +70,7 @@ public class RedisService {
 			lat, lng, level, key);
 
 		// 조회된 결과를 ToiletDataResponse 객체로 변환
-		return changeGeoHashToClassType(type, geoResults);
+		return changeGeoHashToReturnType(type, geoResults);
 	}
 	public String getRedisKeyByType(Class type){
 		if(type == RecordDetailResponse.class) {
@@ -95,7 +95,7 @@ public class RedisService {
 		return geoOperations.radius(key, circle).getContent();
 	}
 
-	private <T> List<T> changeGeoHashToClassType(Class<T> type, List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults) {
+	private <T> List<T> changeGeoHashToReturnType(Class<T> type, List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults) {
 		return geoResults.stream()
 			.map(GeoResult::getContent)
 			.map(RedisGeoCommands.GeoLocation::getName)
