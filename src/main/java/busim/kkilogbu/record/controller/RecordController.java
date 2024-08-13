@@ -18,6 +18,7 @@ import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
+import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.service.RecordService;
 import jakarta.validation.Valid;
@@ -40,9 +41,9 @@ public class RecordController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<RecordDetailResponse>> getRecordInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
+	public ResponseEntity<List<RecordMarkResponse>> getRecordInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
 		@PathParam("level") ZoomLevel level, @PathParam("category") Long category) {
-		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, RecordDetailResponse.class, category));
+		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, RecordMarkResponse.class, category));
 	}
 
 	@GetMapping("/{markId}")

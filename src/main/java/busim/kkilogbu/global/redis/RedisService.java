@@ -16,7 +16,9 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,8 +34,10 @@ import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
+import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.repository.PlaceRepository;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
+import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.repository.RecordRepository;
 import ch.hsr.geohash.GeoHash;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class RedisService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
@@ -73,9 +78,9 @@ public class RedisService {
 		return changeGeoHashToReturnType(type, geoResults);
 	}
 	public String getRedisKeyByType(Class type){
-		if(type == RecordDetailResponse.class) {
+		if(type == RecordMarkResponse.class) {
 			return "record";
-		}else if(type == PlaceDetailResponse.class) {
+		}else if(type == PlaceMarkResponse.class) {
 			return "place";
 		}else if(type == ToiletDataResponse.class) {
 			return "toilet";
@@ -118,9 +123,9 @@ public class RedisService {
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
 		String key = "geo:";
 		if(type.equals("record") || type.equals("place")) {
-			key = type + ":" + category;
+			key += type + ":" + category;
 		}else if(type.equals("toilet") || type.equals("park")){
-			key = type;
+			key += type;
 		}
 		else if(!StringUtils.hasText(type)) {
 			log.error("type이 없습니다.");
@@ -176,24 +181,49 @@ public class RedisService {
 		});
 	}
 	public void saveRecordDataInRedis(){
-		List<RecordDetailResponse> all = recordRepository.findAll().stream()
-			.map(record -> RecordDetailResponse.builder()
+		List<RecordMarkResponse> all = recordRepository.findAll().stream()
+			.map(record -> RecordMarkResponse.builder()
 				.id(record.getId())
 				.lat(record.getAddressInfo().getLatitude())
 				.lng(record.getAddressInfo().getLongitude())
+				.cat1(record.getCat1())
+				.cat2(record.getCat2())
+				.imageUrl(record.getContents().getImageUrl())
 				.build())
 			.toList();
-		all.forEach(record -> saveTotalPlaceInRedis(record.getLat(), record.getLng(), record, "record", record.getId()));
+		all.forEach(record -> saveTotalPlaceInRedis(record.getLat(), record.getLng(), record, "record", record.getCat2()));
 	}
 	public void savePlaceDataInRedis(){
-		List<PlaceDetailResponse> all = placeRepository.findAll().stream()
-			.map(place -> PlaceDetailResponse.builder()
+		List<PlaceMarkResponse> all = placeRepository.findAll().stream()
+			.map(place -> PlaceMarkResponse.builder()
 				.id(place.getId())
 				.lat(place.getAddressInfo().getLatitude())
 				.lng(place.getAddressInfo().getLongitude())
+				.cat1(place.getCat1())
+				.cat2(place.getCat2())
+				.imageUrl(place.getContents().getImageUrl())
 				.build())
 			.toList();
-		all.forEach(place -> saveTotalPlaceInRedis(place.getLat(), place.getLng(), place, "place", place.getId()));
+		all.forEach(place -> saveTotalPlaceInRedis(place.getLat(), place.getLng(), place, "place", place.getCat2()));
+	}
+
+	@Scheduled(cron = "0 0 0 19 * *", zone = "Asia/Seoul")
+	public void dailyRedisUpdateAt4AM() {
+		deleteKey();
+		saveRecordDataInRedis();
+		savePlaceDataInRedis();
+		saveToiletDataInRedis();
+		saveParkDataInRedis();
+	}
+
+	private void deleteKey() {
+		for (int i = 0; i < 256; i++) {
+			redisTemplate.delete("geo:record:" + i);
+		}
+		redisTemplate.delete("geo:place");
+		redisTemplate.delete("geo:toilet");
+		redisTemplate.delete("geo:park");
+		return ;
 	}
 
 	/*--------------- front 와 논의후 사용결정 ------------------*/

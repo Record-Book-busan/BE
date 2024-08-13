@@ -15,6 +15,7 @@ import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
+import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.service.PlaceService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,9 @@ public class PlaceController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<PlaceDetailResponse>> getPlaceInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
+	public ResponseEntity<List<PlaceMarkResponse>> getPlaceInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
 		@PathParam("level") ZoomLevel level, @PathParam("category") Long category) {
-		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, PlaceDetailResponse.class, category));
+		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, PlaceMarkResponse.class, category));
 	}
 	/**
 	 * 장소 상세 조회
