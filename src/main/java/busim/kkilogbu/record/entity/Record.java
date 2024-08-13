@@ -6,15 +6,17 @@ import static jakarta.persistence.FetchType.*;
 import static lombok.AccessLevel.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.annotation.CreatedDate;
 
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.Category1;
 import busim.kkilogbu.user.entity.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +45,8 @@ public class Record {
 	@Enumerated(STRING)
 	private Category1 cat1;
 	private Long cat2;
-	private LocalDateTime createdAt;
+	@CreatedDate
+	private String createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
 	@OneToOne(mappedBy = "record", fetch = LAZY, cascade = PERSIST, orphanRemoval = true)
 	private Contents contents;
@@ -75,10 +78,9 @@ public class Record {
 	}
 
 	@Builder
-	public Record(Category1 cat1, Long cat2, LocalDateTime createdAt) {
+	public Record(Category1 cat1, Long cat2) {
 		this.cat1 = cat1;
 		this.cat2 = cat2;
-		this.createdAt = createdAt;
 	}
 
 	public void update(Category1 cat1, Long cat2) {
