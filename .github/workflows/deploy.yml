@@ -1,0 +1,66 @@
+name : Deploy To EC2
+
+on:
+    push:
+        branches:
+        - main
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: JDK 17 version install
+          uses: actions/setup-java@v4
+          with:
+            distribution: temurin
+            java-version: 17
+
+        - name: test and build
+          run: ./gradlew clean build
+          working-directory: ./
+          env:
+            SQL_URL: ${{ secrets.DB_URL }}
+            SQL_USERNAME: ${{ secrets.DB_USERNAME }}
+            SQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            REDIS_HOST: ${{ secrets.REDIS_HOST }}
+            REDIS_PORT: ${{ secrets.REDIS_PORT }}
+            AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+            AWS_REGION: ${{ secrets.AWS_REGION }}
+            AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+            AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+            TOUR_INFO_KEY: ${{ secrets.TOUR_INFO_KEY }}
+
+        - name: AWS credential setup
+          uses: aws-actions/configure-aws-credentails@v4
+          with:
+            aws-region: ${{ secrets.AWS_REGION }}
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+
+        - name: ECR login
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+
+        - name: Docker image create
+          run: docker build -t kkilogbu .
+
+        - name: Docker tag
+          run: docker tag kkilogbu:latest ${{ steps.login-ecr.outputs.registry }}/backend:latest
+
+        - name: Docker image push to ECR
+          run: docker push ${{ steps.login-ecr.outputs.registry }}/backend:latest
+
+        - name: EC2 connection with SSH
+          uses: appleboy/ssh-action@v1.0.3
+          with:
+            host: ${{ secrets.EC2_HOST }}
+            username: ${{ secrets.EC2_USERNAME }}
+            key: ${{ secrets.EC2_PRIVATE_KEY }}
+            script: |
+              docker stop kkilogbu || true
+              docker rm kkilogbu || true
+              docker rmi ${{ secrets.EC2_HOST }}/backend:latest || true
+              docker pull ${{ secrets.EC2_HOST }}/backend:latest
+              docker run -d --name kkilogbu 8080:8080 -p ${{ secrets.EC2_HOST }}/backend:latest
