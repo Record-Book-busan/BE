@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import busim.kkilogbu.api.tourInfoAPI.service.TourInfoService;
 import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
@@ -27,6 +28,7 @@ public class PlaceController {
 	private final PlaceService placeService;
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
+	private final TourInfoService tourInfoService;
 
 	/**
 	 * 장소 목록 조회
@@ -45,11 +47,15 @@ public class PlaceController {
 	}
 	/**
 	 * 장소 상세 조회
-	 *
 	 */
 	@GetMapping("/{placeId}")
 	public ResponseEntity<PlaceDetailResponse> getPlaceDetail(@PathVariable("placeId") Long placeId) {
 		return ResponseEntity.ok(placeService.getPlaceDetail(placeId));
+	}
+
+	@GetMapping("/externalApi")
+	public ResponseEntity<List<PlaceDetailResponse>> getExternalApi(){
+		return ResponseEntity.ok(tourInfoService.fetchTourInfoDate());
 	}
 
 	@PostMapping("/{placeId}/bookmark")
