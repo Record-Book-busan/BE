@@ -19,7 +19,9 @@ jobs:
             java-version: 17
 
         - name: test and build
-          run: ./gradlew clean build
+          run: |
+            chmod +x ./gradlew
+            ./gradlew clean build
           working-directory: ./
           env:
             SQL_URL: ${{ secrets.DB_URL }}
