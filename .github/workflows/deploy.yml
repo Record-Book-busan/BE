@@ -64,6 +64,5 @@ jobs:
             script: |
               docker stop kkilogbu || true
               docker rm kkilogbu || true
-              docker rmi ${{ secrets.EC2_HOST }}/backend:latest || true
-              docker pull ${{ secrets.EC2_HOST }}/backend:latest
-              docker run -d --name kkilogbu 8080:8080 -p ${{ secrets.EC2_HOST }}/backend:latest
+              docker pull ${{ steps.login-ecr.outputs.registry }}/backend:latest
+              docker run -d --name kkilogbu 8080:8080 -p ${{ steps.login-ecr.outputs.registry }}/backend:latest
