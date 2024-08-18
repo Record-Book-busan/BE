@@ -47,7 +47,7 @@ jobs:
           run: docker build -t kkilogbu .
 
         - name: Docker tag
-          run: docker tag kkilogbu:latest ${{ steps.login-ecr.outputs.registry }}/backend:latest
+          run: docker tag kkilogbu ${{ steps.login-ecr.outputs.registry }}/backend:latest
 
         - name: Docker image push to ECR
           run: docker push ${{ steps.login-ecr.outputs.registry }}/backend:latest
