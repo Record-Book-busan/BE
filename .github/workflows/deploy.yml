@@ -22,16 +22,6 @@ jobs:
           run: |
             chmod +x ./gradlew
             ./gradlew clean build
-            echo "SQL_URL=${{ secrets.DB_URL }}"
-            echo "SQL_USERNAME=${{ secrets.DB_USERNAME }}"
-            echo "SQL_PASSWORD=${{ secrets.DB_PASSWORD }}"
-            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}"
-            echo "REDIS_PORT=${{ secrets.REDIS_PORT }}"
-            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}"
-            echo "AWS_REGION=${{ secrets.AWS_REGION }}"
-            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}"
-            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}"
-            echo "TOUR_INFO_KEY=${{ secrets.TOUR_INFO_KEY }}"
           working-directory: ./
           env:
             SQL_URL: ${{ secrets.DB_URL }}
@@ -64,6 +54,11 @@ jobs:
 
         - name: Docker image push to ECR
           run: docker push ${{ steps.login-ecr.outputs.registry }}/backend:latest
+
+        - name : make application.yml
+          run : |
+            cd src/main/resources
+            echo ${{secrets.APPLICATION}} > application.yml
 
         - name: EC2 connection with SSH
           uses: appleboy/ssh-action@v1.0.3
