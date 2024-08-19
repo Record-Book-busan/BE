@@ -1,6 +1,7 @@
 package busim.kkilogbu.user.controller;
 
 import busim.kkilogbu.user.dto.UserDto;
+import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -16,27 +17,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
 
+    /**
+     * 유저 정보 조회
+     */
     @GetMapping
-    public ResponseEntity<?> getUserInfo(){
+    public ResponseEntity<UserInfoResponse> getUserInfo(){
         return ResponseEntity.ok(userService.getUserInfo());
     }
 
     @PostMapping
-    public ResponseEntity<Void> userInfo(@RequestBody UserDto user){
-        userService.userInfo(user);
-        return new ResponseEntity(userService.userInfo(user), HttpStatus.OK);
+    public ResponseEntity<?> userInfo(@RequestBody UserDto user){
+        return ResponseEntity.ok(userService.userInfo(user));
     }
 
+    /**
+     * 닉네임 중복 체크
+     */
     @PostMapping("/name/check")
     public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestBody(required = true) String name){
         return ResponseEntity.ok(userService.checkUsernameDuplicate(name));
     }
+
+    /**
+     * 닉네임 변경, 프로필 사진 변경
+     */
     @PostMapping("/name")
     public ResponseEntity<?> changeNickname(@RequestBody(required = true) String name){
         userService.changeUsername(name);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 유저 카테고리 변경
+     */
+    @PostMapping("/category")
+    public ResponseEntity<?> userCategory(@RequestBody(required = true) Long category){
+        userService.changeCategory(category);
         return ResponseEntity.ok().build();
     }
 }

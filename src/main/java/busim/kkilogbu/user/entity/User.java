@@ -31,6 +31,7 @@ public class User {
 	private String nickname;
 	private Long category;
 	private LocalDateTime createdAt;
+	private String ProfileImage;
 
 	//약관 동의 체크
 	private boolean agreePrivacy;
@@ -43,5 +44,8 @@ public class User {
 
 	public void changeUsername(String username) {
 		this.username = username;
+	}
+	public void categoryChange(Long category) {
+		this.category = category;
 	}
 }
