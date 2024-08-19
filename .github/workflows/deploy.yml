@@ -58,7 +58,9 @@ jobs:
         - name : make application.yml
           run : |
             cd src/main/resources
-            echo ${{secrets.APPLICATION}} > application.yml
+            touch application.yml
+            echo "${{secrets.APPLICATION}}" > ./application.yml
+          shell: bash
 
         - name: EC2 connection with SSH
           uses: appleboy/ssh-action@v1.0.3
