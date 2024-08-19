@@ -22,6 +22,16 @@ jobs:
           run: |
             chmod +x ./gradlew
             ./gradlew clean build
+            echo "SQL_URL=${{ secrets.DB_URL }}"
+            echo "SQL_USERNAME=${{ secrets.DB_USERNAME }}"
+            echo "SQL_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}"
+            echo "REDIS_PORT=${{ secrets.REDIS_PORT }}"
+            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}"
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}"
+            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}"
+            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}"
+            echo "TOUR_INFO_KEY=${{ secrets.TOUR_INFO_KEY }}"
           working-directory: ./
           env:
             SQL_URL: ${{ secrets.DB_URL }}
@@ -65,15 +75,4 @@ jobs:
               docker stop kkilogbu || true
               docker rm kkilogbu || true
               docker pull ${{ steps.login-ecr.outputs.registry }}/backend:latest
-              docker run -d --name kkilogbu -p 8080:8080 \
-                      -e SQL_URL=${{ secrets.DB_URL }} \
-                      -e SQL_USERNAME=${{ secrets.DB_USERNAME }} \
-                      -e SQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                      -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-                      -e REDIS_PORT=${{ secrets.REDIS_PORT }} \
-                      -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
-                      -e AWS_REGION=${{ secrets.AWS_REGION }} \
-                      -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
-                      -e AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
-                      -e TOUR_INFO_KEY=${{ secrets.TOUR_INFO_KEY }} \
-                      ${{ steps.login-ecr.outputs.registry }}/backend:latest
+              docker run -d --name kkilogbu -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/backend:latest
