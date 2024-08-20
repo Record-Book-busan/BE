@@ -1,5 +1,6 @@
 package busim.kkilogbu.bookmark.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,5 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 	boolean existsByUserAndPlace(User user, Place place);
 	Optional<Bookmark> findByUserAndRecord(User user, Record record);
 	Optional<Bookmark> findByUserAndPlace(User user, Place place);
+	List<Bookmark> findByUser(User user);
 }

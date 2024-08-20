@@ -2,6 +2,7 @@ package busim.kkilogbu.user.controller;
 
 import java.util.List;
 
+import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.record.service.RecordService;
 import busim.kkilogbu.user.dto.UserDto;
@@ -37,6 +38,14 @@ public class UserController {
     @GetMapping("/myRecord")
     public ResponseEntity<List<MyRecordResponse>> getMyRecord(){
         return ResponseEntity.ok(userService.getMyRecord());
+    }
+
+    /**
+     * 북마크 조회
+     */
+    @GetMapping("/bookmark")
+    public ResponseEntity<List<BookmarkResponse>> getBookmark(){
+        return ResponseEntity.ok(userService.getBookmark());
     }
 
     @PostMapping
