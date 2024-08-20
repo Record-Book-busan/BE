@@ -36,6 +36,7 @@ public class UserController {
      * 내 기록 조회
      */
     @GetMapping("/myRecord")
+    // TODO : pagination 적용?
     public ResponseEntity<List<MyRecordResponse>> getMyRecord(){
         return ResponseEntity.ok(userService.getMyRecord());
     }
@@ -44,6 +45,7 @@ public class UserController {
      * 북마크 조회
      */
     @GetMapping("/bookmark")
+    // TODO : pagination 적용?
     public ResponseEntity<List<BookmarkResponse>> getBookmark(){
         return ResponseEntity.ok(userService.getBookmark());
     }
@@ -65,6 +67,7 @@ public class UserController {
      * 닉네임 변경, 프로필 사진 변경
      */
     @PostMapping("/name")
+    // TODO : 프로필 사진 변경
     public ResponseEntity<?> changeNickname(@RequestBody(required = true) String name){
         userService.changeUsername(name);
         return ResponseEntity.ok().build();
