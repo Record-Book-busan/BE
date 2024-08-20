@@ -42,8 +42,11 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
 
-	public void changeUsername(String username) {
-		this.username = username;
+	public void changeNickname(String nickname) {
+		this.nickname = nickname;
+	}
+	public void changeProfileImage(String profileImage) {
+		this.ProfileImage = profileImage;
 	}
 	public void categoryChange(Long category) {
 		this.category = category;

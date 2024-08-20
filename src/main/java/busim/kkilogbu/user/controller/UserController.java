@@ -4,8 +4,8 @@ import java.util.List;
 
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
-import busim.kkilogbu.record.service.RecordService;
 import busim.kkilogbu.user.dto.UserDto;
+import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final RecordService recordService;
 
     /**
      * 유저 정보 조회
@@ -68,8 +67,8 @@ public class UserController {
      */
     @PostMapping("/name")
     // TODO : 프로필 사진 변경
-    public ResponseEntity<?> changeNickname(@RequestBody(required = true) String name){
-        userService.changeUsername(name);
+    public ResponseEntity<?> changeUserInfo(@RequestBody UserInfoRequest request){
+        userService.changeUserInfo(request);
         return ResponseEntity.ok().build();
     }
 

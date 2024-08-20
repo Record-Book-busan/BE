@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserInfoResponse {
 	private String nickname;
-	private String imageUrl;
+	private String profileImage;
 }

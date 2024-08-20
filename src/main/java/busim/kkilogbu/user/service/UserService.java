@@ -1,11 +1,11 @@
 package busim.kkilogbu.user.service;
 
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
-import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.bookmark.repository.BookmarkRepository;
 import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.user.dto.UserDto;
+import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.User;
 import busim.kkilogbu.user.repository.UserRepository;
@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,14 +27,19 @@ public class UserService {
         return userRepository.save(userDto.toUser(userDto));
     }
 
-    public void changeUsername(String username){
+    public void changeUserInfo(UserInfoRequest request){
         // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
         User tmp = User.builder().build();
 
         User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
             () -> new RuntimeException("존재하지 않는 아이디 입니다")
         );
-        user.changeUsername(username);
+        if(request.getNickname() != null) {
+            user.changeNickname(request.getNickname());
+        }
+        if(request.getProfileImage() != null){
+            user.changeProfileImage(request.getProfileImage());
+        }
     }
 
     public UserInfoResponse getUserInfo() {
@@ -47,7 +51,7 @@ public class UserService {
         );
         return UserInfoResponse.builder()
                 .nickname(user.getNickname())
-                .imageUrl(user.getProfileImage())
+                .profileImage(user.getProfileImage())
         .build();
     }
 
