@@ -1,11 +1,14 @@
 package busim.kkilogbu.user.controller;
 
+import java.util.List;
+
+import busim.kkilogbu.record.dto.MyRecordResponse;
+import busim.kkilogbu.record.service.RecordService;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final RecordService recordService;
 
     /**
      * 유저 정보 조회
@@ -25,6 +29,14 @@ public class UserController {
     @GetMapping
     public ResponseEntity<UserInfoResponse> getUserInfo(){
         return ResponseEntity.ok(userService.getUserInfo());
+    }
+
+    /**
+     * 내 기록 조회
+     */
+    @GetMapping("/myRecord")
+    public ResponseEntity<List<MyRecordResponse>> getMyRecord(){
+        return ResponseEntity.ok(userService.getMyRecord());
     }
 
     @PostMapping
