@@ -39,7 +39,7 @@ public class UserController {
     /**
      * 내 기록 조회
      */
-    @GetMapping("/myRecord")
+    @GetMapping("/record")
     public ResponseEntity<Slice<MyRecordResponse>> getMyRecord(@PageableDefault(size = 10, page = 0) Pageable pageable){
         return ResponseEntity.ok(userService.getMyRecord(pageable));
     }
