@@ -3,10 +3,12 @@ package busim.kkilogbu.user.controller;
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.user.dto.RequestUserCategory;
+import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -58,8 +60,8 @@ public class UserController {
      * 닉네임 중복 체크
      */
     @PostMapping("/name/check")
-    public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestBody(required = true) String name){
-        return ResponseEntity.ok(userService.checkUsernameDuplicate(name));
+    public ResponseEntity<Boolean> checkNicknameDuplicate(@Valid @RequestBody(required = true) RequestUserNickname request){
+        return ResponseEntity.ok(userService.checkUsernameDuplicate(request.getNickName()));
     }
 
     /**
