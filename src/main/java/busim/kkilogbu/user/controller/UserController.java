@@ -67,7 +67,7 @@ public class UserController {
     /**
      * 닉네임 변경, 프로필 사진 변경
      */
-    @PostMapping("/name")
+    @PostMapping("/info")
     // TODO : 프로필 사진 변경
     public ResponseEntity<?> changeUserInfo(@RequestBody UserInfoRequest request){
         userService.changeUserInfo(request);

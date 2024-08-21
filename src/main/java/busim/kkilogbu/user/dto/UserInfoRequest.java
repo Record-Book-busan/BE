@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class UserInfoRequest {
-	private String nickname;
+	private String nickName;
 	private String profileImage;
 }
