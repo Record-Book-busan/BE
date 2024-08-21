@@ -16,9 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
@@ -29,6 +31,7 @@ public class UserService {
         return userRepository.save(userDto.toUser(userDto));
     }
 
+    @Transactional
     public void changeUserInfo(UserInfoRequest request){
         // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
         User tmp = User.builder().build();
@@ -61,9 +64,10 @@ public class UserService {
         return userRepository.existsByNickname(name);
     }
 
+    @Transactional
     public void changeCategory(Long category) {
         // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-        User tmp = User.builder().build();
+        User tmp = User.builder().username("tmp").build();
 
         User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
             () -> new RuntimeException("존재하지 않는 아이디 입니다")

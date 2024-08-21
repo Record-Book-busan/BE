@@ -2,6 +2,7 @@ package busim.kkilogbu.user.controller;
 
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
+import busim.kkilogbu.user.dto.RequestUserCategory;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
@@ -75,8 +76,8 @@ public class UserController {
      * 유저 카테고리 변경
      */
     @PostMapping("/category")
-    public ResponseEntity<?> userCategory(@RequestBody(required = true) Long category){
-        userService.changeCategory(category);
+    public ResponseEntity<?> userCategory(@RequestBody(required = true) RequestUserCategory request){
+        userService.changeCategory(request.getCategory());
         return ResponseEntity.ok().build();
     }
 }
