@@ -72,4 +72,15 @@ jobs:
               docker stop kkilogbu || true
               docker rm kkilogbu || true
               docker pull ${{ steps.login-ecr.outputs.registry }}/backend:latest
-              docker run -d --name kkilogbu -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/backend:latest
+              docker run -d --name kkilogbu 
+                --env SQL_URL=${{ secrets.DB_URL }}
+                --env SQL_USERNAME=${{ secrets.DB_USERNAME }}
+                --env SQL_PASSWORD=${{ secrets.DB_PASSWORD }}
+                --env REDIS_HOST=${{ secrets.REDIS_HOST }}
+                --env REDIS_PORT=${{ secrets.REDIS_PORT }}
+                --env AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+                --env AWS_REGION=${{ secrets.AWS_REGION }}
+                --env AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+                --env AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+                --env TOUR_INFO_KEY=${{ secrets.TOUR_INFO_KEY }}
+                -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/backend:latest
