@@ -9,6 +9,7 @@ import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -47,8 +48,8 @@ public class UserController {
      * 북마크 조회
      */
     @GetMapping("/bookmark")
-    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable){
-        return ResponseEntity.ok(userService.getBookmark(pageable));
+    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable, @PathParam("type") String type){
+        return ResponseEntity.ok(userService.getBookmark(pageable, type));
     }
 
     @PostMapping

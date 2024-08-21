@@ -3,6 +3,7 @@ package busim.kkilogbu.user.service;
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.bookmark.repository.BookmarkRepository;
+import busim.kkilogbu.global.Category1;
 import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.record.entity.Record;
 import busim.kkilogbu.record.repository.RecordRepository;
@@ -97,31 +98,40 @@ public class UserService {
         });
     }
 
-    public Slice<BookmarkResponse> getBookmark(Pageable pageable) {
+    public Slice<BookmarkResponse> getBookmark(Pageable pageable, String type) {
         // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
         User tmp = User.builder().username("tmp").build();
 
          User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
             () -> new RuntimeException("존재하지 않는 아이디 입니다"));
-        Slice<Bookmark> findUserBookmark = bookmarkRepository.findByUser(user, pageable);
-        return findUserBookmark.map((bookmark -> {
-            if(bookmark.isRecord()){
-                return BookmarkResponse.builder()
-                        .id(bookmark.getId())
-                        .title(bookmark.getRecord().getContents().getTitle())
-                        .address(bookmark.getRecord().getAddressInfo().getAddress())
-                        .cat1(bookmark.getRecord().getCat1())
-                        .cat2(bookmark.getRecord().getCat2())
-                        .build();
-            }else{
-                return BookmarkResponse.builder()
-                        .id(bookmark.getId())
-                        .title(bookmark.getPlace().getContents().getTitle())
-                        .address(bookmark.getPlace().getAddressInfo().getAddress())
-                        .cat1(bookmark.getPlace().getCat1())
-                        .cat2(bookmark.getPlace().getCat2())
-                        .build();
-            }
-        }));
+
+         Slice<Bookmark> findUserBookmark = null;
+         if(type.equals("RECORD")){
+            findUserBookmark = bookmarkRepository.findByUserAndRecordIsNotNull(user, pageable);
+            return findUserBookmark.map((bookmark -> {
+                return getBookmarkResponse(bookmark.getId(), bookmark.getRecord().getContents().getTitle(),
+                    bookmark.getRecord().getAddressInfo().getAddress(), bookmark.getRecord().getCat1(),
+                    bookmark.getRecord().getCat2());
+            }));
+         }else if(type.equals("PLACE")){
+            findUserBookmark = bookmarkRepository.findByUserAndPlaceIsNotNull(user, pageable);
+            return findUserBookmark.map((bookmark -> {
+                return getBookmarkResponse(bookmark.getId(), bookmark.getPlace().getContents().getTitle(),
+                    bookmark.getPlace().getAddressInfo().getAddress(), bookmark.getPlace().getCat1(),
+                    bookmark.getPlace().getCat2());
+            }));
+         }else{
+            throw new RuntimeException("잘못된 타입입니다");
+         }
+    }
+
+    private BookmarkResponse getBookmarkResponse(Long id, String title, String address, Category1 cat1, Long cat2) {
+        return BookmarkResponse.builder()
+            .id(id)
+            .title(title)
+            .address(address)
+            .cat1(cat1)
+            .cat2(cat2)
+            .build();
     }
 }
