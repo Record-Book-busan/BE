@@ -18,13 +18,6 @@ jobs:
             distribution: temurin
             java-version: 17
 
-        - name : make application.yml
-          run : |
-            cd src/main/resources
-            touch application.yml
-            echo "${{secrets.APPLICATION}}" > ./application.yml
-          shell: bash
-
         - name: test and build
           run: |
             chmod +x ./gradlew
