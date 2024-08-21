@@ -10,11 +10,15 @@ import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,18 +39,16 @@ public class UserController {
      * 내 기록 조회
      */
     @GetMapping("/myRecord")
-    // TODO : pagination 적용?
-    public ResponseEntity<List<MyRecordResponse>> getMyRecord(){
-        return ResponseEntity.ok(userService.getMyRecord());
+    public ResponseEntity<Slice<MyRecordResponse>> getMyRecord(@PageableDefault(size = 10, page = 0) Pageable pageable){
+        return ResponseEntity.ok(userService.getMyRecord(pageable));
     }
 
     /**
      * 북마크 조회
      */
     @GetMapping("/bookmark")
-    // TODO : pagination 적용?
-    public ResponseEntity<List<BookmarkResponse>> getBookmark(){
-        return ResponseEntity.ok(userService.getBookmark());
+    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable){
+        return ResponseEntity.ok(userService.getBookmark(pageable));
     }
 
     @PostMapping
