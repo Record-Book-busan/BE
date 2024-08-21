@@ -49,7 +49,7 @@ public class UserService {
 
     public UserInfoResponse getUserInfo() {
         // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-        User tmp = User.builder().build();
+        User tmp = User.builder().username("tmp").build();
 
         User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
             () -> new RuntimeException("존재하지 않는 아이디 입니다")
