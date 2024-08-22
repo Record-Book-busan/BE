@@ -19,24 +19,24 @@ jobs:
             java-version: 17
 
         - name: make application.yml
-          run: echo "${{ secrets.APPLICATION }}" > src/main/resources/application.yml
+          run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
 
         - name: test and build
           run: |
             chmod +x ./gradlew
             ./gradlew clean build
-          working-directory: ./
-          env:
-            SQL_URL: ${{ secrets.DB_URL }}
-            SQL_USERNAME: ${{ secrets.DB_USERNAME }}
-            SQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
-            REDIS_HOST: ${{ secrets.REDIS_HOST }}
-            REDIS_PORT: ${{ secrets.REDIS_PORT }}
-            AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-            AWS_REGION: ${{ secrets.AWS_REGION }}
-            AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-            AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-            TOUR_INFO_KEY: ${{ secrets.TOUR_INFO_KEY }}
+#          working-directory: ./
+#          env:
+#            SQL_URL: ${{ secrets.DB_URL }}
+#            SQL_USERNAME: ${{ secrets.DB_USERNAME }}
+#            SQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#            REDIS_HOST: ${{ secrets.REDIS_HOST }}
+#            REDIS_PORT: ${{ secrets.REDIS_PORT }}
+#            AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+#            AWS_REGION: ${{ secrets.AWS_REGION }}
+#            AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+#            AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#            TOUR_INFO_KEY: ${{ secrets.TOUR_INFO_KEY }}
 
         - name: AWS credential setup
           uses: aws-actions/configure-aws-credentials@v4
