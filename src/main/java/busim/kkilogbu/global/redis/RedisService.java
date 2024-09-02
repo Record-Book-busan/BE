@@ -324,21 +324,4 @@ public class RedisService {
 			.filter(Objects::nonNull) // null 필터링
 			.collect(Collectors.toList());
 	}
-
-	/**
-	 * 화장실 데이터를 Redis에 저장
-	 */
-	public void saveToiletDataInRedis() {
-		List<ToiletData> all = toiletDataRepository.findAll();
-		all.forEach(toilet -> {
-			ToiletDataResponse input = ToiletDataResponse.builder()
-				.latitude(toilet.getLatitude())
-				.longitude(toilet.getLongitude())
-				.phoneNumber(toilet.getPhoneNumber())
-				.openingHours(toilet.getOpeningHours())
-				.toiletName(toilet.getToiletName())
-				.build();
-			this.savePlacesInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet", null);
-		});
-	}
 }
