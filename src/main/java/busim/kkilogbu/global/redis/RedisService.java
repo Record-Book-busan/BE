@@ -135,6 +135,7 @@ public class RedisService {
 		try {
 			String input = objectMapper.writeValueAsString(object);
 			log.info("input : {}", input);
+			log.info("point : {}", point.toString());
 			Long added = geoOperations.add(key, point, input);
 			log.info("Added {} elements to {}", added, key);
 		} catch (JsonProcessingException e) {
@@ -299,5 +300,45 @@ public class RedisService {
 		} else {
 			return 8; // 높은 precision (작은 클러스터)
 		}
+	}
+	public List<ToiletDataResponse> getToiletList(double lat, double lng, double radius){
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		String key = "geo:toilet";
+		Point point = new Point(lng, lat);
+		Circle circle = new Circle(point, new Distance(radius, KILOMETERS));
+
+		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = geoOperations.radius(key, circle).getContent();
+
+		// 조회된 결과를 ToiletDataResponse 객체로 변환
+		return geoResults.stream()
+			.map(GeoResult::getContent)
+			.map(RedisGeoCommands.GeoLocation::getName)
+			.map(json -> {
+				try {
+					return objectMapper.readValue(json, ToiletDataResponse.class);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return null;
+				}
+			})
+			.filter(Objects::nonNull) // null 필터링
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * 화장실 데이터를 Redis에 저장
+	 */
+	public void saveToiletDataInRedis() {
+		List<ToiletData> all = toiletDataRepository.findAll();
+		all.forEach(toilet -> {
+			ToiletDataResponse input = ToiletDataResponse.builder()
+				.latitude(toilet.getLatitude())
+				.longitude(toilet.getLongitude())
+				.phoneNumber(toilet.getPhoneNumber())
+				.openingHours(toilet.getOpeningHours())
+				.toiletName(toilet.getToiletName())
+				.build();
+			this.savePlacesInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet", null);
+		});
 	}
 }
