@@ -5,7 +5,7 @@ on:
         branches:
         - main
         - feat/ci_cd
-        -
+        - hotfix
 jobs:
     deploy:
         runs-on: ubuntu-latest
