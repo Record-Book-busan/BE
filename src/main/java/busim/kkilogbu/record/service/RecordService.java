@@ -1,9 +1,5 @@
 package busim.kkilogbu.record.service;
 
-import static java.time.LocalDateTime.*;
-
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +9,7 @@ import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
+import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.entity.Record;
 import busim.kkilogbu.record.repository.RecordRepository;
@@ -25,16 +22,6 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
-
-	// TODO : 주변 반경 설정이 있으면 좋을거 같기두 하고 아닌거 같기두 하고(1km당 0.01+-)
-	public List<Record> getRecords(double lat1, double lng1, double lat2, double lng2){
-		List<AddressInfo> points = addressInfoRepository.findByLatitudeBetweenAndLongitudeBetween(
-			lat1, lng1, lat2, lng2, null);
-		if(!points.isEmpty()) {
-			return null;
-		}
-		return recordRepository.findByAddressInfoIn(points.stream().map(AddressInfo::getId).toList());
-	}
 
 	public RecordDetailResponse getPlaceDetail(Long id){
 		Record record = recordRepository.findFetchById(id).orElseThrow(() -> {
@@ -64,14 +51,11 @@ public class RecordService {
 		Record record = Record.builder()
 			.cat1(request.getCat1())
 			.cat2(request.getCat2())
-			.createdAt(now())
 			.build();
 		// TODO : 로그인 기능 제작후 수정
 		record.connect(null, addressInfo, contents);
 		recordRepository.save(record);
-		// TODO : 무한 참조 발생, DTO 생성후 수정
-		createRecordDetailResponse(record);
-		redisService.savePlacesInRedis(request.getLat(), request.getLng(), createRecordDetailResponse(record), "record",
+		redisService.saveTotalPlaceInRedis(request.getLat(), request.getLng(), createRecordMarkResponse(record), "record",
 			record.getCat2());
 	}
 
@@ -122,7 +106,16 @@ public class RecordService {
 		recordRepository.delete(record);
 	}
 
-
+	private RecordMarkResponse createRecordMarkResponse(Record record) {
+		return RecordMarkResponse.builder()
+			.id(record.getId())
+			.lat(record.getAddressInfo().getLatitude())
+			.lng(record.getAddressInfo().getLongitude())
+			.cat1(record.getCat1())
+			.cat2(record.getCat2())
+			.imageUrl(record.getContents().getImageUrl())
+			.build();
+	}
 	private RecordDetailResponse createRecordDetailResponse(Record record) {
 		return RecordDetailResponse.builder()
 			.id(record.getId())

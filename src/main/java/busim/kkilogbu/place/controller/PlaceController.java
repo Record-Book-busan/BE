@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import busim.kkilogbu.api.tourInfoAPI.service.TourInfoService;
 import busim.kkilogbu.bookmark.service.BookmarkService;
+import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
-import busim.kkilogbu.place.entity.Place;
+import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.service.PlaceService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -26,23 +28,34 @@ public class PlaceController {
 	private final PlaceService placeService;
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
+	private final TourInfoService tourInfoService;
 
 	/**
 	 * 장소 목록 조회
 	 */
-	@GetMapping
-	public ResponseEntity<List<Cluster>> getPlace(@PathParam("lat") double lat, @PathParam("lng") double lng,
-		@PathParam("radius") double radius, @PathParam("category") Long category) {
-		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, radius, "place", category));
+	// TODO : front 랑 논의후 cluster를 front 에서 처리하면 해당 코드 삭제
+	@GetMapping("/cluster")
+	public ResponseEntity<List<Cluster>> getPlaceInRedisWithCluster(@PathParam("lat") double lat, @PathParam("lng") double lng,
+		@PathParam("level") ZoomLevel level, @PathParam("category") Long category) {
+		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, "place", category));
 	}
 
+	@GetMapping
+	public ResponseEntity<List<PlaceMarkResponse>> getPlaceInRedis(@PathParam("lat") double lat, @PathParam("lng") double lng,
+		@PathParam("level") ZoomLevel level, @PathParam("category") Long category) {
+		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, PlaceMarkResponse.class, category));
+	}
 	/**
 	 * 장소 상세 조회
-	 *
 	 */
 	@GetMapping("/{placeId}")
 	public ResponseEntity<PlaceDetailResponse> getPlaceDetail(@PathVariable("placeId") Long placeId) {
 		return ResponseEntity.ok(placeService.getPlaceDetail(placeId));
+	}
+
+	@GetMapping("/externalApi")
+	public ResponseEntity<List<PlaceDetailResponse>> getExternalApi(){
+		return ResponseEntity.ok(tourInfoService.fetchTourInfoDate());
 	}
 
 	@PostMapping("/{placeId}/bookmark")

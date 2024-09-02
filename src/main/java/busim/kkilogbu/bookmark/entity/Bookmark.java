@@ -66,4 +66,7 @@ public class Bookmark {
 			place.getBookmark().remove(this);
 		}
 	}
+	public boolean isRecord() {
+		return record != null;
+	}
 }

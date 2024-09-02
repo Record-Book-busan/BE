@@ -4,6 +4,7 @@ package busim.kkilogbu.api.restroomAPI.controller;
 import busim.kkilogbu.api.restroomAPI.domain.dto.ToiletDataResponse;
 import busim.kkilogbu.api.restroomAPI.service.ToiletDataService;
 import busim.kkilogbu.api.restroomAPI.service.ToiletDataServiceImpl;
+import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,8 @@ public class ToiletDataController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ToiletDataResponse>> getNearToilets(@PathParam("latitude") double lat, @PathParam("longitude") double lng, @PathParam("radius") double radius) {
-        return ResponseEntity.ok(redisService.getToiletList(lat, lng, radius));
+    public ResponseEntity<List<ToiletDataResponse>> getNearToilets(@PathParam("latitude") double lat,
+        @PathParam("longitude") double lng, @PathParam("level") ZoomLevel level) {
+        return ResponseEntity.ok(redisService.getPublicPlacesInRedis(lat, lng, level, ToiletDataResponse.class));
     }
 }

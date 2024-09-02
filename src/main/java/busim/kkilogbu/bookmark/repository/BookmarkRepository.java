@@ -2,6 +2,8 @@ package busim.kkilogbu.bookmark.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 	boolean existsByUserAndPlace(User user, Place place);
 	Optional<Bookmark> findByUserAndRecord(User user, Record record);
 	Optional<Bookmark> findByUserAndPlace(User user, Place place);
+	Slice<Bookmark> findByUser(User user, Pageable pageable);
+	Slice<Bookmark> findByUserAndRecordIsNotNull(User user, Pageable pageable);
+	Slice<Bookmark> findByUserAndPlaceIsNotNull(User user, Pageable pageable);
 }
