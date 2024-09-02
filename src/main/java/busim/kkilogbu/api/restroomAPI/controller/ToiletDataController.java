@@ -4,6 +4,9 @@ package busim.kkilogbu.api.restroomAPI.controller;
 import busim.kkilogbu.api.restroomAPI.domain.dto.ToiletDataResponse;
 import busim.kkilogbu.api.restroomAPI.service.ToiletDataService;
 import busim.kkilogbu.api.restroomAPI.service.ToiletDataServiceImpl;
+import busim.kkilogbu.global.ZoomLevel;
+import busim.kkilogbu.global.redis.RedisService;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ public class ToiletDataController {
 
     private final ToiletDataServiceImpl toiletDataServiceImpl;
     private final ToiletDataService toiletDataService;
+    private final RedisService redisService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadCSVFile(@RequestParam("file") MultipartFile file) {
@@ -36,5 +40,15 @@ public class ToiletDataController {
         return ResponseEntity.ok(toilets);
     }
 
+    @PostMapping("/upload/redis")
+    public ResponseEntity<String> uploadInRedis(){
+        redisService.saveToiletDataInRedis();
+        return ResponseEntity.ok("ok");
+    }
 
+    @GetMapping
+    public ResponseEntity<List<ToiletDataResponse>> getNearToilets(@PathParam("latitude") double lat,
+        @PathParam("longitude") double lng, @PathParam("level") ZoomLevel level) {
+        return ResponseEntity.ok(redisService.getPublicPlacesInRedis(lat, lng, level, ToiletDataResponse.class));
+    }
 }

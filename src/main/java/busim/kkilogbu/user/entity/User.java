@@ -31,6 +31,7 @@ public class User {
 	private String nickname;
 	private Long category;
 	private LocalDateTime createdAt;
+	private String ProfileImage;
 
 	//약관 동의 체크
 	private boolean agreePrivacy;
@@ -41,4 +42,13 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
 
+	public void changeNickname(String nickname) {
+		this.nickname = nickname;
+	}
+	public void changeProfileImage(String profileImage) {
+		this.ProfileImage = profileImage;
+	}
+	public void categoryChange(Long category) {
+		this.category = category;
+	}
 }

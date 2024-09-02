@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
-import busim.kkilogbu.record.entity.Record;
 
 @Repository
 public interface AddressInfoRepository extends JpaRepository<AddressInfo, Long> {
