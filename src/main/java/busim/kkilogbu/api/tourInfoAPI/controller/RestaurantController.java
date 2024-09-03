@@ -1,6 +1,7 @@
 package busim.kkilogbu.api.tourInfoAPI.controller;
 
 import busim.kkilogbu.api.tourInfoAPI.service.RestaurantService;
+import busim.kkilogbu.api.tourInfoAPI.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/restaurants")
+@RequestMapping("/kkilogbu/restaurants")
 @RequiredArgsConstructor
 public class RestaurantController {
 
