@@ -23,6 +23,7 @@ public class RecordService {
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
 
+	@Transactional(readOnly = true)
 	public RecordDetailResponse getPlaceDetail(Long id){
 		Record record = recordRepository.findFetchById(id).orElseThrow(() -> {
 			// TODO : custom exception 추가?
