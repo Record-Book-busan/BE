@@ -33,7 +33,6 @@ public class RecordController {
 	private final BookmarkService bookmarkService;
 
 	@Operation(summary = "주변 기록 가져오기", description = "Redis에서 주변 기록을 가져옵니다.")
-	@Tag(name = "Record Retrieval", description = "기록 조회 관련 API")
 	@GetMapping("/cluster")
 	public ResponseEntity<List<Cluster>> getRecordInRedisWithCluster(
 			@Parameter(description = "위도") @PathParam("lat") double lat,
@@ -44,7 +43,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 가져오기", description = "Redis에서 기록을 가져옵니다.")
-	@Tag(name = "Record Retrieval", description = "기록 조회 관련 API")
 	@GetMapping
 	public ResponseEntity<List<RecordMarkResponse>> getRecordInRedis(
 			@Parameter(description = "위도") @PathParam("lat") double lat,
@@ -55,7 +53,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
-	@Tag(name = "Record Retrieval", description = "기록 조회 관련 API")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "성공적으로 기록을 가져옴", content = @Content(mediaType = "application/json")),
 			@ApiResponse(responseCode = "404", description = "기록을 찾을 수 없음")
@@ -67,7 +64,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
-	@Tag(name = "Record Management", description = "기록 관리 API")
 	@PostMapping
 	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
 		service.createRecord(request);
@@ -75,7 +71,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
-	@Tag(name = "Bookmark Management", description = "북마크 관리 API")
 	@PostMapping("/{markId}/bookmark")
 	public ResponseEntity<?> bookmark(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
@@ -84,7 +79,7 @@ public class RecordController {
 	}
 
 	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
-	@Tag(name = "Bookmark Management", description = "북마크 관리 API")
+
 	@DeleteMapping("/{markId}/bookmark")
 	public ResponseEntity<?> deleteBookmark(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
@@ -93,7 +88,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
-	@Tag(name = "Record Management", description = "기록 관리 API")
 	@PatchMapping("/{markId}")
 	public ResponseEntity<?> updatePlace(
 			@Parameter(description = "기록 ID") @PathVariable Long markId,
@@ -103,7 +97,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
-	@Tag(name = "Record Management", description = "기록 관리 API")
 	@DeleteMapping("/{markId}")
 	public ResponseEntity<?> deletePlace(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
