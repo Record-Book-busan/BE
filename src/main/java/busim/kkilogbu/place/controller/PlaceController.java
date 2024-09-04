@@ -1,5 +1,6 @@
 package busim.kkilogbu.place.controller;
 
+import busim.kkilogbu.api.tourInfoAPI.service.TourInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +30,7 @@ public class PlaceController {
 	private final PlaceService placeService;
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
-
+	private final TourInfoService tourInfoService;
 
 	/**
 	 * 장소 목록 조회
@@ -84,5 +85,11 @@ public class PlaceController {
 			@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId) {
 		bookmarkService.unbookmark(placeId, "place");
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "외부 api를 사용해 데이터 조회", description = "api를 활용해야 되기 때문에 피드 화면에서 api조회 후 장소 정보와 함께 제공")
+	@GetMapping("/externalApi")
+	public ResponseEntity<List<PlaceDetailResponse>> getExternalApi(){
+		return ResponseEntity.ok(tourInfoService.fetchTourInfoDate());
 	}
 }
