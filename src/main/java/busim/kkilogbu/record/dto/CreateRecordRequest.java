@@ -25,15 +25,15 @@ public class CreateRecordRequest {
 	@NotNull(message = "Longitude is required")
 	private Double lng;
 
-	@Schema(description = "기록의 제목", required = true, example = "서울의 유명한 랜드마크")
+	@Schema(description = "기록의 제목",  example = "서울의 유명한 랜드마크")
 	@NotNull(message = "Title is required")
 	private String title;
 
-	@Schema(description = "기록의 내용", required = true, example = "이곳은 서울의 중심에 위치한 유명한 랜드마크입니다.")
+	@Schema(description = "기록의 내용",  example = "이곳은 서울의 중심에 위치한 유명한 랜드마크입니다.")
 	@NotNull(message = "Content is required")
 	private String content;
 
-	@Schema(description = "기록 이미지의 URL", required = true, example = "https://example.com/image.jpg")
+	@Schema(description = "기록 이미지의 URL", example = "https://example.com/image.jpg")
 	@NotNull(message = "Image URL is required")
 	private String imageUrl;
 }
