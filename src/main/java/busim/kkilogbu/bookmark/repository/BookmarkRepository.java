@@ -9,14 +9,14 @@ import org.springframework.stereotype.Repository;
 
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.place.entity.Place;
-import busim.kkilogbu.record.entity.Record;
+import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.user.entity.User;
 
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-	boolean existsByUserAndRecord(User user, Record record);
+	boolean existsByUserAndRecord(User user, Records records);
 	boolean existsByUserAndPlace(User user, Place place);
-	Optional<Bookmark> findByUserAndRecord(User user, Record record);
+	Optional<Bookmark> findByUserAndRecord(User user, Records records);
 	Optional<Bookmark> findByUserAndPlace(User user, Place place);
 	Slice<Bookmark> findByUser(User user, Pageable pageable);
 	Slice<Bookmark> findByUserAndRecordIsNotNull(User user, Pageable pageable);

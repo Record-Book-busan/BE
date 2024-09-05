@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import busim.kkilogbu.bookmark.entity.Bookmark;
-import busim.kkilogbu.record.entity.Record;
+import busim.kkilogbu.record.entity.Records;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -37,7 +37,7 @@ public class User {
 	private boolean agreePrivacy;
 
 	@OneToMany(mappedBy = "user")
-	private List<Record> records = new ArrayList<>();
+	private List<Records> records = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
