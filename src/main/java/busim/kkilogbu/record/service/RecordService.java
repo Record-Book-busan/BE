@@ -1,5 +1,11 @@
 package busim.kkilogbu.record.service;
 
+import busim.kkilogbu.global.Ex.BaseException;
+import busim.kkilogbu.record.dto.*;
+import busim.kkilogbu.record.entity.Records;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -7,11 +13,6 @@ import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
-import busim.kkilogbu.record.dto.CreateRecordRequest;
-import busim.kkilogbu.record.dto.RecordDetailResponse;
-import busim.kkilogbu.record.dto.RecordMarkResponse;
-import busim.kkilogbu.record.dto.UpdateRecordRequest;
-import busim.kkilogbu.record.entity.Record;
 import busim.kkilogbu.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,55 +20,64 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RecordService {
+	
 	private final RecordRepository recordRepository;
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
 
 	@Transactional(readOnly = true)
-	public RecordDetailResponse getPlaceDetail(Long id){
-		Record record = recordRepository.findFetchById(id).orElseThrow(() -> {
-			// TODO : custom exception 추가?
-			return new RuntimeException("해당하는 장소가 없습니다.");
-		});
-		return createRecordDetailResponse(record);
+	public RecordDetailResponse getPlaceDetail(Long id) {
+		Records records = recordRepository.findFetchById(id).orElseThrow(() ->
+				new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND)
+		);
+		return RecordMapper.toCreateRecordDetailResponse(records);
 	}
 
 	@Transactional
 	public void createRecord(CreateRecordRequest request) {
-		Contents contents = Contents.builder()
-			.content(request.getContent())
-			.title(request.getTitle())
-			.imageUrl(request.getImageUrl())
-			.build();
+		try {
+			// Contents 객체 생성
+			Contents contents = Contents.builder()
+					.content(request.getContent())
+					.title(request.getTitle())
+					.imageUrl(request.getImageUrl())
+					.build();
 
-		// 해당 위치 정보가 있으면 가져오고 없으면 생성
-		AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(), request.getLng())
-			.orElseGet(() -> AddressInfo.builder().address(request.getAddress())
-				.addressDetail(request.getAddressDetail())
-				.zipcode(request.getZipcode())
-				.latitude(request.getLat())
-				.longitude(request.getLng())
-				.build());
+			// 해당 위치 정보가 있으면 가져오고 없으면 새로 생성
+			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(), request.getLng())
+					.orElseGet(() -> AddressInfo.builder()
+							.latitude(request.getLat())
+							.longitude(request.getLng())
+							.build());
 
-		Record record = Record.builder()
-			.cat1(request.getCat1())
-			.cat2(request.getCat2())
-			.build();
-		// TODO : 로그인 기능 제작후 수정
-		record.connect(null, addressInfo, contents);
-		recordRepository.save(record);
-		redisService.saveTotalPlaceInRedis(request.getLat(), request.getLng(), createRecordMarkResponse(record), "record",
-			record.getCat2());
+			// Record 객체 생성 및 저장
+			Records record = Records.createRecord(addressInfo, contents);
+			recordRepository.save(record);
+
+			// Redis에 저장
+			redisService.saveTotalPlaceInRedis(
+					request.getLat(),
+					request.getLng(),
+					RecordMapper.toCreateRecordDetailResponse(record),
+					"record"
+			);
+
+		} catch (DataAccessException e) {
+			throw new BaseException("데이터베이스 작업 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			throw new BaseException("기록 생성 중 예상치 못한 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
+
 
 	@Transactional
 	public void updateRecord(Long markId, UpdateRecordRequest request) {
-		Record record = recordRepository.findFetchById(markId).orElseThrow(() -> {
+		Records records = recordRepository.findFetchById(markId).orElseThrow(() -> {
 			// TODO : custom exception 추가
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
-		Contents contents = record.getContents();
-		AddressInfo oldAddress = record.getAddressInfo();
+		Contents contents = records.getContents();
+		AddressInfo oldAddress = records.getAddressInfo();
 		double lat = oldAddress.getLatitude();
 		double lng = oldAddress.getLongitude();
 
@@ -75,64 +85,42 @@ public class RecordService {
 		if (lat != request.getLat() || lng != request.getLng()) {
 			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(),
 					request.getLng())
-				.orElseGet(() -> AddressInfo.builder().address(request.getAddress())
-					.addressDetail(request.getAddressDetail())
-					.zipcode(request.getZipcode())
+				.orElseGet(() -> AddressInfo.builder()
 					.latitude(request.getLat())
 					.longitude(request.getLng())
 					.build());
-			record.connect(addressInfo);
+			records.connect(addressInfo);
 
-			oldAddress.getRecord().remove(record);
+			oldAddress.getRecords().remove(records);
 			// 기존 addressInfo에 record와 place가 없을 경우 삭제
-			if (oldAddress.getRecord().isEmpty() && oldAddress.getPlace().isEmpty()) {
+			if (oldAddress.getRecords().isEmpty() && oldAddress.getPlace().isEmpty()) {
 				addressInfoRepository.delete(oldAddress);
 			}
 		}
 		contents.update(request.getContent(), request.getTitle(), request.getImageUrl());
-		record.update(request.getCat1(), request.getCat2());
 	}
 
 	@Transactional
 	public void deleteRecord(Long markId) {
-		Record record = recordRepository.findFetchById(markId).orElseThrow(() ->{
+		Records records = recordRepository.findFetchById(markId).orElseThrow(() ->{
 			// TODO : custom exception 추가
 			return new RuntimeException("해당하는 장소가 없습니다.");
 		});
-		AddressInfo oldAddress = record.getAddressInfo();
-		oldAddress.getRecord().remove(record);
-		if (oldAddress.getRecord().isEmpty() && oldAddress.getPlace().isEmpty()) {
+		AddressInfo oldAddress = records.getAddressInfo();
+		oldAddress.getRecords().remove(records);
+		if (oldAddress.getRecords().isEmpty() && oldAddress.getPlace().isEmpty()) {
 			addressInfoRepository.delete(oldAddress);
 		}
-		recordRepository.delete(record);
+		recordRepository.delete(records);
 	}
 
-	private RecordMarkResponse createRecordMarkResponse(Record record) {
+	private RecordMarkResponse createRecordMarkResponse(Records records) {
 		return RecordMarkResponse.builder()
-			.id(record.getId())
-			.lat(record.getAddressInfo().getLatitude())
-			.lng(record.getAddressInfo().getLongitude())
-			.cat1(record.getCat1())
-			.cat2(record.getCat2())
-			.imageUrl(record.getContents().getImageUrl())
+			.id(records.getId())
+			.lat(records.getAddressInfo().getLatitude())
+			.lng(records.getAddressInfo().getLongitude())
+			.imageUrl(records.getContents().getImageUrl())
 			.build();
 	}
-	private RecordDetailResponse createRecordDetailResponse(Record record) {
-		return RecordDetailResponse.builder()
-			.id(record.getId())
-			.cat1(record.getCat1())
-			.cat2(record.getCat2())
-			.createdAt(record.getCreatedAt())
-			.address(record.getAddressInfo().getAddress())
-			.addressDetail(record.getAddressInfo().getAddressDetail())
-			.zipcode(record.getAddressInfo().getZipcode())
-			.lat(record.getAddressInfo().getLatitude())
-			.lng(record.getAddressInfo().getLongitude())
-			.content(record.getContents().getContent())
-			.imageUrl(record.getContents().getImageUrl())
-			.title(record.getContents().getTitle())
-			// TODO : 로그인 구현후 추가
-			// .nickName(record.getUser().getNickName())
-			.build();
-	}
+
 }

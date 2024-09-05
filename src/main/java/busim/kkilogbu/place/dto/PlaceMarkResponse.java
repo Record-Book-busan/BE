@@ -7,16 +7,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-@Builder
 @Getter
-@NoArgsConstructor(access = PROTECTED)
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class PlaceMarkResponse {
+
 	private Long id;
-	private String imageUrl;
-	private double lat;
-	private double lng;
-	private Category1 cat1;
-	private Long cat2;
+	private Double lat;        // 위도
+	private Double lng;        // 경도
+	private String imageUrl;   // 이미지 URL
+	private String category;   // 대분류 카테고리
+
 }
+

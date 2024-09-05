@@ -14,7 +14,7 @@ public class MyRecordResponse {
 	private String imageUrl;
 	private String title;
 	private String content;
-	private Long cat2;
+	//private Long cat2;
 	private double lat;
 	private double lng;
 }
