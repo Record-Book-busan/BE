@@ -28,7 +28,7 @@ public class Bookmark {
 	private User user;
 
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "record_id")
+	@JoinColumn(name = "records_id")
 	private Records records;
 
 	@ManyToOne(fetch = LAZY)

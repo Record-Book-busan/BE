@@ -14,9 +14,9 @@ import busim.kkilogbu.user.entity.User;
 
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-	boolean existsByUserAndRecord(User user, Records records);
+	boolean existsByUserAndRecords(User user, Records records);
 	boolean existsByUserAndPlace(User user, Place place);
-	Optional<Bookmark> findByUserAndRecord(User user, Records records);
+	Optional<Bookmark> findByUserAndRecords(User user, Records records);
 	Optional<Bookmark> findByUserAndPlace(User user, Place place);
 	Slice<Bookmark> findByUser(User user, Pageable pageable);
 	Slice<Bookmark> findByUserAndRecordIsNotNull(User user, Pageable pageable);

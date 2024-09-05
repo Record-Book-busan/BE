@@ -32,7 +32,7 @@ public class BookmarkService {
 			Records records = recordRepository.findById(id).orElseThrow(
 				() -> new IllegalArgumentException("존제하지 않는 records")
 			);
-			if(bookmarkRepository.existsByUserAndRecord(user, records)){
+			if(bookmarkRepository.existsByUserAndRecords(user, records)){
 				// TODO : 예외처리 변경
 				throw new IllegalArgumentException("이미 북마크 중입니다");
 			}
@@ -69,7 +69,7 @@ public class BookmarkService {
 			Records records = recordRepository.findById(id).orElseThrow(
 				() -> new IllegalArgumentException("존제하지 않는 records")
 			);
-			bookmark = bookmarkRepository.findByUserAndRecord(user, records).orElseThrow(
+			bookmark = bookmarkRepository.findByUserAndRecords(user, records).orElseThrow(
 				// TODO : 예외처리 변경
 				() -> new IllegalArgumentException("북마크 중이 아닙니다")
 			);
