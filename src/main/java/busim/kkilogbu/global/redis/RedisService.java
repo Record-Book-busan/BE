@@ -173,7 +173,41 @@ public class RedisService {
 				.collect(Collectors.toList());
 	}
 
+	public <T> List<T> getPublicPlacesInRedis(double lat, double lng, ZoomLevel level, Class<T> type){
+		String key = "geo:" + getRedisKeyByType(type);
 
+		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = getGeoResultsInRedis(
+				lat, lng, level, key);
+
+		// 조회된 결과를 ToiletDataResponse 객체로 변환
+		return changeGeoHashToReturnType(type, geoResults);
+	}
+	private <T> List<T> changeGeoHashToReturnType(Class<T> type, List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults) {
+		return geoResults.stream()
+				.map(GeoResult::getContent)
+				.map(RedisGeoCommands.GeoLocation::getName)
+				.map(json -> {
+					try {
+						return objectMapper.readValue(json, type);
+					} catch (IOException e) {
+						e.printStackTrace();
+						return null;
+					}
+				})
+				.filter(Objects::nonNull) // null 필터링
+				.collect(Collectors.toList());
+	}
+
+
+
+	private List<GeoResult<RedisGeoCommands.GeoLocation<String>>> getGeoResultsInRedis(double lat, double lng, ZoomLevel level,
+																					   String key) {
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		Point point = new Point(lng, lat);
+		Circle circle = new Circle(point, new Distance(level.getKilometer(), KILOMETERS));
+
+		return geoOperations.radius(key, circle).getContent();
+	}
 
 
 
@@ -245,7 +279,7 @@ public class RedisService {
 				.toList();
 
 		// 각 RestaurantResponseDto 데이터를 Redis에 저장
-		allRestaurants.forEach(restaurant -> saveTotalPlaceInRedis(
+		allRestaurants.forEach(restaurant -> saveTotalRestaurantInRedis(
 				restaurant.getLatitude(),
 				restaurant.getLongitude(),
 				restaurant,
@@ -314,6 +348,20 @@ public class RedisService {
 		if (keys != null && !keys.isEmpty()) {
 			redisTemplate.delete(keys);  // 해당 키들을 삭제
 		}
+	}
+
+
+	public String getRedisKeyByType(Class type){
+		if(type == RecordMarkResponse.class) {
+			return "record";
+		}else if(type == PlaceMarkResponse.class) {
+			return "place";
+		}else if(type == ToiletDataResponse.class) {
+			return "toilet";
+		}else if(type == ParkingDataResponse.class) {
+			return "park";
+		}
+		throw new BaseException("type이 없습니다.", BAD_REQUEST);
 	}
 
 	/*--------------- front 와 논의후 사용결정 ------------------*/
@@ -435,16 +483,38 @@ public class RedisService {
 		}
 	}
 
-	/**
-	 * Redis에 Tourist 데이터를 저장하는 메서드
+	/*
+	 * Redis에 Restaurant 데이터를 저장하는 메서드
 	 */
-	public void saveTotalTouristInRedis(Double lat, Double lng, TouristResponseDto touristDto, String type, String categoryLarge) {
+	public void saveTotalRestaurantInRedis(Double lat, Double lng, RestaurantResponseDto restaurantDto, String type, RestaurantCategory category) {
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
 		String key = "geo:" + type;
 
-		// 대분류 카테고리를 Redis 키에 포함
-		if (categoryLarge != null && !categoryLarge.isEmpty()) {
-			key += ":" + categoryLarge;
+		// RestaurantCategory enum을 Redis 키에 포함
+		if (category != null) {
+			key += ":" + category.name();  // enum의 이름을 사용하여 Redis 키에 포함
+		}
+
+		Point point = new Point(lng, lat);  // 위도와 경도를 Point로 변환
+		try {
+			// RestaurantResponseDto 객체를 JSON 형태로 변환하여 Redis에 저장
+			String input = objectMapper.writeValueAsString(restaurantDto);
+			geoOperations.add(key, point, input);  // Redis에 저장
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Restaurant 데이터 Redis 저장 중 오류 발생", e);
+		}
+	}
+
+	/**
+	 * Redis에 Tourist 데이터를 저장하는 메서드
+	 */
+	public void saveTotalTouristInRedis(Double lat, Double lng, TouristResponseDto touristDto, String type, TouristCategory categoryLarge) {
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		String key = "geo:" + type;
+
+		// TouristCategory enum에서 이름을 가져와 Redis 키에 포함
+		if (categoryLarge != null) {
+			key += ":" + categoryLarge.name();  // TouristCategory enum의 이름을 키에 포함
 		}
 
 		Point point = new Point(lng, lat);  // 위도와 경도를 Point로 변환
@@ -456,4 +526,6 @@ public class RedisService {
 			throw new RuntimeException("Tourist 데이터 Redis 저장 중 오류 발생", e);
 		}
 	}
+
+
 }
