@@ -4,9 +4,7 @@ import static org.springframework.data.geo.Metrics.*;
 import static org.springframework.http.HttpStatus.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantMapper;
@@ -57,7 +55,6 @@ import static org.springframework.data.geo.Metrics.KILOMETERS;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -113,7 +110,7 @@ public class RedisService {
 	public List<PlaceMarkResponse> getRestaurantPlacesInRedis(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
 		for (RestaurantCategory category : restaurantCategories) {
-			String key = "geo:place:" + category.name();  // 카테고리별로 키를 생성
+			String key = "geo:restaurant:" + category.name();  // 맛집 카테고리에 맞는 키 생성
 			places.addAll(getPlacesFromRedis(lat, lng, level, key, PlaceMarkResponse.class));
 		}
 		return places;
@@ -125,11 +122,31 @@ public class RedisService {
 	public List<PlaceMarkResponse> getTouristPlacesInRedis(double lat, double lng, ZoomLevel level, List<TouristCategory> touristCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
 		for (TouristCategory category : touristCategories) {
-			String key = "geo:place:" + category.name();  // 카테고리별로 키를 생성
+			String key = "geo:tourist:" + category.name();  // 관광 카테고리에 맞는 키 생성
 			places.addAll(getPlacesFromRedis(lat, lng, level, key, PlaceMarkResponse.class));
 		}
 		return places;
 	}
+
+	/**
+	 * 맛집 및 관광 카테고리를 함께 조회하는 경우
+	 */
+	public List<PlaceMarkResponse> getAllPlacesFromRedis(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories, List<TouristCategory> touristCategories) {
+		List<PlaceMarkResponse> places = new ArrayList<>();
+
+		// 맛집 카테고리 조회
+		if (restaurantCategories != null && !restaurantCategories.isEmpty()) {
+			places.addAll(getRestaurantPlacesInRedis(lat, lng, level, restaurantCategories));
+		}
+
+		// 관광 카테고리 조회
+		if (touristCategories != null && !touristCategories.isEmpty()) {
+			places.addAll(getTouristPlacesInRedis(lat, lng, level, touristCategories));
+		}
+
+		return places;
+	}
+
 
 	/**
 	 * 레디스에서 장소 정보를 가져오는 공통 메서드
@@ -156,24 +173,7 @@ public class RedisService {
 				.collect(Collectors.toList());
 	}
 
-	/**
-	 * 맛집 및 관광 카테고리를 함께 조회하는 경우
-	 */
-	public List<PlaceMarkResponse> getPlacesInToRedis(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories, List<TouristCategory> touristCategories) {
-		List<PlaceMarkResponse> places = new ArrayList<>();
 
-		// 맛집 카테고리 조회
-		if (restaurantCategories != null && !restaurantCategories.isEmpty()) {
-			places.addAll(getRestaurantPlacesInRedis(lat, lng, level, restaurantCategories));
-		}
-
-		// 관광 카테고리 조회
-		if (touristCategories != null && !touristCategories.isEmpty()) {
-			places.addAll(getTouristPlacesInRedis(lat, lng, level, touristCategories));
-		}
-
-		return places;
-	}
 
 
 
@@ -272,45 +272,6 @@ public class RedisService {
 				tourist.getCategoryLarge()));  // categoryLarge를 사용해 대분류 저장
 	}
 
-	/**
-	 * redis에 위치 정보 저장
-	 */
-	public void saveTotalPlaceInRedis(double lat, double lng, Object object, String type, Long category) {
-		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo:" + type + (category != null ? ":" + category : "");
-
-		Point point = new Point(lng, lat);
-		try {
-			String input = objectMapper.writeValueAsString(object);
-			Long added = geoOperations.add(key, point, input);
-			log.info("Added {} elements to {}", added, key);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Redis에 Tourist 데이터를 저장하는 메서드
-	 */
-	public void saveTotalTouristInRedis(Double lat, Double lng, TouristResponseDto touristDto, String type, String categoryLarge) {
-		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo:" + type;
-
-		// 대분류 카테고리를 Redis 키에 포함
-		if (categoryLarge != null && !categoryLarge.isEmpty()) {
-			key += ":" + categoryLarge;
-		}
-
-		Point point = new Point(lng, lat);  // 위도와 경도를 Point로 변환
-		try {
-			// TouristResponseDto 객체를 JSON 형태로 변환하여 저장
-			String input = objectMapper.writeValueAsString(touristDto);
-			geoOperations.add(key, point, input);  // Redis에 저장
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Tourist 데이터 Redis 저장 중 오류 발생", e);
-		}
-	}
-
 
 	/**
 	 * Redis 데이터 주기적 업데이트 (스케줄링)
@@ -326,12 +287,33 @@ public class RedisService {
 	}
 
 	private void deleteKey() {
+		// "geo:record:"로 시작하는 256개의 키 삭제
 		for (int i = 0; i < 256; i++) {
 			redisTemplate.delete("geo:record:" + i);
 		}
+
+		// 단일 키 삭제
 		redisTemplate.delete("geo:place");
 		redisTemplate.delete("geo:toilet");
 		redisTemplate.delete("geo:park");
+
+		// 추가로 tourist와 restaurant 데이터를 삭제
+		redisTemplate.delete("geo:tourist");
+		redisTemplate.delete("geo:restaurant");
+
+		//  각 tourist 및 restaurant의 세부 카테고리별로 데이터를 저장했다면 해당 키들도 삭제
+		deleteKeysWithPattern("geo:restaurant:*");
+		deleteKeysWithPattern("geo:tourist:*");
+	}
+
+	/**
+	 * 주어진 패턴에 맞는 Redis 키들을 삭제하는 메서드
+	 */
+	private void deleteKeysWithPattern(String pattern) {
+		Set<String> keys = redisTemplate.keys(pattern);  // 패턴에 맞는 모든 키를 가져옴
+		if (keys != null && !keys.isEmpty()) {
+			redisTemplate.delete(keys);  // 해당 키들을 삭제
+		}
 	}
 
 	/*--------------- front 와 논의후 사용결정 ------------------*/
@@ -408,7 +390,10 @@ public class RedisService {
 		} else {
 			return 8; // 높은 precision (작은 클러스터)
 		}
+
 	}
+
+
 	public List<ToiletDataResponse> getToiletList(double lat, double lng, double radius){
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
 		String key = "geo:toilet";
@@ -431,5 +416,44 @@ public class RedisService {
 			})
 			.filter(Objects::nonNull) // null 필터링
 			.collect(Collectors.toList());
+	}
+
+	/**
+	 * redis에 위치 정보 저장
+	 */
+	public void saveTotalPlaceInRedis(double lat, double lng, Object object, String type, Long category) {
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		String key = "geo:" + type + (category != null ? ":" + category : "");
+
+		Point point = new Point(lng, lat);
+		try {
+			String input = objectMapper.writeValueAsString(object);
+			Long added = geoOperations.add(key, point, input);
+			log.info("Added {} elements to {}", added, key);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Redis에 Tourist 데이터를 저장하는 메서드
+	 */
+	public void saveTotalTouristInRedis(Double lat, Double lng, TouristResponseDto touristDto, String type, String categoryLarge) {
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		String key = "geo:" + type;
+
+		// 대분류 카테고리를 Redis 키에 포함
+		if (categoryLarge != null && !categoryLarge.isEmpty()) {
+			key += ":" + categoryLarge;
+		}
+
+		Point point = new Point(lng, lat);  // 위도와 경도를 Point로 변환
+		try {
+			// TouristResponseDto 객체를 JSON 형태로 변환하여 저장
+			String input = objectMapper.writeValueAsString(touristDto);
+			geoOperations.add(key, point, input);  // Redis에 저장
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Tourist 데이터 Redis 저장 중 오류 발생", e);
+		}
 	}
 }
