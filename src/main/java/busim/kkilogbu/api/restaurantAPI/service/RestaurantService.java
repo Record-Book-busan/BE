@@ -59,7 +59,7 @@ public class RestaurantService {
 						.detailedInformation(csvRecord.get("상세내용"))
 						.imageUrls(parseImageUrls(csvRecord.get("이미지")))  // 쉼표로 구분된 이미지 처리
 						.categories(parseCategories(csvRecord.get("분류")))  // 쉼표로 구분된 카테고리 처리
-						.type(RestaurantCategory.fromType(parseInteger(csvRecord.get("유형"))))  // 유형 처리
+						.type(csvRecord.get("유형"))  // 유형 처리
 						.build();
 
 				restaurantList.add(restaurant);

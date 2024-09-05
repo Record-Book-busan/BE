@@ -21,7 +21,7 @@ public class RestaurantResponseDto {
     private List<String> imageUrls;
     private String restaurantName;
     private List<String> categories;
-    private RestaurantCategory type;
+    private String type;
 
 }
 

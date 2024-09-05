@@ -27,7 +27,7 @@ public class TouristMapper {
                 .latitude(tourist.getLatitude())
                 .longitude(tourist.getLongitude())
                 .imageUrl(tourist.getImageUrl())
-                .category(tourist.getCategoryLarge().getDescription())  // 관광지의 대분류를 카테고리로 사용
+                .category(tourist.getCategoryLarge())  // 관광지의 대분류를 카테고리로 사용
                 .build();
     }
 

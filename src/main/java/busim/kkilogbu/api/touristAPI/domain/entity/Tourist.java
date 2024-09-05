@@ -25,8 +25,8 @@ public class Tourist {
     private Double longitude;     // 경도
     private Double latitude;      // 위도
 
-    @Enumerated(EnumType.STRING)
-    private TouristCategory categoryLarge;   // 대분류
+
+    private String categoryLarge;   // 대분류
 
     private String categoryMedium;  // 중분류
     private String categorySmall;   // 소분류

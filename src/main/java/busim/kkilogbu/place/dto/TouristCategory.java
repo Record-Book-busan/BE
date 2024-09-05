@@ -24,6 +24,7 @@ public enum TouristCategory {
             case "레포츠":
                 return LEISURE_SPORTS;
             case "인문(문화/예술/역사)":
+            case "관광지":
                 return TOURIST_SPOT;
             case "자연":
                 return NATURE;

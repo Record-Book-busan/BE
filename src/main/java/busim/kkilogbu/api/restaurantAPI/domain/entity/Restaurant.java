@@ -58,7 +58,7 @@ public class Restaurant {
         private List<String> categories; // 추천하는 회사 리스트 ( 추천 레스토랑 그룹 등)
 
 
-        private RestaurantCategory type; // 식당 유형을 나타내는 필드 (1: 특정 맛집, 0: 그냥 맛집)
+        private String type; // 식당 유형을 나타내는 필드 (1: 특정 맛집, 0: 그냥 맛집)
 
         // Place와 다대일 관계 설정
         @ManyToOne(fetch = FetchType.LAZY)

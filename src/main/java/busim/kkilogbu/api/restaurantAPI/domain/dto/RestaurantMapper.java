@@ -30,7 +30,7 @@ public class RestaurantMapper {
                 .latitude(restaurant.getLatitude())
                 .longitude(restaurant.getLongitude())
                 .imageUrl(restaurant.getImageUrls().isEmpty() ? null : restaurant.getImageUrls().get(0))  // 첫 번째 이미지를 사용
-                .category(restaurant.getType().getDescription())  // 예시로 "맛집" 카테고리를 사용
+                .category(restaurant.getType())  // 예시로 "맛집" 카테고리를 사용
                 .build();
     }
 }

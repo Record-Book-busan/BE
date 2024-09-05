@@ -327,7 +327,7 @@ public class RedisService {
 				restaurant.getLongitude(),
 				restaurant,
 				"restaurant",
-				restaurant.getType()));  // type을 카테고리처럼 사용
+				RestaurantCategory.fromType(restaurant.getType())));  // type을 카테고리처럼 사용
 	}
 
 
@@ -340,13 +340,14 @@ public class RedisService {
 				.map(TouristMapper::toTouristResponseDto)  // Mapper 클래스를 사용하여 변환
 				.toList();
 
+
 		// 각 TouristResponseDto 데이터를 Redis에 저장
 		allTourists.forEach(tourist -> saveTotalTouristInRedis(
 				tourist.getLatitude(),
 				tourist.getLongitude(),
 				tourist,
 				"tourist",
-				tourist.getCategoryLarge()));  // categoryLarge를 사용해 대분류 저장
+				TouristCategory.fromString(tourist.getCategoryLarge())));  // categoryLarge를 사용해 대분류 저장
 	}
 
 
