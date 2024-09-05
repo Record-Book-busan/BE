@@ -13,7 +13,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
     // 장소명, 상세 정보, 업종 유형으로 검색 (OR 조건) + 페이징 처리
     @Query("SELECT r FROM Restaurant r WHERE " +
-            "LOWER(r.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(r.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(r.detailedInformation) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(r.businessType) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Restaurant> findByMultipleFields(@Param("query") String query, Pageable pageable);
