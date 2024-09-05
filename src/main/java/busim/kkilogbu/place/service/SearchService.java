@@ -5,7 +5,6 @@ import busim.kkilogbu.api.restaurantAPI.repository.RestaurantRepository;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
 import busim.kkilogbu.api.touristAPI.domain.entity.Tourist;
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
-import busim.kkilogbu.place.dto.SearchCriteria;
 import busim.kkilogbu.place.dto.SearchResultResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
