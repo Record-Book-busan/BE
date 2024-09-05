@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Schema(description = "위치 클러스터 정보를 담고 있는 객체")
-public class Cluster {
+public class Cluster<T> {
 
 	@Schema(description = "위도", example = "37.5665")
 	private double lat;
@@ -16,13 +16,13 @@ public class Cluster {
 	@Schema(description = "경도", example = "126.9780")
 	private double lng;
 
-	@Schema(description = "해당 위치에 포함된 장소들의 리스트")
-	private List<Object> places;
+	@Schema(description = "해당 위치에 포함된 기록데이터 리스트")
+	private List<T> recordData;  // 제네릭 타입으로 변경
 
 	@Builder
-	public Cluster(double lat, double lng, List<Object> places) {
+	public Cluster(double lat, double lng, List<T> recordData) {
 		this.lat = lat;
 		this.lng = lng;
-		this.places = places;
+		this.recordData = recordData;
 	}
 }

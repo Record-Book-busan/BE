@@ -1,6 +1,8 @@
 package busim.kkilogbu.record.controller;
 
 import busim.kkilogbu.bookmark.service.BookmarkService;
+import busim.kkilogbu.global.Ex.BaseException;
+import busim.kkilogbu.global.Ex.ErrorResponse;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.global.redis.dto.Cluster;
@@ -11,20 +13,17 @@ import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.service.RecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/record")
+@RequestMapping("/kkilogbu/record")
 @RequiredArgsConstructor
 @Tag(name = "<RecordController>", description = "기록 관리 API")
 public class RecordController {
@@ -32,31 +31,28 @@ public class RecordController {
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
 
-	@Operation(summary = "주변 기록 가져오기", description = "Redis에서 주변 기록을 가져옵니다.")
+	@Operation(
+			summary = "줌 레벨에 따라 기록을 조회합니다.",
+			description = "사용자가 지정한 줌 레벨에 따라 기록을 조회합니다. 줌 레벨이 낮을수록 더 넓은 범위에서 데이터를 조회하고, 줌 레벨이 높을수록 좁은 범위에서 데이터를 조회합니다. 낮은 줌 레벨에서는 더 많은 기록이 클러스터링되어 표시되며, 높은 줌 레벨에서는 개별 기록이 상세하게 표시됩니다."
+	)
 	@GetMapping("/cluster")
-	public ResponseEntity<List<Cluster>> getRecordInRedisWithCluster(
-			@Parameter(description = "위도") @PathParam("lat") double lat,
-			@Parameter(description = "경도") @PathParam("lng") double lng,
-			@Parameter(description = "줌 레벨") @PathParam("level") ZoomLevel level,
-			@Parameter(description = "카테고리 ID") @PathParam("category") Long category) {
-		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, "record", category));
+	public ResponseEntity<List<Cluster<RecordMarkResponse>>> getRecordInRedisWithCluster(
+			@Parameter(description = "위도") @RequestParam("lat") double lat,
+			@Parameter(description = "경도") @RequestParam("lng") double lng,
+			@Parameter(description = "줌 레벨", example = "LEVEL_5") @RequestParam("level") ZoomLevel level) {
+
+			if (level == null) {
+				throw new BaseException("줌 레벨이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
+			}
+			List<Cluster<RecordMarkResponse>> clusters = redisService.getPlacesInRedis(lat, lng, level, "record", RecordMarkResponse.class);
+			return ResponseEntity.ok(clusters);
+
 	}
 
-	@Operation(summary = "기록 가져오기", description = "Redis에서 기록을 가져옵니다.")
-	@GetMapping
-	public ResponseEntity<List<RecordMarkResponse>> getRecordInRedis(
-			@Parameter(description = "위도") @PathParam("lat") double lat,
-			@Parameter(description = "경도") @PathParam("lng") double lng,
-			@Parameter(description = "줌 레벨") @PathParam("level") ZoomLevel level,
-			@Parameter(description = "카테고리 ID") @PathParam("category") Long category) {
-		return ResponseEntity.ok(redisService.getPlacesInRedis(lat, lng, level, RecordMarkResponse.class, category));
-	}
+
+
 
 	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "성공적으로 기록을 가져옴", content = @Content(mediaType = "application/json")),
-			@ApiResponse(responseCode = "404", description = "기록을 찾을 수 없음")
-	})
 	@GetMapping("/{markId}")
 	public ResponseEntity<RecordDetailResponse> getRecordDetail(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {

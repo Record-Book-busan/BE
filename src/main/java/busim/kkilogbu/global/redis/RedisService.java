@@ -1,15 +1,11 @@
 package busim.kkilogbu.global.redis;
 
-import static org.springframework.data.geo.Metrics.*;
-import static org.springframework.http.HttpStatus.*;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantMapper;
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantResponseDto;
-import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
 import busim.kkilogbu.api.restaurantAPI.repository.RestaurantRepository;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristResponseDto;
@@ -24,7 +20,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,41 +49,11 @@ import lombok.extern.slf4j.Slf4j;
 import static org.springframework.data.geo.Metrics.KILOMETERS;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import org.springframework.data.geo.Circle;
-import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.GeoResult;
-import org.springframework.data.geo.Point;
-import org.springframework.data.redis.connection.RedisGeoCommands;
-import org.springframework.data.redis.core.GeoOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import busim.kkilogbu.api.ParkingAPI.domain.dto.ParkingDataResponse;
-import busim.kkilogbu.api.ParkingAPI.domain.entity.ParkingData;
-import busim.kkilogbu.api.ParkingAPI.repository.ParkingRepository;
-import busim.kkilogbu.api.restroomAPI.domain.dto.ToiletDataResponse;
-import busim.kkilogbu.api.restroomAPI.domain.entity.ToiletData;
-import busim.kkilogbu.api.restroomAPI.repository.ToiletDataRepository;
-import busim.kkilogbu.global.Ex.BaseException;
-import busim.kkilogbu.global.ZoomLevel;
-import busim.kkilogbu.place.dto.PlaceMarkResponse;
-import busim.kkilogbu.place.repository.PlaceRepository;
-import busim.kkilogbu.record.dto.RecordMarkResponse;
-import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.TouristCategory;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -224,7 +189,7 @@ public class RedisService {
 					.openingHours(toilet.getOpeningHours())
 					.toiletName(toilet.getToiletName())
 					.build();
-			saveTotalPlaceInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet", null);
+			saveTotalPlaceInRedis(toilet.getLatitude(), toilet.getLongitude(), input, "toilet");
 		});
 	}
 
@@ -248,12 +213,12 @@ public class RedisService {
 					.ftMon(parking.getFtMon())
 					.pkGubun(parking.getPkGubun())
 					.build();
-			saveTotalPlaceInRedis(parking.getXCdnt(), parking.getYCdnt(), input, "park", null);
+			saveTotalPlaceInRedis(parking.getXCdnt(), parking.getYCdnt(), input, "park");
 		});
 	}
 
 	/**
-	 * Record 데이터를 Redis에 저장
+	 * Records 데이터를 Redis에 저장
 	 */
 	public void saveRecordDataInRedis(){
 		List<RecordMarkResponse> all = recordRepository.findAll().stream()
@@ -261,12 +226,10 @@ public class RedisService {
 						.id(record.getId())
 						.lat(record.getAddressInfo().getLatitude())
 						.lng(record.getAddressInfo().getLongitude())
-						.cat1(record.getCat1())
-						.cat2(record.getCat2())
 						.imageUrl(record.getContents().getImageUrl())
 						.build())
 				.toList();
-		all.forEach(record -> saveTotalPlaceInRedis(record.getLat(), record.getLng(), record, "record", record.getCat2()));
+		all.forEach(record -> saveTotalPlaceInRedis(record.getLat(), record.getLng(), record, "record"));
 	}
 
 
@@ -368,69 +331,65 @@ public class RedisService {
 	/**
 	 * redis에 위치 정보 조회
 	 */
-	public List<Cluster> getPlacesInRedis(double lat, double lng, ZoomLevel level, String type, Long category){
+	public <T> List<Cluster<T>> getPlacesInRedis(double lat, double lng, ZoomLevel level, String type, Class<T> responseType) {
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo:" + type + ":" + category;
+		String key = "geo:" + type;
 		Point point = new Point(lng, lat);
 		Circle circle = new Circle(point, new Distance(level.getKilometer(), KILOMETERS));
 
 		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = geoOperations.radius(key, circle).getContent();
 
-		// 조회된 결과를 RecordDetail 또는 PlaceDetail 객체로 변환
-		List<Object> record = geoResults.stream()
-			.map(GeoResult::getContent)
-			.map(RedisGeoCommands.GeoLocation::getName)
-			.map(json -> {
-				try {
-					// TODO : 지도상에서 보여줄 데이터이기 때문에 그냥 사진이랑 id값만 있어도 될거 같음
-					if (type.equals("record")) {
-						return objectMapper.readValue(json, RecordDetailResponse.class);
-					} else {
-						return objectMapper.readValue(json, PlaceDetailResponse.class);
+		List<T> records = geoResults.stream()
+				.map(GeoResult::getContent)
+				.map(RedisGeoCommands.GeoLocation::getName)
+				.map(json -> {
+					try {
+						return objectMapper.readValue(json, responseType);  // 제네릭을 이용하여 동적으로 변환
+					} catch (IOException e) {
+						throw new RuntimeException("JSON 변환 중 오류 발생", e);
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					return null;
-				}
-			})
-			.filter(Objects::nonNull) // null 필터링
-			.collect(Collectors.toList());
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 
-		return clusterPlaces(record, 6, type);
+		return clusterPlaces(records, 6, type);  // 클러스터링
 	}
-	private List<Cluster> clusterPlaces(List<Object> places, int zoomLevel, String type){
-		// GeoHash precision level 설정 (zoomLevel에 따라 달라짐)
+
+	private <T> List<Cluster<T>> clusterPlaces(List<T> recordData, int zoomLevel, String type) {
 		int precision = getGeoHashPrecision(zoomLevel);
 
-		// GeoHash를 사용하여 클러스터링
-		Map<String, List<Object>> clusters = places.stream()
-			.collect(Collectors.groupingBy(place -> {
-				String geoHash;
-				if(type == "record"){
-					geoHash = GeoHash.withCharacterPrecision(((RecordDetailResponse)place).getLat(), ((RecordDetailResponse)place).getLng(), precision)
-						.toBase32();
-				}else{
-					geoHash = GeoHash.withCharacterPrecision(((PlaceDetailResponse)place).getLat(), ((PlaceDetailResponse)place).getLng(), precision)
-						.toBase32();
-				}
-				return geoHash;
-			}));
+		Map<String, List<T>> clusters = recordData.stream()
+				.collect(Collectors.groupingBy(place -> {
+					String geoHash = getGeoHash(place, type, precision);
+					return geoHash;
+				}));
 
-		// Cluster 객체 생성
 		return clusters.entrySet().stream()
-			.map(entry -> {
-				String geoHash = entry.getKey();
-				List<Object> clusterRecords = entry.getValue();
-				GeoHash hash = GeoHash.fromGeohashString(geoHash);
-				double latitude = hash.getOriginatingPoint().getLatitude();
-				double longitude = hash.getOriginatingPoint().getLongitude();
-				return new Cluster(latitude, longitude, clusterRecords);
-			})
-			.collect(Collectors.toList());
+				.map(entry -> {
+					String geoHash = entry.getKey();
+					List<T> clusterRecords = entry.getValue();
+					GeoHash hash = GeoHash.fromGeohashString(geoHash);
+					double latitude = hash.getOriginatingPoint().getLatitude();
+					double longitude = hash.getOriginatingPoint().getLongitude();
+					return new Cluster<>(latitude, longitude, clusterRecords);
+				})
+				.collect(Collectors.toList());
 	}
 
+
+	// GeoHash 생성 로직 분리
+	private String getGeoHash(Object place, String type, int precision) {
+		if ("record".equals(type)) {
+			RecordDetailResponse record = (RecordDetailResponse) place;
+			return GeoHash.withCharacterPrecision(record.getLat(), record.getLng(), precision).toBase32();
+		} else {
+			PlaceDetailResponse placeDetail = (PlaceDetailResponse) place;
+			return GeoHash.withCharacterPrecision(placeDetail.getLat(), placeDetail.getLng(), precision).toBase32();
+		}
+	}
+
+	// ZoomLevel에 따른 GeoHash precision 설정
 	private int getGeoHashPrecision(int zoomLevel) {
-		// zoomLevel에 따라 GeoHash precision level 설정 (예: 대략적인 값)
 		if (zoomLevel >= 0 && zoomLevel <= 5) {
 			return 4; // 낮은 precision (큰 클러스터)
 		} else if (zoomLevel >= 6 && zoomLevel <= 10) {
@@ -438,8 +397,8 @@ public class RedisService {
 		} else {
 			return 8; // 높은 precision (작은 클러스터)
 		}
-
 	}
+
 
 
 	public List<ToiletDataResponse> getToiletList(double lat, double lng, double radius){
@@ -469,9 +428,9 @@ public class RedisService {
 	/**
 	 * redis에 위치 정보 저장
 	 */
-	public void saveTotalPlaceInRedis(double lat, double lng, Object object, String type, Long category) {
+	public void saveTotalPlaceInRedis(double lat, double lng, Object object, String type) {
 		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
-		String key = "geo:" + type + (category != null ? ":" + category : "");
+		String key = "geo:" + type;
 
 		Point point = new Point(lng, lat);
 		try {
@@ -482,6 +441,7 @@ public class RedisService {
 			throw new RuntimeException(e);
 		}
 	}
+
 
 	/*
 	 * Redis에 Restaurant 데이터를 저장하는 메서드
@@ -526,6 +486,7 @@ public class RedisService {
 			throw new RuntimeException("Tourist 데이터 Redis 저장 중 오류 발생", e);
 		}
 	}
+
 
 
 }

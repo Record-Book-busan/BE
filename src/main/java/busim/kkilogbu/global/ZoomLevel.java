@@ -26,4 +26,10 @@ public enum ZoomLevel {
 	ZoomLevel(double kilometer) {
 		this.kilometer = kilometer;
 	}
+
+	// 줌 레벨이 낮은지 판단하는 메서드 (예: LEVEL_5 이하가 낮은 줌 레벨로 간주)
+	public boolean isLowZoom() {
+		// 여기서는 LEVEL_5 이하를 "낮은 줌 레벨"로 정의
+		return this.ordinal() <= LEVEL_5.ordinal();
+	}
 }
