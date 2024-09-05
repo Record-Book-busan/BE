@@ -1,5 +1,7 @@
 package busim.kkilogbu.api.restaurantAPI.domain.entity;
 
+import busim.kkilogbu.place.dto.RestaurantCategory;
+import busim.kkilogbu.place.entity.Place;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +19,7 @@ public class Restaurant {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id; // 식별자 (자동 생성)
+        private Long id; //
 
         @Column(length = 10000)
         private String title; // 제목
@@ -55,6 +57,11 @@ public class Restaurant {
         @Column(name = "category")
         private List<String> categories; // 추천하는 회사 리스트 ( 추천 레스토랑 그룹 등)
 
-        // 추가된 필드: 유형 (1 또는 0)
-        private Integer type; // 식당 유형을 나타내는 필드 (1: 특정 맛집, 0: 그냥 맛집)
+
+        private RestaurantCategory type; // 식당 유형을 나타내는 필드 (1: 특정 맛집, 0: 그냥 맛집)
+
+        // Place와 다대일 관계 설정
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "place_id")
+        private Place place;
 }

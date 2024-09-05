@@ -24,3 +24,4 @@ public class RestaurantResponseDto {
     private RestaurantCategory type;
 
 }
+
