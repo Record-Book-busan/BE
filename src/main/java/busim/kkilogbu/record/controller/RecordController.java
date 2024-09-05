@@ -39,7 +39,21 @@ public class RecordController {
 	public ResponseEntity<List<Cluster<RecordMarkResponse>>> getRecordInRedisWithCluster(
 			@Parameter(description = "위도") @RequestParam("lat") double lat,
 			@Parameter(description = "경도") @RequestParam("lng") double lng,
-			@Parameter(description = "줌 레벨", example = "LEVEL_5") @RequestParam("level") ZoomLevel level) {
+			@Parameter(description = "줌 레벨", example = "LEVEL_1(0.1),\n" +
+					"\tLEVEL_2(0.2),\n" +
+					"\tLEVEL_3(0.3),\n" +
+					"\tLEVEL_4(0.5),\n" +
+					"\tLEVEL_5(1),\n" +
+					"\tLEVEL_6(2.5),\n" +
+					"\tLEVEL_7(5),\n" +
+					"\tLEVEL_8(10),\n" +
+					"\tLEVEL_9(20),\n" +
+					"\tLEVEL_10(40),\n" +
+					"\tLEVEL_11(80),\n" +
+					"\tLEVEL_12(160),\n" +
+					"\tLEVEL_13(320),\n" +
+					"\tLEVEL_14(640),\n" +
+					"\tLEVEL_15(1280)") @RequestParam("level") ZoomLevel level) {
 
 			if (level == null) {
 				throw new BaseException("줌 레벨이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);

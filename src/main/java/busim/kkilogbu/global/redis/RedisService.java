@@ -72,46 +72,126 @@ public class RedisService {
 	/**
 	 * 맛집 카테고리에 따른 Redis 조회
 	 */
-	public List<PlaceMarkResponse> getRestaurantPlacesInRedis(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories) {
+	public List<Cluster<PlaceMarkResponse>> getRestaurantPlacesNew(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
 		for (RestaurantCategory category : restaurantCategories) {
-			String key = "geo:restaurant:" + category.name();  // 맛집 카테고리에 맞는 키 생성
-			places.addAll(getPlacesFromRedis(lat, lng, level, key, PlaceMarkResponse.class));
+			String key = "geo:restaurant:" + category.name();
+			places.addAll(getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class));
 		}
-		return places;
+		return applyNewClusteringBasedOnZoomLevel(places, level);
 	}
 
 	/**
 	 * 관광 카테고리에 따른 Redis 조회
 	 */
-	public List<PlaceMarkResponse> getTouristPlacesInRedis(double lat, double lng, ZoomLevel level, List<TouristCategory> touristCategories) {
+	public List<Cluster<PlaceMarkResponse>> getTouristPlacesNew(double lat, double lng, ZoomLevel level, List<TouristCategory> touristCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
 		for (TouristCategory category : touristCategories) {
-			String key = "geo:tourist:" + category.name();  // 관광 카테고리에 맞는 키 생성
-			places.addAll(getPlacesFromRedis(lat, lng, level, key, PlaceMarkResponse.class));
+			String key = "geo:tourist:" + category.name();
+			places.addAll(getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class));
 		}
-		return places;
+		return applyNewClusteringBasedOnZoomLevel(places, level);
 	}
 
 	/**
-	 * 맛집 및 관광 카테고리를 함께 조회하는 경우
+	 * 새로운 방식으로 맛집 및 관광 카테고리를 함께 조회
 	 */
-	public List<PlaceMarkResponse> getAllPlacesFromRedis(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories, List<TouristCategory> touristCategories) {
+	public List<Cluster<PlaceMarkResponse>> getAllPlacesNew(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories, List<TouristCategory> touristCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
 
 		// 맛집 카테고리 조회
 		if (restaurantCategories != null && !restaurantCategories.isEmpty()) {
-			places.addAll(getRestaurantPlacesInRedis(lat, lng, level, restaurantCategories));
+			places.addAll(getRestaurantPlacesNew(lat, lng, level, restaurantCategories).stream()
+					.flatMap(cluster -> cluster.getRecordData().stream())
+					.collect(Collectors.toList()));
 		}
 
 		// 관광 카테고리 조회
 		if (touristCategories != null && !touristCategories.isEmpty()) {
-			places.addAll(getTouristPlacesInRedis(lat, lng, level, touristCategories));
+			places.addAll(getTouristPlacesNew(lat, lng, level, touristCategories).stream()
+					.flatMap(cluster -> cluster.getRecordData().stream())
+					.collect(Collectors.toList()));
 		}
 
-		return places;
+		return applyNewClusteringBasedOnZoomLevel(places, level);
 	}
 
+	/**
+	 * 새로운 줌 레벨에 따른 클러스터링 적용 메서드
+	 */
+	private List<Cluster<PlaceMarkResponse>> applyNewClusteringBasedOnZoomLevel(List<PlaceMarkResponse> places, ZoomLevel level) {
+		if (level.getKilometer() > 10) {
+			int precision = getNewGeoHashPrecision(level.getKilometer());
+			return clusterNewPlaces(places, precision);
+		} else {
+			return places.stream()
+					.map(place -> new Cluster<>(place.getLat(), place.getLng(), List.of(place)))
+					.collect(Collectors.toList());
+		}
+	}
+
+	/**
+	 * 새로운 GeoHash precision 설정
+	 */
+	private int getNewGeoHashPrecision(double kilometers) {
+		if (kilometers > 50) {
+			return 4;  // 낮은 precision
+		} else if (kilometers > 10) {
+			return 6;  // 중간 precision
+		} else {
+			return 8;  // 높은 precision
+		}
+	}
+
+	/**
+	 * 새로운 클러스터링 메서드
+	 */
+	private <T> List<Cluster<T>> clusterNewPlaces(List<T> places, int precision) {
+		Map<String, List<T>> clusters = places.stream()
+				.collect(Collectors.groupingBy(place -> {
+					if (place instanceof PlaceMarkResponse) {
+						PlaceMarkResponse p = (PlaceMarkResponse) place;
+						return GeoHash.withCharacterPrecision(p.getLat(), p.getLng(), precision).toBase32();
+					}
+					return null;
+				}));
+
+		return clusters.entrySet().stream()
+				.map(entry -> {
+					GeoHash geoHash = GeoHash.fromGeohashString(entry.getKey());
+					double latitude = geoHash.getOriginatingPoint().getLatitude();
+					double longitude = geoHash.getOriginatingPoint().getLongitude();
+					return new Cluster<>(latitude, longitude, entry.getValue());
+				})
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * 레디스에서 장소 정보를 가져오는 맛집, 관광 공통 메서드
+	 */
+	private <T> List<T> getPlacesFromRedisNew(double lat, double lng, ZoomLevel level, String key, Class<T> type) {
+		GeoOperations<String, String> geoOperations = redisTemplate.opsForGeo();
+		Point point = new Point(lng, lat);
+		Circle circle = new Circle(point, new Distance(level.getKilometer(), KILOMETERS));
+
+		List<GeoResult<RedisGeoCommands.GeoLocation<String>>> geoResults = geoOperations.radius(key, circle).getContent();
+
+		return geoResults.stream()
+				.map(GeoResult::getContent)
+				.map(RedisGeoCommands.GeoLocation::getName)
+				.map(json -> {
+					try {
+						return objectMapper.readValue(json, type);
+					} catch (IOException e) {
+						log.error("Error reading from Redis", e);
+						return null;
+					}
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+	}
+
+//	위에는 코드는 관광, 맛집 전용
 
 	/**
 	 * 레디스에서 장소 정보를 가져오는 공통 메서드

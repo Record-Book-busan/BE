@@ -3,18 +3,16 @@ package busim.kkilogbu.place.controller;
 
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.Ex.InvalidCategoryException;
+import busim.kkilogbu.global.redis.dto.Cluster;
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.TouristCategory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,10 +20,8 @@ import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 
-import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.service.PlaceService;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -40,10 +36,24 @@ public class PlaceController {
 
 	@Operation(summary = "카테고리 조회", description = "맛집, 관광 정보 가져옵니다")
 	@GetMapping
-	public ResponseEntity<List<PlaceMarkResponse>> getPlaceInRedis(
+	public ResponseEntity<List<Cluster<PlaceMarkResponse>>> getPlaceInRedis(
 			@Parameter(description = "위도") @RequestParam("lat") double lat,
 			@Parameter(description = "경도") @RequestParam("lng") double lng,
-			@Parameter(description = "줌 레벨") @RequestParam("level") ZoomLevel level,
+			@Parameter(description = "줌 레벨", example = "LEVEL_1(0.1),\n" +
+					"\tLEVEL_2(0.2),\n" +
+					"\tLEVEL_3(0.3),\n" +
+					"\tLEVEL_4(0.5),\n" +
+					"\tLEVEL_5(1),\n" +
+					"\tLEVEL_6(2.5),\n" +
+					"\tLEVEL_7(5),\n" +
+					"\tLEVEL_8(10),\n" +
+					"\tLEVEL_9(20),\n" +
+					"\tLEVEL_10(40),\n" +
+					"\tLEVEL_11(80),\n" +
+					"\tLEVEL_12(160),\n" +
+					"\tLEVEL_13(320),\n" +
+					"\tLEVEL_14(640),\n" +
+					"\tLEVEL_15(1280)") @RequestParam("level") ZoomLevel level,
 			@Parameter(description = "맛집 카테고리들, 예: NORMAL_RESTAURANT(일반 맛집), SPECIAL_RESTAURANT(특별 맛집)")
 			@RequestParam(value = "restaurantCategories", required = false) List<RestaurantCategory> restaurantCategories,
 			@Parameter(description = "관광 카테고리들, 예: TOURIST_SPOT(관광지), THEME(테마), HOT_PLACE(핫플), NATURE(자연), LEISURE_SPORTS(레포츠)")
@@ -59,19 +69,19 @@ public class PlaceController {
 		}
 
 		try {
-			List<PlaceMarkResponse> places;
+			List<Cluster<PlaceMarkResponse>> places;
 
 			// 관광 카테고리만 있는 경우
 			if (!hasRestaurantCategories && hasTouristCategories) {
-				places = redisService.getTouristPlacesInRedis(lat, lng, level, touristCategories);
+				places = redisService.getTouristPlacesNew(lat, lng, level, touristCategories);
 			}
 			// 맛집 카테고리만 있는 경우
 			else if (hasRestaurantCategories && !hasTouristCategories) {
-				places = redisService.getRestaurantPlacesInRedis(lat, lng, level, restaurantCategories);
+				places = redisService.getRestaurantPlacesNew(lat, lng, level, restaurantCategories);
 			}
 			// 둘 다 있는 경우
 			else {
-				places = redisService.getAllPlacesFromRedis(lat, lng, level, restaurantCategories, touristCategories);
+				places = redisService.getAllPlacesNew(lat, lng, level, restaurantCategories, touristCategories);
 			}
 
 			return ResponseEntity.ok(places);
@@ -82,6 +92,9 @@ public class PlaceController {
 			throw new BaseException("서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+
+
 
 
 
