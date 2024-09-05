@@ -1,6 +1,6 @@
-package busim.kkilogbu.api.tourInfoAPI.domain.dto;
+package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
-import busim.kkilogbu.api.tourInfoAPI.domain.entity.Restaurant;
+import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
 
 public class RestaurantMapper {
 
@@ -13,13 +13,10 @@ public class RestaurantMapper {
                 .longitude(restaurant.getLongitude())
                 .phoneNumber(restaurant.getPhoneNumber())
                 .businessType(restaurant.getBusinessType())
-                .businessLicenseName(restaurant.getBusinessLicenseName())
                 .detailedInformation(restaurant.getDetailedInformation())
                 .imageUrls(restaurant.getImageUrls())
                 .restaurantName(restaurant.getRestaurantName())
-                .category(restaurant.getCategory())
+                .categories(restaurant.getCategories()) // 카테고리 리스트를 DTO로 변환
                 .build();
-
-
     }
 }

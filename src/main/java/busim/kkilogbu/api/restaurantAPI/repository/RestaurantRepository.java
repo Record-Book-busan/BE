@@ -1,6 +1,6 @@
-package busim.kkilogbu.api.tourInfoAPI.repository;
+package busim.kkilogbu.api.restaurantAPI.repository;
 
-import busim.kkilogbu.api.tourInfoAPI.domain.entity.Restaurant;
+import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
