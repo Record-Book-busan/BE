@@ -1,5 +1,6 @@
 package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
+import busim.kkilogbu.place.dto.RestaurantCategory;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,6 +20,7 @@ public class RestaurantResponseDto {
     private String detailedInformation;
     private List<String> imageUrls;
     private String restaurantName;
-    private List<String> categories; // 카테고리 필드를 리스트로 변경
+    private List<String> categories;
+    private RestaurantCategory type;
 
 }

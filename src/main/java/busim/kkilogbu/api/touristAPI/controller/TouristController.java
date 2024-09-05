@@ -1,4 +1,4 @@
-package busim.kkilogbu.api.touristAPI.domain.controller;
+package busim.kkilogbu.api.touristAPI.controller;
 
 
 import busim.kkilogbu.api.touristAPI.service.TouristService;

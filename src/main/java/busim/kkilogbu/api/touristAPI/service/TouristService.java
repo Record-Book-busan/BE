@@ -1,8 +1,9 @@
 package busim.kkilogbu.api.touristAPI.service;
 
-
 import busim.kkilogbu.api.touristAPI.domain.entity.Tourist;
+
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
+import busim.kkilogbu.place.dto.TouristCategory;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -34,7 +35,7 @@ public class TouristService {
                         .imageUrl(csvRecord.get("이미지"))
                         .longitude(Double.parseDouble(csvRecord.get("경도")))
                         .latitude(Double.parseDouble(csvRecord.get("위도")))
-                        .categoryLarge(csvRecord.get("대분류"))
+                        .categoryLarge(TouristCategory.fromString(csvRecord.get("대분류")))  // 대분류 변환
                         .categoryMedium(csvRecord.get("중분류"))
                         .categorySmall(csvRecord.get("소분류"))
                         .build();

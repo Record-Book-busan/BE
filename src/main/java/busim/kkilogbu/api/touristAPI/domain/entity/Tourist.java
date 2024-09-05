@@ -1,9 +1,8 @@
 package busim.kkilogbu.api.touristAPI.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import busim.kkilogbu.place.dto.TouristCategory;
+import busim.kkilogbu.place.entity.Place;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +24,14 @@ public class Tourist {
     private String imageUrl;      // 이미지 URL
     private Double longitude;     // 경도
     private Double latitude;      // 위도
-    private String categoryLarge;   // 대분류
+
+    @Enumerated(EnumType.STRING)
+    private TouristCategory categoryLarge;   // 대분류
+
     private String categoryMedium;  // 중분류
     private String categorySmall;   // 소분류
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "place_id")
+    private Place place;
 }
