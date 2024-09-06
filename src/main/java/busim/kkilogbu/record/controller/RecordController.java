@@ -11,6 +11,7 @@ import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.service.RecordService;
+import busim.kkilogbu.user.service.BlackListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,7 @@ public class RecordController {
 	private final RecordService service;
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
+	private final BlackListService blackListService;
 
 	@Operation(
 			summary = "줌 레벨에 따라 기록을 조회합니다.",
@@ -85,7 +87,7 @@ public class RecordController {
 	@PostMapping("/{markId}/report")
 	public ResponseEntity<?> report(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-		service.report(markId);
+		blackListService.report(markId);
 		return ResponseEntity.ok().build();
 	}
 
