@@ -42,6 +42,9 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Bookmark> bookmarks = new ArrayList<>();
 
+	@OneToMany(mappedBy = "user")
+	private List<BlackList> blackLists = new ArrayList<>();
+
 	public void changeNickname(String nickname) {
 		this.nickname = nickname;
 	}
@@ -51,4 +54,6 @@ public class User {
 	public void categoryChange(Long category) {
 		this.category = category;
 	}
+
+
 }

@@ -3,7 +3,6 @@ package busim.kkilogbu.record.service;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.record.dto.*;
 import busim.kkilogbu.record.entity.Records;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,9 @@ import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.user.entity.BlackList;
+import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.service.BlackListService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,12 +26,20 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
+	private final BlackListService blackListService;
 
 	@Transactional(readOnly = true)
 	public RecordDetailResponse getPlaceDetail(Long id) {
 		Records records = recordRepository.findFetchById(id).orElseThrow(() ->
 				new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND)
 		);
+
+		// TODO : 로그인 구현 후 변경
+		User user = User.builder().nickname("tester").build();
+		if(blackListService.isBlocked(user, records.getUser())){
+			throw new BaseException("차단된 사용자입니다.", HttpStatus.FORBIDDEN);
+		}
+
 		return RecordMapper.toCreateRecordDetailResponse(records);
 	}
 
@@ -122,5 +132,4 @@ public class RecordService {
 			.imageUrl(records.getContents().getImageUrl())
 			.build();
 	}
-
 }
