@@ -32,4 +32,7 @@ public class SearchResultResponse {
 
         @Schema(description = "카테고리 (맛집 또는 관광지의 대분류)", example = "맛집")
         private String category;      // 카테고리 (맛집 또는 관광지의 대분류)
+
+        @Schema(description = "북마크 여부", example = "false")
+        private boolean bookmarked;   // 북마크 여부
 }

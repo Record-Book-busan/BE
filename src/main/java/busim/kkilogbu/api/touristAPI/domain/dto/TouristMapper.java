@@ -19,7 +19,7 @@ public class TouristMapper {
     }
 
 
-    public static SearchResultResponse toSearchResultResponse(Tourist tourist) {
+    public static SearchResultResponse toSearchResultResponse(Tourist tourist, boolean bookmarked) {
         return SearchResultResponse.builder()
                 .id(tourist.getId())
                 .name(tourist.getName())
@@ -28,6 +28,7 @@ public class TouristMapper {
                 .longitude(tourist.getLongitude())
                 .imageUrl(tourist.getImageUrl())
                 .category(tourist.getCategoryLarge())  // 관광지의 대분류를 카테고리로 사용
+                .bookmarked(bookmarked)
                 .build();
     }
 
