@@ -33,7 +33,7 @@ public class RecordController {
 
 	@Operation(
 			summary = "줌 레벨에 따라 기록을 조회합니다.",
-			description = "사용자가 지정한 줌 레벨에 따라 기록을 조회합니다. 줌 레벨이 낮을수록 더 넓은 범위에서 데이터를 조회하고, 줌 레벨이 높을수록 좁은 범위에서 데이터를 조회합니다. 낮은 줌 레벨에서는 더 많은 기록이 클러스터링되어 표시되며, 높은 줌 레벨에서는 개별 기록이 상세하게 표시됩니다."
+			description = "사용자가 지정한 줌 레벨에 따라 기록을 조회합니다. 줌 레벨이 낮을수록 더 넓은 범위에서 데이터를 조회하고, 줌 레벨이 높을수록 좁은 범위에서 데이터를 조회합니다."
 	)
 	@GetMapping
 	public ResponseEntity<List<RecordMarkResponse>> getRecordInRedisWithCluster(
