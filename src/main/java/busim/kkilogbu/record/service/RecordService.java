@@ -1,5 +1,6 @@
 package busim.kkilogbu.record.service;
 
+import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.record.dto.*;
 import busim.kkilogbu.record.entity.Records;
@@ -14,6 +15,7 @@ import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.user.entity.User;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,13 +26,18 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
+	private final BookmarkService bookmarkService;
 
 	@Transactional(readOnly = true)
 	public RecordDetailResponse getPlaceDetail(Long id) {
 		Records records = recordRepository.findFetchById(id).orElseThrow(() ->
 				new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND)
 		);
-		return RecordMapper.toCreateRecordDetailResponse(records);
+		// TODO : 로그인 구현후 변경
+		User user = User.builder().nickname("tester").build();
+		boolean bookMarked = bookmarkService.isBookMarked(user, records);
+
+		return RecordMapper.toCreateRecordDetailResponse(records, bookMarked);
 	}
 
 	@Transactional
@@ -58,7 +65,7 @@ public class RecordService {
 			redisService.saveTotalPlaceInRedis(
 					request.getLat(),
 					request.getLng(),
-					RecordMapper.toCreateRecordDetailResponse(record),
+					RecordMapper.toCreateRecordDetailResponse(record, false),
 					"record"
 			);
 

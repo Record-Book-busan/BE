@@ -1,6 +1,5 @@
 package busim.kkilogbu.record.dto;
 
-import busim.kkilogbu.global.Category1;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,4 +33,6 @@ public class RecordDetailResponse {
 	private String createdAt;
 
 	// TODO : 북마크 여부?
+	@Schema(description = "북마크 여부", example = "true")
+	private boolean bookmarked;
 }

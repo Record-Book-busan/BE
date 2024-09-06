@@ -90,4 +90,20 @@ public class BookmarkService {
 		}
 		bookmarkRepository.delete(bookmark);
 	}
+
+	public boolean isBookMarked(User user, Object object){
+		if(object instanceof Records){
+			Records records = (Records) object;
+			return bookmarkRepository.existsByUserAndRecords(user, records);
+		}
+		else if(object instanceof Place){
+			Place place = (Place) object;
+			return bookmarkRepository.existsByUserAndPlace(user, place);
+		}
+		else{
+			// TODO : 예외처리 변경
+			throw new IllegalArgumentException("object is not valid");
+		}
+
+	}
 }
