@@ -5,10 +5,10 @@ import static lombok.AccessLevel.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import busim.kkilogbu.record.entity.Records;
 import org.springframework.util.StringUtils;
 
 import busim.kkilogbu.place.entity.Place;
-import busim.kkilogbu.record.entity.Record;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -33,7 +33,7 @@ public class AddressInfo {
 	private double longitude;
 
 	@OneToMany(mappedBy = "addressInfo")
-	private List<Record> record = new ArrayList<>();
+	private List<Records> records = new ArrayList<>();
 	@OneToMany(mappedBy = "addressInfo")
 	private List<Place> place = new ArrayList<>();
 

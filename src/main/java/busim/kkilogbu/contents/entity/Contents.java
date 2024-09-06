@@ -7,7 +7,7 @@ import static lombok.AccessLevel.*;
 import org.springframework.util.StringUtils;
 
 import busim.kkilogbu.place.entity.Place;
-import busim.kkilogbu.record.entity.Record;
+import busim.kkilogbu.record.entity.Records;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -23,14 +23,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Contents {
+
 	@Id @GeneratedValue(strategy = IDENTITY)
 	private Long id;
 	private String title;
 	private String content;
 	private String imageUrl;
+
 	@OneToOne(fetch = LAZY)
 	@JoinColumn(name = "record_id")
-	private Record record;
+	private Records records;
 
 	@OneToOne(fetch = LAZY)
 	@JoinColumn(name = "place_id")
@@ -42,8 +44,8 @@ public class Contents {
 		this.content = content;
 		this.imageUrl = imageUrl;
 	}
-	public void connect(Record record, Place place) {
-		this.record = record;
+	public void connect(Records records, Place place) {
+		this.records = records;
 		this.place = place;
 	}
 

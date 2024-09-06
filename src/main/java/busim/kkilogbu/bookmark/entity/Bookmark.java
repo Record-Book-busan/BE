@@ -4,7 +4,7 @@ import static jakarta.persistence.FetchType.*;
 import static lombok.AccessLevel.*;
 
 import busim.kkilogbu.place.entity.Place;
-import busim.kkilogbu.record.entity.Record;
+import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,26 +28,26 @@ public class Bookmark {
 	private User user;
 
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "record_id")
-	private Record record;
+	@JoinColumn(name = "records_id")
+	private Records records;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "place_id")
 	private Place place;
 
 	@Builder
-	public Bookmark(User user, Record record, Place place) {
+	public Bookmark(User user, Records records, Place place) {
 		this.user = user;
-		this.record = record;
+		this.records = records;
 		this.place = place;
 	}
 
-	public void connect(User user, Record record, Place place) {
+	public void connect(User user, Records records, Place place) {
 		this.user = user;
 		user.getBookmarks().add(this);
-		if(record != null) {
-			this.record = record;
-			record.getBookmark().add(this);
+		if(records != null) {
+			this.records = records;
+			records.getBookmark().add(this);
 		}
 		if(place != null) {
 			this.place = place;
@@ -59,14 +59,14 @@ public class Bookmark {
 		if(user != null) {
 			user.getBookmarks().remove(this);
 		}
-		if(record != null) {
-			record.getBookmark().remove(this);
+		if(records != null) {
+			records.getBookmark().remove(this);
 		}
 		if(place != null) {
 			place.getBookmark().remove(this);
 		}
 	}
 	public boolean isRecord() {
-		return record != null;
+		return records != null;
 	}
 }

@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
+import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
+import busim.kkilogbu.api.touristAPI.domain.entity.Tourist;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.contents.entity.Contents;
-import busim.kkilogbu.global.Category1;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -29,27 +30,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Place {
+
 	@Id @GeneratedValue
 	private Long id;
-	@Enumerated(STRING)
-	private Category1 cat1;
-	private Long cat2;
+
 	@OneToOne(mappedBy = "place", fetch = LAZY)
 	private Contents contents;
+
+	// addressInfo와 연관 관계 설정
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "address_info_id")
 	private AddressInfo addressInfo;
-	private String operatingTime;
-	private String phone;
 
 	@OneToMany(mappedBy = "place")
 	private List<Bookmark> bookmark = new ArrayList<>();
 
+	// 관광지와의 일대다 관계
+	@OneToMany(mappedBy = "place")
+	private List<Tourist> tourists = new ArrayList<>();
+
+	// 맛집과의 일대다 관계
+	@OneToMany(mappedBy = "place")
+	private List<Restaurant> restaurants = new ArrayList<>();
+
+	// Builder 패턴으로 객체 생성
 	@Builder
-	public Place(Category1 cat1, Long cat2, String operatingTime, String phone) {
-		this.cat1 = cat1;
-		this.cat2 = cat2;
-		this.operatingTime = operatingTime;
-		this.phone = phone;
+	public Place(AddressInfo addressInfo, Contents contents, Tourist tourist, Restaurant restaurant) {
+		this.addressInfo = addressInfo;
+		this.contents = contents;
+
 	}
 }

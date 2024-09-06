@@ -3,9 +3,9 @@ package busim.kkilogbu.user.service;
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.bookmark.repository.BookmarkRepository;
-import busim.kkilogbu.global.Category1;
+
 import busim.kkilogbu.record.dto.MyRecordResponse;
-import busim.kkilogbu.record.entity.Record;
+import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
@@ -84,14 +84,13 @@ public class UserService {
             () -> new RuntimeException("존재하지 않는 아이디 입니다")
         );
 
-        Slice<Record> findUserRecords = recordRepository.findByUser(user, pageable);
+        Slice<Records> findUserRecords = recordRepository.findByUser(user, pageable);
         return findUserRecords.map((record) -> {
             return MyRecordResponse.builder()
                 .id(record.getId())
                 .title(record.getContents().getTitle())
                 .content(record.getContents().getContent())
                 .imageUrl(record.getContents().getImageUrl())
-                .cat2(record.getCat2())
                 .lat(record.getAddressInfo().getLatitude())
                 .lng(record.getAddressInfo().getLongitude())
                 .build();
@@ -109,29 +108,25 @@ public class UserService {
          if(type.equals("RECORD")){
             findUserBookmark = bookmarkRepository.findByUserAndRecordIsNotNull(user, pageable);
             return findUserBookmark.map((bookmark -> {
-                return getBookmarkResponse(bookmark.getId(), bookmark.getRecord().getContents().getTitle(),
-                    bookmark.getRecord().getAddressInfo().getAddress(), bookmark.getRecord().getCat1(),
-                    bookmark.getRecord().getCat2());
+                return getBookmarkResponse(bookmark.getId(), bookmark.getRecords().getContents().getTitle(),
+                    bookmark.getRecords().getAddressInfo().getAddress());
             }));
          }else if(type.equals("PLACE")){
             findUserBookmark = bookmarkRepository.findByUserAndPlaceIsNotNull(user, pageable);
             return findUserBookmark.map((bookmark -> {
                 return getBookmarkResponse(bookmark.getId(), bookmark.getPlace().getContents().getTitle(),
-                    bookmark.getPlace().getAddressInfo().getAddress(), bookmark.getPlace().getCat1(),
-                    bookmark.getPlace().getCat2());
+                    bookmark.getPlace().getAddressInfo().getAddress());
             }));
          }else{
             throw new RuntimeException("잘못된 타입입니다");
          }
     }
 
-    private BookmarkResponse getBookmarkResponse(Long id, String title, String address, Category1 cat1, Long cat2) {
+    private BookmarkResponse getBookmarkResponse(Long id, String title, String address) {
         return BookmarkResponse.builder()
             .id(id)
             .title(title)
             .address(address)
-            .cat1(cat1)
-            .cat2(cat2)
             .build();
     }
 }

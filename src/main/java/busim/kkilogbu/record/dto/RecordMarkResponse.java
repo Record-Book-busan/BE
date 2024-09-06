@@ -34,11 +34,5 @@ public class RecordMarkResponse {
 
 	@Schema(description = "기록의 경도", example = "126.9780")
 	private double lng;
-
-	@Schema(description = "1차 카테고리", example = "PLACE")
-	private Category1 cat1;
-
-	@Schema(description = "2차 카테고리 ID", example = "2")
-	private Long cat2;
 }
 

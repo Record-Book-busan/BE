@@ -1,6 +1,6 @@
-package busim.kkilogbu.api.tourInfoAPI.domain.dto;
+package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
-
+import busim.kkilogbu.place.dto.RestaurantCategory;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 public class RestaurantResponseDto {
 
-
     private String title;
     private String address;
     private String landLotAddress;
@@ -18,10 +17,11 @@ public class RestaurantResponseDto {
     private Double longitude;
     private String phoneNumber;
     private String businessType;
-    private String businessLicenseName;
     private String detailedInformation;
     private List<String> imageUrls;
     private String restaurantName;
-    private String category;
+    private List<String> categories;
+    private String type;
 
 }
+

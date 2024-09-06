@@ -22,14 +22,6 @@ public class RecordDetailResponse {
 	@Schema(description = "기록 이미지의 URL", example = "https://example.com/image.jpg")
 	private String imageUrl;
 
-	@Schema(description = "기록의 주소", example = "서울특별시 중구")
-	private String address;
-
-	@Schema(description = "기록의 상세 주소", example = "명동길 12-34")
-	private String addressDetail;
-
-	@Schema(description = "우편번호", example = "04567")
-	private String zipcode;
 
 	@Schema(description = "기록의 위도", example = "37.5665")
 	private double lat;
@@ -37,14 +29,6 @@ public class RecordDetailResponse {
 	@Schema(description = "기록의 경도", example = "126.9780")
 	private double lng;
 
-	@Schema(description = "1차 카테고리", example = "PLACE")
-	private Category1 cat1;
-
-	@Schema(description = "2차 카테고리 ID", example = "2")
-	private Long cat2;
-
-	@Schema(description = "작성자 닉네임", example = "john_doe")
-	private String nickName;
 
 	@Schema(description = "기록 생성 시간", example = "2023-09-01T12:00:00")
 	private String createdAt;
