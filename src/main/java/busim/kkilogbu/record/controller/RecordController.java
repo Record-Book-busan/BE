@@ -81,6 +81,14 @@ public class RecordController {
 		return ResponseEntity.ok().build();
 	}
 
+	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
+	@PostMapping("/{markId}/report")
+	public ResponseEntity<?> report(
+			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+		service.report(markId);
+		return ResponseEntity.ok().build();
+	}
+
 	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
 	@PostMapping("/{markId}/bookmark")
 	public ResponseEntity<?> bookmark(
@@ -90,7 +98,6 @@ public class RecordController {
 	}
 
 	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
-
 	@DeleteMapping("/{markId}/bookmark")
 	public ResponseEntity<?> deleteBookmark(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {

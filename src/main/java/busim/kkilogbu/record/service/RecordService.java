@@ -14,6 +14,9 @@ import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.user.entity.BlackList;
+import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.repository.BlackListRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,6 +27,7 @@ public class RecordService {
 	private final RecordRepository recordRepository;
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
+	private final BlackListRepository blackListRepository;
 
 	@Transactional(readOnly = true)
 	public RecordDetailResponse getPlaceDetail(Long id) {
@@ -123,4 +127,15 @@ public class RecordService {
 			.build();
 	}
 
+	@Transactional
+	public void report(Long markId) {
+		// TODO : 로그인 구현후 수정
+		User user = User.builder().nickname("tester").build();
+		Records records = recordRepository.findById(markId)
+			.orElseThrow(() -> new BaseException("해당하는 기록이 없습니다.", HttpStatus.NOT_FOUND));
+		User writer = records.getUser();
+		BlackList blocked = BlackList.builder().user(user).reportedUser(writer).build();
+		blocked.report(user, writer);
+		blackListRepository.save(blocked);
+	}
 }
