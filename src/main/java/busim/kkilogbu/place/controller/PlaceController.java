@@ -1,11 +1,13 @@
 package busim.kkilogbu.place.controller;
 
 
+import busim.kkilogbu.api.touristAPI.service.TourInfoService;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.Ex.InvalidCategoryException;
-import busim.kkilogbu.global.redis.dto.Cluster;
+import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.TouristCategory;
+import busim.kkilogbu.place.service.PlaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +23,6 @@ import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
 
 import busim.kkilogbu.place.dto.PlaceMarkResponse;
-import busim.kkilogbu.place.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -31,12 +32,13 @@ import lombok.RequiredArgsConstructor;
 public class PlaceController {
 
 	private final PlaceService placeService;
+	private final TourInfoService tourInfoService;
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
 
 	@Operation(summary = "카테고리 조회", description = "맛집, 관광 정보 가져옵니다")
 	@GetMapping
-	public ResponseEntity<List<Cluster<PlaceMarkResponse>>> getPlaceInRedis(
+	public ResponseEntity<List<PlaceMarkResponse>> getPlaceInRedis(
 			@Parameter(description = "위도") @RequestParam("lat") double lat,
 			@Parameter(description = "경도") @RequestParam("lng") double lng,
 			@Parameter(description = "줌 레벨", example = "LEVEL_1(0.1),\n" +
@@ -69,7 +71,7 @@ public class PlaceController {
 		}
 
 		try {
-			List<Cluster<PlaceMarkResponse>> places;
+			List<PlaceMarkResponse> places;
 
 			// 관광 카테고리만 있는 경우
 			if (!hasRestaurantCategories && hasTouristCategories) {
@@ -94,36 +96,32 @@ public class PlaceController {
 	}
 
 
-
-
-
-
-//	/**
-//	 * 장소 상세 조회
-//	 *
-//	 */
-//	@Operation(summary = "카테고리 상세 조회", description = "카테고리에서 선택해서 나온 마커 중 한 곳을 선택 했을 때, 장소의 상세 정보를 가져옵니다.")
-//	@ApiResponses(value = {
-//			@ApiResponse(responseCode = "200", description = "성공적으로 장소 정보를 가져왔습니다."),
-//			@ApiResponse(responseCode = "404", description = "장소를 찾을 수 없습니다.")})
-//			@GetMapping("/{placeId}")
-//			public ResponseEntity<PlaceDetailResponse> getPlaceDetail(
-//			@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId,
-//			@Parameter(description = "장소 유형(맛집 또는 관광)", example = "restaurant or tourist") @RequestParam("type") String type) {
-//
-//		// 'type'에 따라 맛집 또는 관광지 조회
-//		PlaceDetailResponse placeDetail;
-//		if ("restaurant".equalsIgnoreCase(type)) {
-//			placeDetail = placeService.getRestaurantDetail(placeId);
-//		} else if ("tourist".equalsIgnoreCase(type)) {
-//			placeDetail = placeService.getTouristDetail(placeId);
-//		} else {
-//			throw new IllegalArgumentException("유효하지 않은 유형입니다.");
-//		}
-//
-//		return ResponseEntity.ok(placeDetail);
-//	}
-//
+	// /**
+	//  * 장소 상세 조회
+	//  *
+	//  */
+	// @Operation(summary = "카테고리 상세 조회", description = "카테고리에서 선택해서 나온 마커 중 한 곳을 선택 했을 때, 장소의 상세 정보를 가져옵니다.")
+	// @ApiResponses(value = {
+	// 		@ApiResponse(responseCode = "200", description = "성공적으로 장소 정보를 가져왔습니다."),
+	// 		@ApiResponse(responseCode = "404", description = "장소를 찾을 수 없습니다.")})
+	// 		@GetMapping("/{placeId}")
+	// 		public ResponseEntity<PlaceDetailResponse> getPlaceDetail(
+	// 		@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId,
+	// 		@Parameter(description = "장소 유형(맛집 또는 관광)", example = "restaurant or tourist") @RequestParam("type") String type) {
+	//
+	// 	// 'type'에 따라 맛집 또는 관광지 조회
+	// 	PlaceDetailResponse placeDetail;
+	// 	if ("restaurant".equalsIgnoreCase(type)) {
+	// 		placeDetail = placeService.getRestaurantDetail(placeId);
+	// 	} else if ("tourist".equalsIgnoreCase(type)) {
+	// 		placeDetail = placeService.getTouristDetail(placeId);
+	// 	} else {
+	// 		throw new IllegalArgumentException("유효하지 않은 유형입니다.");
+	// 	}
+	//
+	// 	return ResponseEntity.ok(placeDetail);
+	// }
+	//
 
 
 	@Operation(summary = "장소 북마크 추가", description = "특정 장소를 북마크합니다.")
@@ -142,5 +140,10 @@ public class PlaceController {
 		return ResponseEntity.ok().build();
 	}
 
+	@Operation(summary = "외부 api를 사용해 데이터 조회", description = "api를 활용해야 되기 때문에 피드 화면에서 api조회 후 장소 정보와 함께 제공")
+	@GetMapping("/externalApi")
+	public ResponseEntity<List<PlaceDetailResponse>> getExternalApi(){
+		return ResponseEntity.ok(tourInfoService.fetchTourInfoDate());
+	}
 
 }
