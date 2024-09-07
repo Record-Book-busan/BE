@@ -7,6 +7,8 @@ import busim.kkilogbu.bookmark.repository.BookmarkRepository;
 import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.user.appple.controller.AppleClient;
+import busim.kkilogbu.user.appple.domain.dto.AppleRevokeRequest;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
@@ -18,14 +20,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+    
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final AppleClient appleClient;
 
     public User userInfo(UserDto userDto) {
         userDto.toUser(userDto);
@@ -128,5 +133,39 @@ public class UserService {
             .title(title)
             .address(address)
             .build();
+    }
+
+    @Transactional
+    public void deleteUserAccount(String userId, String accessToken) {
+        // 1. 애플 OAuth 토큰 해지 (revoke)
+        revokeAppleToken(accessToken);
+
+        // 2. 데이터베이스에서 사용자 정보 삭제
+        userRepository.deleteById(userId);
+    }
+
+    private void revokeAppleToken(String accessToken) {
+        try {
+            // AppleRevokeRequest 객체 생성
+            AppleRevokeRequest appleRevokeRequest = AppleRevokeRequest.builder()
+                    .clientId("com.busim.recordbookbusan")  // 클라이언트 ID (Bundle ID)
+                    .clientSecret(this.createSecret())  // JWT로 서명된 client_secret 생성
+                    .token(accessToken)  // 해지할 OAuth 액세스 토큰
+                    .tokenTypeHint("access_token")  // 해지할 토큰 유형 (access_token)
+                    .build();
+
+            // FeignClient를 통해 애플 토큰 해지 API 호출
+            appleClient.revoke(appleRevokeRequest);
+
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Apple 회원탈퇴 실패 했습니다: " + e.getMessage());
+        }
+    }
+
+    // client_secret 생성 메소드 (JWT 서명)
+    private String createSecret() {
+        // 30일 동안 유효한 JWT 생성 (createSecret 로직 참고)
+        // 생략: 앞에서 설명한 createSecret 로직 재사용
+        return "생성된 client_secret";  // JWT 생성 로직에 맞게 구현 필요
     }
 }
