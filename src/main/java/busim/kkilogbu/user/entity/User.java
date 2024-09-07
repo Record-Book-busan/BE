@@ -30,6 +30,29 @@ public class User {
 	private LocalDateTime createdAt;
 	private String ProfileImage;
 
+	private String appleUserId;  // 애플 사용자 ID
+	private String email;        // 이메일
+	private String refreshToken; // Refresh Token
+
+	// 빌더 패턴을 사용한 생성자
+	@Builder
+	public User(Long id, String appleUserId, String email, String refreshToken) {
+		this.id = id;
+		this.appleUserId = appleUserId;
+		this.email = email;
+		this.refreshToken = refreshToken;
+	}
+
+	// Refresh Token만 업데이트하는 메서드 (Setter 대체)
+	public User updateRefreshToken(String refreshToken) {
+		return User.builder()
+				.id(this.id)
+				.appleUserId(this.appleUserId)
+				.email(this.email)
+				.refreshToken(refreshToken)
+				.build();
+	}
+
 	//약관 동의 체크
 	private boolean agreePrivacy;
 

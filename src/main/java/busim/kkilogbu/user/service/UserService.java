@@ -9,19 +9,29 @@ import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.user.appple.controller.AppleClient;
 import busim.kkilogbu.user.appple.domain.dto.AppleRevokeRequest;
+import busim.kkilogbu.user.appple.domain.dto.AppleTokenRequest;
+import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
+import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
+import busim.kkilogbu.user.appple.service.AppleAuthService;
+import busim.kkilogbu.user.appple.service.AppleTokenService;
+import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.User;
 import busim.kkilogbu.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,27 +40,46 @@ public class UserService {
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
     private final BookmarkRepository bookmarkRepository;
+
     private final AppleClient appleClient;
+    private final AppleTokenService appleTokenService;
+    private final AppleAuthService appleAuthService;
 
     public User userInfo(UserDto userDto) {
         userDto.toUser(userDto);
         return userRepository.save(userDto.toUser(userDto));
     }
 
-    @Transactional
-    public void changeUserInfo(UserInfoRequest request){
-        // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-        User tmp = User.builder().username("tmp").build();
+    // 애플 로그인 처리
+    public SignInResponse appleSignIn(String authorizationCode, String identityToken) throws Exception {
+        // 1. AppleTokenResponse 객체를 사용해 애플 서버에서 access token 교환
 
-        User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
-            () -> new RuntimeException("존재하지 않는 아이디 입니다")
-        );
-        if(request.getNickName() != null) {
-            user.changeNickname(request.getNickName());
-        }
-        if(request.getProfileImage() != null){
-            user.changeProfileImage(request.getProfileImage());
-        }
+
+        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authorizationCode);
+
+        log.info(" access token 교환 성공!! : " + tokenResponse);
+        // 2. identityToken을 사용해 JWT 검증 (애플의 공개 키 사용)
+        Claims claims = appleTokenService.verifyIdentityToken(identityToken);
+        String appleUserId = claims.getSubject();  // JWT에서 애플 사용자 ID 추출
+
+        // 3. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
+        User user = userRepository.findByAppleUserId(appleUserId)
+                .orElseGet(() -> registerNewUser(claims));
+
+        // 4. 토큰 정보 업데이트 (refresh token 등)
+        user = user.updateRefreshToken(tokenResponse.refreshToken());
+        userRepository.save(user);  // 업데이트된 사용자 정보 저장
+
+        // 5. 매퍼를 통해 SignInResponse 반환
+        return SignInResponseMapper.toSignInResponse(user, tokenResponse);
+    }
+
+
+    private User registerNewUser(Claims claims) {
+        return User.builder()
+                .appleUserId(claims.getSubject())  // 애플 사용자 ID 설정
+                .email(claims.get("email", String.class))  // 이메일 설정
+                .build();
     }
 
     public UserInfoResponse getUserInfo() {
@@ -136,7 +165,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUserAccount(String userId, String accessToken) {
+    public void deleteUserAccount(Long userId, String accessToken) {
         // 1. 애플 OAuth 토큰 해지 (revoke)
         revokeAppleToken(accessToken);
 

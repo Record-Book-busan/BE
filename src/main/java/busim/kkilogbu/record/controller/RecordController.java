@@ -60,6 +60,8 @@ public class RecordController {
 			if (level == null) {
 				throw new BaseException("줌 레벨이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
 			}
+
+
 		List<RecordMarkResponse> record = redisService.getPlacesFromRedis(lat, lng, level, "record",
 			RecordMarkResponse.class);
 			return ResponseEntity.ok(record);
