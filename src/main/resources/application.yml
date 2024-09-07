@@ -21,9 +21,7 @@ spring:
       host: localhost
       port: 6379
 
-data:
-  tourInfo:
-    serviceKey: ${TOUR_INFO_KEY}
+
 
 cloud:
   aws:
@@ -50,3 +48,8 @@ springdoc:
     disable-swagger-default-url: true
     display-query-params-without-oauth2: true
     doc-expansion: none
+
+
+logging:
+  level:
+    feign.client: DEBUG  # FeignClient 요청/응답 로깅 레벨을 DEBUG로 설정

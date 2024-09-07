@@ -6,6 +6,7 @@ import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AppleAuthService {
@@ -34,12 +36,14 @@ public class AppleAuthService {
         // AppleTokenRequest 객체 생성
         AppleTokenRequest appleTokenRequest = AppleTokenRequest.builder()
                 .clientId(clientId)  // 애플 클라이언트 ID
-                .clientSecret(createClientSecret())  // JWT로 서명된 client_secret 생성
+                .clientSecret(this.createClientSecret())  // JWT로 서명된 client_secret 생성
                 .code(code)  // 애플 로그인에서 받은 인증 코드
                 .grantType("authorization_code")  // 그랜트 타입 설정 (authorization_code)
                 .build();
 
+        log.info("client_secret: {}", createClientSecret());  // client_secret 확인
         // FeignClient를 사용하여 애플 토큰 발급 API 호출
+        log.info("// AppleTokenRequest 객체 생성 : " + appleTokenRequest);
         return appleClient.findAppleToken(appleTokenRequest);
     }
 
@@ -61,6 +65,8 @@ public class AppleAuthService {
                     .setSubject(clientId)  // 클라이언트 ID를 subject로 설정 (Bundle ID)
                     .signWith(getPrivateKey(), SignatureAlgorithm.ES256)  // 서명에 사용할 Private Key
                     .compact();  // JWT 생성 및 반환
+
+
         } catch (Exception e) {
             throw new RuntimeException("Jwt 생성에 실패 했습니다 ", e);
         }
