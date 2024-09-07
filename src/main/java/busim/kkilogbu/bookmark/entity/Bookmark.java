@@ -6,12 +6,7 @@ import static lombok.AccessLevel.*;
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,8 +16,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Bookmark {
-	@Id @GeneratedValue
+
+
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;

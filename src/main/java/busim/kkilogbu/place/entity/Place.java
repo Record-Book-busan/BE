@@ -12,15 +12,8 @@ import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
 import busim.kkilogbu.api.touristAPI.domain.entity.Tourist;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.contents.entity.Contents;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Place {
 
-	@Id @GeneratedValue
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@OneToOne(mappedBy = "place", fetch = LAZY)
