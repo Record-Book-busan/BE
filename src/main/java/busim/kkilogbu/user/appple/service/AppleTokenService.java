@@ -25,7 +25,7 @@ import java.util.Objects;
 public class AppleTokenService {
 
 
-    private final AppleClient appleFeignClient;
+    private final AppleClient appleClient;
 
 
     private final ObjectMapper objectMapper;
@@ -33,7 +33,7 @@ public class AppleTokenService {
     public Claims verifyIdentityToken(String identityToken) {
         try {
             // 1. 애플 공개 키 가져오기
-            ApplePublicKeyResponse response = appleFeignClient.findAppleAuthPublicKeys();
+            ApplePublicKeyResponse response = appleClient.findAppleAuthPublicKeys();
 
             // 2. JWT 헤더 부분 추출 및 디코딩
             String[] jwtParts = identityToken.split("\\.");

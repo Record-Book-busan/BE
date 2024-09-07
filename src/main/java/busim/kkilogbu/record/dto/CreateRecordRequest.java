@@ -36,4 +36,7 @@ public class CreateRecordRequest {
 	@Schema(description = "기록 이미지의 URL", example = "https://example.com/image.jpg")
 	@NotNull(message = "Image URL is required")
 	private String imageUrl;
+
+
+
 }
