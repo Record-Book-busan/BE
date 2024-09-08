@@ -52,21 +52,21 @@ public class UserService {
 
     // 애플 로그인 처리
     public SignInResponse appleSignIn(String authorizationCode, String identityToken) throws Exception {
-        // 1. AppleTokenResponse 객체를 사용해 애플 서버에서 access token 교환
-
-
-        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authorizationCode);
-
-        log.info(" access token 교환 성공!! : " + tokenResponse);
-        // 2. identityToken을 사용해 JWT 검증 (애플의 공개 키 사용)
+        // 1. identityToken을 사용해 JWT 검증 (애플의 공개 키 사용)
         Claims claims = appleTokenService.verifyIdentityToken(identityToken);
         String appleUserId = claims.getSubject();  // JWT에서 애플 사용자 ID 추출
 
-        // 3. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
+        log.info("JWT 검증 성공!! 애플 사용자 ID: " + appleUserId);
+
+        // 2. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
         User user = userRepository.findByAppleUserId(appleUserId)
                 .orElseGet(() -> registerNewUser(claims));
 
-        // 4. 토큰 정보 업데이트 (refresh token 등)
+        // 3. AppleTokenResponse 객체를 사용해 애플 서버에서 access token 교환
+        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authorizationCode);
+        log.info("access token 교환 성공!! : " + tokenResponse);
+
+        // 4. 사용자 정보에 refresh token 등 업데이트
         user = user.updateRefreshToken(tokenResponse.refreshToken());
         userRepository.save(user);  // 업데이트된 사용자 정보 저장
 
@@ -74,13 +74,13 @@ public class UserService {
         return SignInResponseMapper.toSignInResponse(user, tokenResponse);
     }
 
-
     private User registerNewUser(Claims claims) {
         return User.builder()
                 .appleUserId(claims.getSubject())  // 애플 사용자 ID 설정
                 .email(claims.get("email", String.class))  // 이메일 설정
                 .build();
     }
+
 
     public UserInfoResponse getUserInfo() {
         // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기

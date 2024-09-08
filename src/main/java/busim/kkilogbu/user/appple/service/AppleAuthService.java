@@ -31,7 +31,6 @@ public class AppleAuthService {
 
     private final AppleClient appleClient;
 
-    // OAuth 토큰 요청 메소드
     public AppleTokenResponse getAppleToken(String code) {
         // AppleTokenRequest 객체 생성
         AppleTokenRequest appleTokenRequest = AppleTokenRequest.builder()
@@ -41,11 +40,26 @@ public class AppleAuthService {
                 .grantType("authorization_code")  // 그랜트 타입 설정 (authorization_code)
                 .build();
 
-        log.info("client_secret: {}", createClientSecret());  // client_secret 확인
+        // 로깅: client_secret 확인
+        log.info("client_secret 생성 완료: {}", createClientSecret());  // client_secret 확인
+
+        // 로깅: AppleTokenRequest 객체 정보 출력
+        log.info("AppleTokenRequest: client_id={}, code={}, grant_type={}",
+                appleTokenRequest.getClientId(),
+                appleTokenRequest.getCode(),
+                appleTokenRequest.getGrantType());
+
         // FeignClient를 사용하여 애플 토큰 발급 API 호출
-        log.info("// AppleTokenRequest 객체 생성 : " + appleTokenRequest);
-        return appleClient.findAppleToken(appleTokenRequest);
+        AppleTokenResponse tokenResponse = appleClient.findAppleToken(appleTokenRequest);
+
+        // 로깅: 응답 객체 정보 확인
+        log.info("AppleTokenResponse 수신: access_token={}, refresh_token={}",
+                tokenResponse.accessToken(),
+                tokenResponse.refreshToken());
+
+        return tokenResponse;
     }
+
 
     // client_secret 생성 메소드 (JWT 서명)
     public String createClientSecret() {
@@ -55,7 +69,7 @@ public class AppleAuthService {
 
         try {
             // JWT 생성
-            return Jwts.builder()
+            String jwt = Jwts.builder()
                     .setHeaderParam("kid", keyId)  // 헤더에 Key ID 추가
                     .setHeaderParam("alg", "ES256")  // 알고리즘 ES256 사용
                     .setIssuer(teamId)  // 발급자 (팀 ID)
@@ -66,11 +80,17 @@ public class AppleAuthService {
                     .signWith(getPrivateKey(), SignatureAlgorithm.ES256)  // 서명에 사용할 Private Key
                     .compact();  // JWT 생성 및 반환
 
-
+            // 로깅: JWT 생성 완료
+            log.info("JWT 생성 완료: {}", jwt);
+            return jwt;
         } catch (Exception e) {
-            throw new RuntimeException("Jwt 생성에 실패 했습니다 ", e);
+            // 로깅: JWT 생성 실패
+            log.error("JWT 생성 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("Jwt 생성에 실패 했습니다", e);
         }
     }
+
+
     // private key를 불러오는 메소드
     private PrivateKey getPrivateKey() throws Exception {
         // PEM 형식의 개인 키
