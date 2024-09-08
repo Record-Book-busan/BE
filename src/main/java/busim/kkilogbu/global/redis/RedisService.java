@@ -74,10 +74,23 @@ public class RedisService {
 	 */
 	public List<PlaceMarkResponse> getRestaurantPlacesNew(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
+
+		log.info("맛집 카테고리 조회 시작: lat={}, lng={}, level={}", lat, lng, level);
+
 		for (RestaurantCategory category : restaurantCategories) {
 			String key = "geo:restaurant:" + category.name();
-			places.addAll(getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class));
+			log.info("레디스에서 조회할 키: {}", key);
+
+			// Redis에 저장된 데이터의 총 개수 로깅
+			Long totalStored = redisTemplate.opsForZSet().zCard(key);
+			log.info("Redis에 저장된 '{}' 카테고리의 총 개수: {}", category.name(), totalStored);
+
+			List<PlaceMarkResponse> categoryPlaces = getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class);
+			log.info("카테고리 '{}'에서 조회된 장소 개수: {}", category.name(), categoryPlaces.size());
+			places.addAll(categoryPlaces);
 		}
+
+		log.info("맛집 카테고리 조회 완료: 총 조회된 장소 개수 = {}", places.size());
 		return places;
 	}
 
@@ -86,29 +99,51 @@ public class RedisService {
 	 */
 	public List<PlaceMarkResponse> getTouristPlacesNew(double lat, double lng, ZoomLevel level, List<TouristCategory> touristCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
+
+		log.info("관광 카테고리 조회 시작: lat={}, lng={}, level={}", lat, lng, level);
+
 		for (TouristCategory category : touristCategories) {
 			String key = "geo:tourist:" + category.name();
-			places.addAll(getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class));
+			log.info("레디스에서 조회할 키: {}", key);
+
+			// Redis에 저장된 데이터의 총 개수 로깅
+			Long totalStored = redisTemplate.opsForZSet().zCard(key);
+			log.info("Redis에 저장된 '{}' 카테고리의 총 개수: {}", category.name(), totalStored);
+
+			List<PlaceMarkResponse> categoryPlaces = getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class);
+			log.info("카테고리 '{}'에서 조회된 장소 개수: {}", category.name(), categoryPlaces.size());
+			places.addAll(categoryPlaces);
 		}
+
+		log.info("관광 카테고리 조회 완료: 총 조회된 장소 개수 = {}", places.size());
 		return places;
 	}
 
 	/**
-	 * 새로운 방식으로 맛집 및 관광 카테고리를 함께 조회
+	 * 맛집 및 관광 카테고리를 함께 조회
 	 */
 	public List<PlaceMarkResponse> getAllPlacesNew(double lat, double lng, ZoomLevel level, List<RestaurantCategory> restaurantCategories, List<TouristCategory> touristCategories) {
 		List<PlaceMarkResponse> places = new ArrayList<>();
 
+		log.info("전체 카테고리 조회 시작: lat={}, lng={}, level={}", lat, lng, level);
+
 		// 맛집 카테고리 조회
 		if (restaurantCategories != null && !restaurantCategories.isEmpty()) {
+			log.info("맛집 카테고리 조회 실행: 카테고리 개수 = {}", restaurantCategories.size());
 			places.addAll(getRestaurantPlacesNew(lat, lng, level, restaurantCategories));
+		} else {
+			log.info("맛집 카테고리가 존재하지 않음");
 		}
 
 		// 관광 카테고리 조회
 		if (touristCategories != null && !touristCategories.isEmpty()) {
+			log.info("관광 카테고리 조회 실행: 카테고리 개수 = {}", touristCategories.size());
 			places.addAll(getTouristPlacesNew(lat, lng, level, touristCategories));
+		} else {
+			log.info("관광 카테고리가 존재하지 않음");
 		}
 
+		log.info("전체 조회 완료: 총 조회된 장소 개수 = {}", places.size());
 		return places;
 	}
 
@@ -464,6 +499,7 @@ public class RedisService {
 			// RestaurantResponseDto 객체를 JSON 형태로 변환하여 Redis에 저장
 			String input = objectMapper.writeValueAsString(restaurantDto);
 			geoOperations.add(key, point, input);  // Redis에 저장
+			log.info("Restaurant 데이터 저장 완료: key={}, lat={}, lng={}", key, lat, lng);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Restaurant 데이터 Redis 저장 중 오류 발생", e);
 		}
@@ -486,6 +522,7 @@ public class RedisService {
 			// TouristResponseDto 객체를 JSON 형태로 변환하여 저장
 			String input = objectMapper.writeValueAsString(touristDto);
 			geoOperations.add(key, point, input);  // Redis에 저장
+			log.info("Tourist 데이터 저장 완료: key={}, lat={}, lng={}", key, lat, lng);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Tourist 데이터 Redis 저장 중 오류 발생", e);
 		}
