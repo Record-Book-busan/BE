@@ -1,5 +1,6 @@
 package busim.kkilogbu.place.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @Schema(description = "검색 결과 응답 데이터")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchResultResponse {
 
         @Schema(description = "ID", example = "1")
