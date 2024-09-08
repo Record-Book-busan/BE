@@ -31,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**") // 모든 경로에 대해
                 .allowedOrigins("*") // 모든 출처를 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메서드
-                .allowedHeaders("*") // 허용할 헤더
-                .allowCredentials(true); // 쿠키 허용 여부
+                .allowedHeaders("*"); // 허용할 헤더
+
     }
 }
