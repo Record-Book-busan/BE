@@ -23,7 +23,7 @@ public class TouristMapper {
         return SearchResultResponse.builder()
                 .id(tourist.getId())
                 .name(tourist.getName())
-                .location(tourist.getLocation())  // 관광지는 위치를 사용
+                .address(tourist.getLocation())  // 관광지는 위치를 사용
                 .latitude(tourist.getLatitude())
                 .longitude(tourist.getLongitude())
                 .imageUrl(tourist.getImageUrl())
