@@ -53,8 +53,8 @@ public class Records {
 
 	public void connect(User user, AddressInfo addressInfo, Contents contents) {
 		// TODO : 로그인 구현시 추가
-		// this.user = user;
-		// user.getRecords().add(this);
+		this.user = user;
+		user.getRecords().add(this);
 		this.addressInfo = addressInfo;
 		addressInfo.getRecords().add(this);
 		this.contents = contents;
@@ -66,8 +66,10 @@ public class Records {
 	}
 
 
-	public static Records createRecord(AddressInfo addressInfo, Contents contents) {
+	public static Records createRecord(User user, AddressInfo addressInfo, Contents contents) {
 		Records record = new Records();  // Records 객체 생성
+		// record.user = user;
+		// user.getRecords().add(record);
 		record.addressInfo = addressInfo;
 		record.contents = contents;
 		contents.connect(record, null);

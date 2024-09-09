@@ -62,7 +62,7 @@ public class RecordController {
 			}
 
 
-		List<RecordMarkResponse> record = redisService.getPlacesFromRedis(lat, lng, level, "record",
+		List<RecordMarkResponse> record = redisService.getPlacesFromRedis(lat, lng, level, "geo:record",
 			RecordMarkResponse.class);
 			return ResponseEntity.ok(record);
 

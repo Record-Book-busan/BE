@@ -1,22 +1,21 @@
 package busim.kkilogbu.place.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum TouristCategory {
 
-    TOURIST_SPOT("관광지"),
-    THEME("테마"),
-    HOT_PLACE("핫플"),
-    NATURE("자연"),
-    LEISURE_SPORTS("레포츠");
+    TOURIST_SPOT("관광지", 1L),
+    THEME("테마", 2L),
+    HOT_PLACE("핫플", 4L),
+    NATURE("자연", 8L),
+    LEISURE_SPORTS("레포츠", 16L);
 
     private final String description;
+    private final Long id;
 
-    TouristCategory(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 
     // 문자열을 TouristCategory로 변환하는 메소드
     public static TouristCategory fromString(String category) {

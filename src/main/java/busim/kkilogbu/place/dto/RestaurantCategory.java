@@ -1,19 +1,17 @@
 package busim.kkilogbu.place.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum RestaurantCategory {
 
-    NORMAL_RESTAURANT("일반 맛집"),
-    SPECIAL_RESTAURANT("특별 맛집");
+    NORMAL_RESTAURANT("일반 맛집", 32L),
+    SPECIAL_RESTAURANT("특별 맛집", 64L);
 
     private final String description;
-
-    RestaurantCategory(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
+    private final Long id;
 
     // 숫자를 받아서 RestaurantCategory로 변환하는 메서드
     public static RestaurantCategory fromType(String type) {

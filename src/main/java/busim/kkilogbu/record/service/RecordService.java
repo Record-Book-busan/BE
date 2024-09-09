@@ -1,5 +1,6 @@
 package busim.kkilogbu.record.service;
 
+import busim.kkilogbu.contents.repository.ContentsRepository;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.record.dto.*;
 import busim.kkilogbu.record.entity.Records;
@@ -13,7 +14,6 @@ import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.repository.RecordRepository;
-import busim.kkilogbu.user.entity.BlackList;
 import busim.kkilogbu.user.entity.User;
 import busim.kkilogbu.user.service.BlackListService;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +46,7 @@ public class RecordService {
 	@Transactional
 	public void createRecord(CreateRecordRequest request) {
 		try {
+
 			// Contents 객체 생성
 			Contents contents = Contents.builder()
 					.content(request.getContent())
@@ -60,8 +61,11 @@ public class RecordService {
 							.longitude(request.getLng())
 							.build());
 
+			// TODO: 로그인 구현 후 변경
+			User tmp = User.builder().nickname("tmp").build();
+
 			// Record 객체 생성 및 저장
-			Records record = Records.createRecord(addressInfo, contents);
+			Records record = Records.createRecord(null, addressInfo, contents);
 			recordRepository.save(record);
 
 			// Redis에 저장
