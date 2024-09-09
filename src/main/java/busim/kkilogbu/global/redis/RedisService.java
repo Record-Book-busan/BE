@@ -32,14 +32,10 @@ import busim.kkilogbu.api.restroomAPI.domain.entity.ToiletData;
 import busim.kkilogbu.api.restroomAPI.repository.ToiletDataRepository;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.ZoomLevel;
-import busim.kkilogbu.global.redis.dto.Cluster;
-import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.repository.PlaceRepository;
-import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.repository.RecordRepository;
-import ch.hsr.geohash.GeoHash;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,9 +81,17 @@ public class RedisService {
 			Long totalStored = redisTemplate.opsForZSet().zCard(key);
 			log.info("Redis에 저장된 '{}' 카테고리의 총 개수: {}", category.name(), totalStored);
 
-			List<PlaceMarkResponse> categoryPlaces = getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class);
-			log.info("카테고리 '{}'에서 조회된 장소 개수: {}", category.name(), categoryPlaces.size());
-			places.addAll(categoryPlaces);
+			List<RestaurantResponseDto> placesFromRedisNew = getPlacesFromRedisNew(lat, lng, level, key,
+				RestaurantResponseDto.class);
+			placesFromRedisNew.forEach(place -> {
+				places.add(PlaceMarkResponse.builder()
+					.id(place.getId())
+					.lat(place.getLatitude())
+					.lng(place.getLongitude())
+					.imageUrl(place.getImageUrl())
+					.category(category.name())
+					.build());
+			});
 		}
 
 		log.info("맛집 카테고리 조회 완료: 총 조회된 장소 개수 = {}", places.size());
@@ -110,9 +114,17 @@ public class RedisService {
 			Long totalStored = redisTemplate.opsForZSet().zCard(key);
 			log.info("Redis에 저장된 '{}' 카테고리의 총 개수: {}", category.name(), totalStored);
 
-			List<PlaceMarkResponse> categoryPlaces = getPlacesFromRedisNew(lat, lng, level, key, PlaceMarkResponse.class);
-			log.info("카테고리 '{}'에서 조회된 장소 개수: {}", category.name(), categoryPlaces.size());
-			places.addAll(categoryPlaces);
+			List<TouristResponseDto> placesFromRedisNew = getPlacesFromRedisNew(lat, lng, level, key,
+				TouristResponseDto.class);
+			placesFromRedisNew.forEach(place -> {
+				places.add(PlaceMarkResponse.builder()
+					.id(place.getId())
+					.lat(place.getLatitude())
+					.lng(place.getLongitude())
+					.imageUrl(place.getImageUrl())
+					.category(category.name())
+					.build());
+			});
 		}
 
 		log.info("관광 카테고리 조회 완료: 총 조회된 장소 개수 = {}", places.size());
@@ -145,56 +157,6 @@ public class RedisService {
 
 		log.info("전체 조회 완료: 총 조회된 장소 개수 = {}", places.size());
 		return places;
-	}
-
-	/**
-	 * 새로운 줌 레벨에 따른 클러스터링 적용 메서드
-	 */
-	private List<Cluster<PlaceMarkResponse>> applyNewClusteringBasedOnZoomLevel(List<PlaceMarkResponse> places, ZoomLevel level) {
-		if (level.getKilometer() > 10) {
-			int precision = getNewGeoHashPrecision(level.getKilometer());
-			return clusterNewPlaces(places, precision);
-		} else {
-			return places.stream()
-					.map(place -> new Cluster<>(place.getLat(), place.getLng(), List.of(place)))
-					.collect(Collectors.toList());
-		}
-	}
-
-	/**
-	 * 새로운 GeoHash precision 설정
-	 */
-	private int getNewGeoHashPrecision(double kilometers) {
-		if (kilometers > 50) {
-			return 4;  // 낮은 precision
-		} else if (kilometers > 10) {
-			return 6;  // 중간 precision
-		} else {
-			return 8;  // 높은 precision
-		}
-	}
-
-	/**
-	 * 새로운 클러스터링 메서드
-	 */
-	private <T> List<Cluster<T>> clusterNewPlaces(List<T> places, int precision) {
-		Map<String, List<T>> clusters = places.stream()
-				.collect(Collectors.groupingBy(place -> {
-					if (place instanceof PlaceMarkResponse) {
-						PlaceMarkResponse p = (PlaceMarkResponse) place;
-						return GeoHash.withCharacterPrecision(p.getLat(), p.getLng(), precision).toBase32();
-					}
-					return null;
-				}));
-
-		return clusters.entrySet().stream()
-				.map(entry -> {
-					GeoHash geoHash = GeoHash.fromGeohashString(entry.getKey());
-					double latitude = geoHash.getOriginatingPoint().getLatitude();
-					double longitude = geoHash.getOriginatingPoint().getLongitude();
-					return new Cluster<>(latitude, longitude, entry.getValue());
-				})
-				.collect(Collectors.toList());
 	}
 
 	/**
@@ -396,13 +358,8 @@ public class RedisService {
 	}
 
 	private void deleteKey() {
-		// "geo:record:"로 시작하는 256개의 키 삭제
-		for (int i = 0; i < 256; i++) {
-			redisTemplate.delete("geo:record:" + i);
-		}
-
+		redisTemplate.delete("geo:record");
 		// 단일 키 삭제
-		redisTemplate.delete("geo:place");
 		redisTemplate.delete("geo:toilet");
 		redisTemplate.delete("geo:park");
 

@@ -7,6 +7,7 @@ public class TouristMapper {
 
     public static TouristResponseDto toTouristResponseDto(Tourist tourist) {
         return TouristResponseDto.builder()
+                .id(tourist.getId())
                 .name(tourist.getName())
                 .location(tourist.getLocation())
                 .imageUrl(tourist.getImageUrl())
