@@ -1,6 +1,7 @@
 package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
 import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
+import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.SearchResultResponse;
 
 public class RestaurantMapper {
@@ -33,7 +34,7 @@ public class RestaurantMapper {
                 .imageUrl(
                 restaurant.getImageUrls().isEmpty() || "준비중입니다".equals(restaurant.getImageUrls().get(0))
                         ? "" : restaurant.getImageUrls().get(0))  // 이미지가 "준비중입니다"이면 빈 문자열 반환
-                .category(restaurant.getType())  // 예시로 "맛집" 카테고리를 사용
+                .category(RestaurantCategory.fromType(restaurant.getType()).getDescription())  // 예시로 "맛집" 카테고리를 사용
                 .build();
     }
 }
