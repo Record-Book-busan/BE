@@ -20,9 +20,6 @@ public class SearchResultResponse {
         @Schema(description = "주소 (맛집일 경우 적용)", example = "서울시 강남구")
         private String address;       // 맛집일 경우에만 적용
 
-        @Schema(description = "위치 (관광지일 경우 적용)", example = "서울 타워")
-        private String location;      // 관광지일 경우에만 적용
-
         @Schema(description = "위도", example = "37.5665")
         private Double latitude;      // 위도
 
