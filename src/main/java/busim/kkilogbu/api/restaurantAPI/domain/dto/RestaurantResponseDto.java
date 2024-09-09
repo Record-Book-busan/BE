@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public class RestaurantResponseDto {
 
+    private Long id;
     private String title;
     private String address;
     private String landLotAddress;

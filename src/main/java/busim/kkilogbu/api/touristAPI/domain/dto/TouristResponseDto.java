@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 public class TouristResponseDto {
 
-
+    private Long id;
     private String name;          // 장소명 (장소)
     private String location;      // 위치
     private String imageUrl;      // 이미지 URL

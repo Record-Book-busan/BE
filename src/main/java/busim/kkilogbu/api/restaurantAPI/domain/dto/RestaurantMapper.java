@@ -7,6 +7,7 @@ public class RestaurantMapper {
 
     public static RestaurantResponseDto toRestaurantResponseDto(Restaurant restaurant) {
         return RestaurantResponseDto.builder()
+                .id(restaurant.getId())
                 .title(restaurant.getTitle())
                 .address(restaurant.getAddress())
                 .landLotAddress(restaurant.getLandLotAddress())

@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.stream.LongStream;
 
 import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.ZoomLevel;
@@ -25,7 +25,9 @@ import busim.kkilogbu.global.redis.RedisService;
 
 import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/kkilogbu/place")
@@ -64,6 +66,13 @@ public class PlaceController {
 		// 빈 리스트나 null 여부 확인 후 처리
 		boolean hasRestaurantCategories = restaurantCategories != null && !restaurantCategories.isEmpty();
 		boolean hasTouristCategories = touristCategories != null && !touristCategories.isEmpty();
+
+		long category = 0L;
+
+		category += restaurantCategories.stream().mapToLong(RestaurantCategory::getId).sum();
+		category += touristCategories.stream().mapToLong(TouristCategory::getId).sum();
+
+		log.info("category: {}", category);
 
 		// 둘 다 null이거나 빈 리스트인 경우 예외 처리
 		if (!hasRestaurantCategories && !hasTouristCategories) {
@@ -137,5 +146,11 @@ public class PlaceController {
 		return ResponseEntity.ok().build();
 	}
 
+	@GetMapping("/upload")
+	public ResponseEntity<?> upload() {
+		redisService.saveRestaurantDataInRedis();
+		redisService.saveTouristDataInRedis();
+		return ResponseEntity.ok().build();
+	}
 
 }
