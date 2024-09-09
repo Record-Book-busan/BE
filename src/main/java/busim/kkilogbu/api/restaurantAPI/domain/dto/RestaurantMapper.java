@@ -16,7 +16,7 @@ public class RestaurantMapper {
                 .phoneNumber(restaurant.getPhoneNumber())
                 .businessType(restaurant.getBusinessType())
                 .detailedInformation(restaurant.getDetailedInformation())
-                .imageUrls(restaurant.getImageUrls())
+                .imageUrl(restaurant.getImageUrls().get(0))
                 .restaurantName(restaurant.getRestaurantName())
                 .categories(restaurant.getCategories()) // 카테고리 리스트를 DTO로 변환
                 .type(restaurant.getType())

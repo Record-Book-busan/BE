@@ -19,7 +19,7 @@ public class RestaurantResponseDto {
     private String phoneNumber;
     private String businessType;
     private String detailedInformation;
-    private List<String> imageUrls;
+    private String imageUrl;
     private String restaurantName;
     private List<String> categories;
     private String type;

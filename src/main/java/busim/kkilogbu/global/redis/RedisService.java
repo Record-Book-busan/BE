@@ -88,7 +88,7 @@ public class RedisService {
 					.id(place.getId())
 					.lat(place.getLatitude())
 					.lng(place.getLongitude())
-					.imageUrl(place.getImageUrls().get(0))
+					.imageUrl(place.getImageUrl())
 					.category(category.name())
 					.build());
 			});
