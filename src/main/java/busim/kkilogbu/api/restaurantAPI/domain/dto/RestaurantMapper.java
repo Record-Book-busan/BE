@@ -30,7 +30,9 @@ public class RestaurantMapper {
                 .address(restaurant.getAddress())  // 맛집은 주소를 사용
                 .latitude(restaurant.getLatitude())
                 .longitude(restaurant.getLongitude())
-                .imageUrl(restaurant.getImageUrls().isEmpty() ? null : restaurant.getImageUrls().get(0))  // 첫 번째 이미지를 사용
+                .imageUrl(
+                restaurant.getImageUrls().isEmpty() || "준비중입니다".equals(restaurant.getImageUrls().get(0))
+                        ? "" : restaurant.getImageUrls().get(0))  // 이미지가 "준비중입니다"이면 빈 문자열 반환
                 .category(restaurant.getType())  // 예시로 "맛집" 카테고리를 사용
                 .build();
     }
