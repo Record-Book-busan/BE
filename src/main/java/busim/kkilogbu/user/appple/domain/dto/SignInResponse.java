@@ -7,4 +7,5 @@ public class SignInResponse {
 
     private Long userId;
     private String accessToken;
+    private String refreshToken;
 }

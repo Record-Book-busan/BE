@@ -15,43 +15,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
-@NoArgsConstructor(access = PROTECTED)
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
 	private String username;
 	private String nickname;
 	private Long category;
 	private LocalDateTime createdAt;
 	private String ProfileImage;
 
+	@Column(length = 1000)
 	private String appleUserId;  // 애플 사용자 ID
+	@Column(length = 1000)
 	private String email;        // 이메일
+	@Column(length = 1000)
 	private String refreshToken; // Refresh Token
 
-	// 빌더 패턴을 사용한 생성자
-	@Builder
-	public User(Long id, String appleUserId, String email, String refreshToken) {
-		this.id = id;
-		this.appleUserId = appleUserId;
-		this.email = email;
-		this.refreshToken = refreshToken;
-	}
-
-	// Refresh Token만 업데이트하는 메서드 (Setter 대체)
-	public User updateRefreshToken(String refreshToken) {
-		return User.builder()
-				.id(this.id)
-				.appleUserId(this.appleUserId)
-				.email(this.email)
-				.refreshToken(refreshToken)
-				.build();
-	}
+	@Column(length = 1000)
+	private String accessToken;  // 액세스 토큰
 
 	//약관 동의 체크
 	private boolean agreePrivacy;
@@ -64,6 +52,11 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<BlackList> blackLists = new ArrayList<>();
+
+	public void updateTokens(String refreshToken,String accessToken){
+		this.refreshToken = refreshToken;
+		this.accessToken = accessToken;
+	}
 
 	public void changeNickname(String nickname) {
 		this.nickname = nickname;

@@ -3,6 +3,7 @@ package busim.kkilogbu.user.appple.service;
 import busim.kkilogbu.user.appple.controller.AppleClient;
 import busim.kkilogbu.user.appple.domain.dto.AppleTokenRequest;
 import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
+import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AppleAuthService {
+
 
     private final String keyId = "J8B4BN5ZKY";  // 애플 Key ID
     private final String teamId = "RRY6QV29NW";  // 애플 Team ID
@@ -50,7 +52,7 @@ public class AppleAuthService {
                 appleTokenRequest.getGrantType());
 
         // FeignClient를 사용하여 애플 토큰 발급 API 호출
-        AppleTokenResponse tokenResponse = appleClient.findAppleToken(appleTokenRequest);
+        AppleTokenResponse tokenResponse = appleClient.findAppleToken(appleTokenRequest.getClientId(), appleTokenRequest.getClientSecret(), appleTokenRequest.getGrantType(), appleTokenRequest.getCode());
 
         // 로깅: 응답 객체 정보 확인
         log.info("AppleTokenResponse 수신: access_token={}, refresh_token={}",
@@ -64,14 +66,13 @@ public class AppleAuthService {
     // client_secret 생성 메소드 (JWT 서명)
     public String createClientSecret() {
         // 현재 시간에서 30일 동안 유효한 JWT 생성
-        Date expirationDate = Date.from(LocalDateTime.now().plusDays(30)
+        Date expirationDate = Date.from(LocalDateTime.now().plusDays(20)
                 .atZone(ZoneId.systemDefault()).toInstant());
 
         try {
             // JWT 생성
             String jwt = Jwts.builder()
                     .setHeaderParam("kid", keyId)  // 헤더에 Key ID 추가
-                    .setHeaderParam("alg", "ES256")  // 알고리즘 ES256 사용
                     .setIssuer(teamId)  // 발급자 (팀 ID)
                     .setIssuedAt(new Date(System.currentTimeMillis()))  // 발급 시간
                     .setExpiration(expirationDate)  // 만료 시간
