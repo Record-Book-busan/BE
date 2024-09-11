@@ -10,6 +10,7 @@ public class SignInResponseMapper {
         return SignInResponse.builder()
                 .userId(user.getId())
                 .accessToken(tokenResponse.accessToken())
+                .refreshToken(tokenResponse.refreshToken())
                 .build();
     }
 }
