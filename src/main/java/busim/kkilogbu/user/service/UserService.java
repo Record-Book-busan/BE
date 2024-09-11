@@ -34,7 +34,6 @@ import org.springframework.web.client.HttpClientErrorException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserService {
     
     private final UserRepository userRepository;
@@ -51,6 +50,7 @@ public class UserService {
     }
 
     // 애플 로그인 처리
+    @Transactional(readOnly = false)
     public SignInResponse appleSignIn(String authorizationCode, String identityToken) throws Exception {
         // 1. identityToken을 사용해 JWT 검증 (애플의 공개 키 사용)
         Claims claims = appleTokenService.verifyIdentityToken(identityToken);
@@ -58,28 +58,52 @@ public class UserService {
 
         log.info("JWT 검증 성공!! 애플 사용자 ID: " + appleUserId);
 
-        // 2. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
-        User user = userRepository.findByAppleUserId(appleUserId)
-                .orElseGet(() -> registerNewUser(claims));
 
-        // 3. AppleTokenResponse 객체를 사용해 애플 서버에서 access token 교환
+        /// 2. AppleTokenResponse 객체를 사용해 애플 서버에서 access token 교환
         AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authorizationCode);
         log.info("access token 교환 성공!! : " + tokenResponse);
 
-        // 4. 사용자 정보에 refresh token 등 업데이트
-        user = user.updateRefreshToken(tokenResponse.refreshToken());
-        userRepository.save(user);  // 업데이트된 사용자 정보 저장
+       // 3. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
+        User user = userRepository.findByAppleUserId(appleUserId)
+                .orElseGet(() -> {
+                    log.info("애플 사용자 ID " + appleUserId + "를 가진 사용자가 존재하지 않음, 새 사용자 생성");
+                    User newUser = registerNewUser(claims);
+                    log.info("새 사용자 생성, ID 값은 자동 할당됩니다. 이메일: " + newUser.getEmail());
+                    newUser.updateTokens(tokenResponse.refreshToken(), tokenResponse.accessToken()); // 토큰도 함께 업데이트
+                    User savedUser = userRepository.save(newUser);  // 새로 생성된 사용자 저장
+                    log.info("새 사용자 저장 완료. 사용자 ID: " + savedUser.getId());
+                    log.info("새로운 애플 사용자 저장 완료: " + savedUser.getId());
+                    return savedUser;
+                });
+
+        // 4. 기존 사용자일 경우 토큰 업데이트 후 저장
+        if (user.getAppleUserId()!= null) {  // 기존 사용자인 경우
+            user.updateTokens(tokenResponse.refreshToken(), tokenResponse.accessToken());
+            userRepository.save(user);  // 업데이트된 사용자 정보 저장
+        }
 
         // 5. 매퍼를 통해 SignInResponse 반환
         return SignInResponseMapper.toSignInResponse(user, tokenResponse);
     }
 
     private User registerNewUser(Claims claims) {
+        // 이메일 정보가 없을 수 있으므로 예외 처리
+        String email = claims.get("email", String.class);
+
+        if (email == null) {
+            log.warn("애플 로그인: 이메일 정보가 없습니다.");
+            // 이메일이 없는 경우 처리 방법: 예를 들어 기본 이메일 설정
+            email = "unknown@apple.com"; // 임시 이메일 설정 (필요시 사용자에게 입력 요청)
+        }
+
         return User.builder()
                 .appleUserId(claims.getSubject())  // 애플 사용자 ID 설정
-                .email(claims.get("email", String.class))  // 이메일 설정
+                .email(email)  // 이메일 설정
                 .build();
     }
+
+
+
 
 
     public UserInfoResponse getUserInfo() {
