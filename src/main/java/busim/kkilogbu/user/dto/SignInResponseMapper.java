@@ -3,7 +3,9 @@ package busim.kkilogbu.user.dto;
 import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
 import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
 import busim.kkilogbu.user.entity.User;
+import lombok.Getter;
 
+@Getter
 public class SignInResponseMapper {
 
     public static SignInResponse toSignInResponse(User user, AppleTokenResponse tokenResponse) {
