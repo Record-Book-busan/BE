@@ -18,6 +18,7 @@ import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
+import busim.kkilogbu.user.entity.LoginType;
 import busim.kkilogbu.user.entity.User;
 import busim.kkilogbu.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -99,6 +100,7 @@ public class UserService {
         return User.builder()
                 .appleUserId(claims.getSubject())  // 애플 사용자 ID 설정
                 .email(email)  // 이메일 설정
+                .loginType(LoginType.APPLE)
                 .build();
     }
 

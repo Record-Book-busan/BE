@@ -1,6 +1,6 @@
 package busim.kkilogbu.user.entity;
 
-import static lombok.AccessLevel.*;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,6 +52,9 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<BlackList> blackLists = new ArrayList<>();
+
+	@Enumerated(EnumType.STRING)
+	private LoginType loginType;
 
 	public void updateTokens(String refreshToken,String accessToken){
 		this.refreshToken = refreshToken;
