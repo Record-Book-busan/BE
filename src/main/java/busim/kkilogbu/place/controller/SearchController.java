@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/kkilogbu/search")
+@RequestMapping("/kkilogbu/place")
 @RequiredArgsConstructor
 public class SearchController {
 
@@ -28,9 +29,9 @@ public class SearchController {
     @Operation(summary = "검색", description = "검색어를 기반으로 맛집 또는 관광지를 검색합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "검색 성공"),
-            @ApiResponse(responseCode = "404", description = "검색 결과가 없음")
+            @ApiResponse(responseCode = "200", description = "검색 결과가 없음")
     })
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<List<SearchResultResponse>> search(
             @Parameter(description = "검색어", example = "맛집") @RequestParam(name = "query") String query,
             @Parameter(description = "데이터의 시작점", example = "0") @RequestParam(name = "offset") int offset,  // 데이터의 시작점
@@ -39,7 +40,8 @@ public class SearchController {
         Page<SearchResultResponse> searchResults = searchService.search(query, offset, limit);
 
         if (searchResults.isEmpty()) {
-            throw new BaseException("검색 결과가 없습니다.", HttpStatus.NOT_FOUND);
+            // 검색 결과가 없을 때도 200 상태 코드와 빈 리스트 반환
+            return ResponseEntity.ok(Collections.emptyList());
         }
 
         return ResponseEntity.ok(searchResults.getContent());
