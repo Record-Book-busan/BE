@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.record.entity.Records;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {

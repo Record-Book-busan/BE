@@ -1,6 +1,5 @@
 package busim.kkilogbu.record.service;
 
-import busim.kkilogbu.contents.repository.ContentsRepository;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.record.dto.*;
 import busim.kkilogbu.record.entity.Records;
@@ -14,7 +13,7 @@ import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.repository.RecordRepository;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.service.BlackListService;
 import lombok.RequiredArgsConstructor;
 

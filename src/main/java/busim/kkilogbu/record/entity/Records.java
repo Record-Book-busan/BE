@@ -15,7 +15,7 @@ import org.springframework.data.annotation.CreatedDate;
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.contents.entity.Contents;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

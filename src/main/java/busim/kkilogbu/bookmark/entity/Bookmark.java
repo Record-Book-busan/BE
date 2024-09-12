@@ -5,7 +5,7 @@ import static lombok.AccessLevel.*;
 
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.record.entity.Records;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

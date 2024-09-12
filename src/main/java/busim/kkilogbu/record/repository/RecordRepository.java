@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 
 @Repository
 public interface RecordRepository extends JpaRepository<Records, Long> {

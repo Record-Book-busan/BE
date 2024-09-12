@@ -1,4 +1,4 @@
-package busim.kkilogbu.user.entity;
+package busim.kkilogbu.user.entity.users;
 
 
 
@@ -8,6 +8,9 @@ import java.util.List;
 
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.record.entity.Records;
+import busim.kkilogbu.user.entity.BlackList;
+import busim.kkilogbu.user.entity.LoginType;
+import busim.kkilogbu.user.entity.UserInterest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,8 +1,9 @@
-package busim.kkilogbu.user.entity;
+package busim.kkilogbu.user.entity.interest;
 
 
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.TouristCategory;
+import busim.kkilogbu.user.entity.UserInterest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,6 @@ public class Interest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
 
 

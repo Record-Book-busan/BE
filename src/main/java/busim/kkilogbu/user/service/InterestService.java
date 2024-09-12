@@ -1,10 +1,8 @@
 package busim.kkilogbu.user.service;
 
 
-import busim.kkilogbu.place.dto.RestaurantCategory;
-import busim.kkilogbu.place.dto.TouristCategory;
-import busim.kkilogbu.user.entity.Interest;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.interest.Interest;
+import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.entity.UserInterest;
 import busim.kkilogbu.user.repository.InterestRepository;
 import busim.kkilogbu.user.repository.UserInterestRepository;

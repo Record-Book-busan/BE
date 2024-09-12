@@ -91,7 +91,7 @@ public class PlaceController {
 				places = redisService.getRestaurantPlacesNew(lat, lng, level, restaurantCategories);
 			}
 			// 둘 다 있는 경우
-			else {
+			else  {
 				places = redisService.getAllPlacesNew(lat, lng, level, restaurantCategories, touristCategories);
 			}
 

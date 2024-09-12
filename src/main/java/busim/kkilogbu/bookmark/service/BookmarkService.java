@@ -9,7 +9,7 @@ import busim.kkilogbu.bookmark.repository.BookmarkRepository;
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.place.repository.PlaceRepository;
 import busim.kkilogbu.record.repository.RecordRepository;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 

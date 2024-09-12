@@ -2,14 +2,9 @@ package busim.kkilogbu.user.appple.service;
 
 import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
 import busim.kkilogbu.user.appple.domain.dto.LoginResponse;
-import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
-import busim.kkilogbu.user.appple.service.AppleAuthService;
-import busim.kkilogbu.user.appple.service.AppleTokenService;
-import busim.kkilogbu.user.dto.SignInResponseMapper;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

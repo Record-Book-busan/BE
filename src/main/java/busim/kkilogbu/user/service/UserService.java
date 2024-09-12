@@ -16,7 +16,7 @@ import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.LoginType;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.entity.UserConsent;
 import busim.kkilogbu.user.repository.UserConsentRepository;
 import busim.kkilogbu.user.repository.UserRepository;

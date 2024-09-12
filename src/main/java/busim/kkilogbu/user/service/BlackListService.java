@@ -8,7 +8,7 @@ import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.user.entity.BlackList;
-import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.repository.BlackListRepository;
 import lombok.RequiredArgsConstructor;
 

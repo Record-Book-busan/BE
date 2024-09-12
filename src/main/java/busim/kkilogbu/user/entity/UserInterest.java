@@ -1,5 +1,7 @@
 package busim.kkilogbu.user.entity;
 
+import busim.kkilogbu.user.entity.interest.Interest;
+import busim.kkilogbu.user.entity.users.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
