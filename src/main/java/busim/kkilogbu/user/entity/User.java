@@ -58,6 +58,10 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	private LoginType loginType;
 
+
+	@OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+	private List<UserInterest> userInterests = new ArrayList<>();
+
 	public void updateTokens(String refreshToken,String accessToken){
 		this.refreshToken = refreshToken;
 		this.accessToken = accessToken;
