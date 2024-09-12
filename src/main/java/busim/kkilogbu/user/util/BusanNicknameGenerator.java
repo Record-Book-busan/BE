@@ -2,11 +2,13 @@ package busim.kkilogbu.user.util;
 
 import busim.kkilogbu.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 
 import java.util.Random;
 
 
+@Service
 @RequiredArgsConstructor
 public class BusanNicknameGenerator implements NicknameGeneratorStrategy{
 
