@@ -20,11 +20,17 @@ public class InterestController {
     private final InterestService interestService;
     private InterestRequest interestRequest;
 
-    // 1. 관심사 저장 API
+
     @PostMapping("/my/{userId}")
     public ResponseEntity<String> saveInterests(
             @PathVariable Long userId,
-            @RequestBody InterestRequest interestRequests) {
+            @RequestBody InterestRequest interestRequests,
+            @RequestParam(required = false) Boolean allSkip) {
+
+        // allSkip이 true인 경우 요청을 건너뜁니다.
+        if (Boolean.TRUE.equals(allSkip)) {
+            return ResponseEntity.ok("관심사 저장이 건너뛰어졌습니다.");
+        }
 
         try {
             interestService.saveUserInterests(userId,  interestRequest.convertRestaurantCategoriesToString(interestRequests.getRestaurantCategories()), interestRequest.convertTouristCategoriesToString(interestRequests.getTouristCategories())
