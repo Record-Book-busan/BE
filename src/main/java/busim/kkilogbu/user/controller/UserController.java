@@ -3,17 +3,16 @@ package busim.kkilogbu.user.controller;
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.user.appple.domain.dto.AppleSignInRequest;
+import busim.kkilogbu.user.appple.domain.dto.AutomaticLoginRequest;
+import busim.kkilogbu.user.appple.domain.dto.LoginResponse;
 import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
 import busim.kkilogbu.user.dto.RequestUserCategory;
 import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
-import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.LoginType;
-import busim.kkilogbu.user.repository.UserRepository;
 import busim.kkilogbu.user.service.UserPhoneService;
 import busim.kkilogbu.user.service.UserService;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
@@ -27,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 
-import javax.naming.AuthenticationException;
 import java.util.Optional;
 
 @RestController
@@ -67,6 +65,31 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("예상치 못한 오류가 발생했습니다: " + e.getMessage());
         }
     }
+
+    @PostMapping("/login/{loginType}")
+    public ResponseEntity<?> appleAutomaticLogin(
+            @PathVariable("loginType") LoginType loginType,  // Enum으로 직접 받음
+            @RequestBody AutomaticLoginRequest request) {
+
+        try {
+            String deviceIdentificationCode = request.getDeviceIdentificationCode();
+            String accessToken = request.getAccessToken();
+
+            // 자동 로그인 처리
+            LoginResponse result = userService.automaticLogin(deviceIdentificationCode, accessToken, loginType);
+            return ResponseEntity.ok(result);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("예상치 못한 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+
+
         // 회원 탈퇴 API
     @DeleteMapping("/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable(name = "userId") Long userId, @RequestParam String accessToken) {
@@ -77,6 +100,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User deletion failed: " + e.getMessage());
         }
     }
+
+
+
 
     /**
      * 유저 정보 조회

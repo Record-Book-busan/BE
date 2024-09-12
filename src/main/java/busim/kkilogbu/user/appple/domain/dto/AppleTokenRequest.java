@@ -14,5 +14,5 @@ public class AppleTokenRequest {
     private String clientSecret;
     private String code;
     private String grantType;
-    private String refresh_token;
+    private String refreshToken;
 }

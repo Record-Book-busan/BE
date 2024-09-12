@@ -8,21 +8,19 @@ import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.user.appple.controller.AppleClient;
-import busim.kkilogbu.user.appple.domain.dto.AppleRevokeRequest;
-import busim.kkilogbu.user.appple.domain.dto.AppleTokenRequest;
-import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
-import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
+import busim.kkilogbu.user.appple.domain.dto.*;
 import busim.kkilogbu.user.appple.service.AppleAuthService;
+import busim.kkilogbu.user.appple.service.AppleAutomaticLoginService;
 import busim.kkilogbu.user.appple.service.AppleTokenService;
 import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.dto.UserDto;
-import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.LoginType;
 import busim.kkilogbu.user.entity.User;
 import busim.kkilogbu.user.repository.UserRepository;
 import busim.kkilogbu.user.util.NicknameGeneratorStrategy;
 import io.jsonwebtoken.Claims;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +29,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.Optional;
 
 
 @Slf4j
@@ -46,6 +46,7 @@ public class UserService {
     private final AppleClient appleClient;
     private final AppleTokenService appleTokenService;
     private final AppleAuthService appleAuthService;
+    private final AppleAutomaticLoginService appleAutomaticLoginService;
 
     public User userInfo(UserDto userDto) {
         userDto.toUser(userDto);
@@ -64,7 +65,7 @@ public class UserService {
 
 
         /// 2. AppleTokenResponse 객체를 사용해 애플 서버에서 access token 교환
-        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authorizationCode);
+        AppleTokenResponse tokenResponse = appleAuthService.getAccessTokenUsingAuthCode(authorizationCode);
         log.info("access token 교환 성공!! : " + tokenResponse);
 
         // 3. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
@@ -115,8 +116,37 @@ public class UserService {
     }
 
 
+    @Transactional
+    public LoginResponse automaticLogin(String deviceIdentificationCode, String accessToken, LoginType loginType) throws Exception {
+        Optional<User> userOptional = userRepository.findByPhoneIdentificationNumber(deviceIdentificationCode);
 
+        if (userOptional.isEmpty()) {
+            log.warn("[{} 로그인] 해당 기계식별코드로 등록된 유저가 없습니다. Device ID: {}", loginType, deviceIdentificationCode);
+            throw new EntityNotFoundException("해당 기계식별코드로 등록된 유저가 없습니다.");
+        }
 
+        // TODO : 로그인 확인용
+        User user = userOptional.get();
+
+        // 로그인 타입에 따라 케이스를 나눔
+        switch (loginType) {
+            case APPLE:
+                log.info("[애플 로그인] 애플 로그인 처리 시작. 유저ID: {}", user.getId());
+                return appleAutomaticLoginService.handleAutomaticLogin(accessToken, user);
+
+//            case GOOGLE:
+//                log.info("[구글 로그인] 구글 로그인 처리 시작. 유저ID: {}", user.getId());
+//                return handleGoogleLogin(user, accessToken);
+//
+//            case KAKAO:
+//                log.info("[카카오 로그인] 카카오 로그인 처리 시작. 유저ID: {}", user.getId());
+//                return handleKakaoLogin(user, accessToken);
+
+            default:
+                log.error("지원되지 않는 로그인 타입입니다: {}", loginType);
+                throw new IllegalArgumentException("지원되지 않는 로그인 타입입니다.");
+        }
+    }
 
 
 

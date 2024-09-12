@@ -32,36 +32,75 @@ public class AppleAuthService {
 
 
     private final AppleClient appleClient;
+    public AppleTokenResponse getAccessTokenUsingAuthCode(String authorizationCode) {
+        // client_secret 생성
+        String clientSecret = this.createClientSecret();
 
-    public AppleTokenResponse getAppleToken(String code) {
-        // AppleTokenRequest 객체 생성
+        // AppleTokenRequest 객체 생성 (Authorization Code 사용)
         AppleTokenRequest appleTokenRequest = AppleTokenRequest.builder()
                 .clientId(clientId)  // 애플 클라이언트 ID
-                .clientSecret(this.createClientSecret())  // JWT로 서명된 client_secret 생성
-                .code(code)  // 애플 로그인에서 받은 인증 코드
+                .clientSecret(clientSecret)  // JWT로 서명된 client_secret 생성
+                .code(authorizationCode)  // Authorization Code
                 .grantType("authorization_code")  // 그랜트 타입 설정 (authorization_code)
                 .build();
 
         // 로깅: client_secret 확인
-        log.info("client_secret 생성 완료: {}", createClientSecret());  // client_secret 확인
+        log.info("client_secret 생성 완료: {}", clientSecret);
 
         // 로깅: AppleTokenRequest 객체 정보 출력
-        log.info("AppleTokenRequest: client_id={}, code={}, grant_type={}",
+        log.info("AppleTokenRequest (Authorization Code): client_id={}, grant_type={}",
                 appleTokenRequest.getClientId(),
-                appleTokenRequest.getCode(),
                 appleTokenRequest.getGrantType());
 
-        // FeignClient를 사용하여 애플 토큰 발급 API 호출
-        AppleTokenResponse tokenResponse = appleClient.findAppleToken(appleTokenRequest.getClientId(), appleTokenRequest.getClientSecret(), appleTokenRequest.getGrantType(), appleTokenRequest.getCode());
+        // FeignClient를 사용하여 애플 토큰 발급 API 호출 (Authorization Code 사용)
+        AppleTokenResponse tokenResponse = appleClient.findAppleToken(
+                appleTokenRequest.getClientId(),
+                appleTokenRequest.getClientSecret(),
+                appleTokenRequest.getGrantType(),
+                appleTokenRequest.getCode());
 
         // 로깅: 응답 객체 정보 확인
-        log.info("AppleTokenResponse 수신: access_token={}, refresh_token={}",
+        log.info("AppleTokenResponse (Authorization Code) 수신: access_token={}, refresh_token={}",
                 tokenResponse.accessToken(),
                 tokenResponse.refreshToken());
 
         return tokenResponse;
     }
 
+    public AppleTokenResponse getAccessTokenUsingRefreshToken(String refreshToken) {
+        // client_secret 생성
+        String clientSecret = this.createClientSecret();
+
+        // AppleTokenRequest 객체 생성 (Refresh Token 사용)
+        AppleTokenRequest appleTokenRequest = AppleTokenRequest.builder()
+                .clientId(clientId)  // 애플 클라이언트 ID
+                .clientSecret(clientSecret)  // JWT로 서명된 client_secret 생성
+                .refreshToken(refreshToken)  // Refresh Token
+                .grantType("refresh_token")  // 그랜트 타입 설정 (refresh_token)
+                .build();
+
+        // 로깅: client_secret 확인
+        log.info("client_secret 생성 완료: {}", clientSecret);
+
+        // 로깅: AppleTokenRequest 객체 정보 출력
+        log.info("AppleTokenRequest (Refresh Token): client_id={}, grant_type={}",
+                appleTokenRequest.getClientId(),
+                appleTokenRequest.getGrantType());
+
+        // FeignClient를 사용하여 애플 토큰 발급 API 호출 (Refresh Token 사용)
+        AppleTokenResponse tokenResponse = appleClient.refreshAccessToken(
+                appleTokenRequest.getClientId(),
+                appleTokenRequest.getClientSecret(),
+                appleTokenRequest.getGrantType(),
+                appleTokenRequest.getRefreshToken());
+
+        // 로깅: 응답 객체 정보 확인
+        log.info("AppleTokenResponse (Refresh Token) 수신: access_token={}, refresh_token={}",
+                tokenResponse.accessToken(),
+                tokenResponse.refreshToken());
+
+        return tokenResponse;
+    }
 
     // client_secret 생성 메소드 (JWT 서명)
     public String createClientSecret() {
@@ -105,6 +144,7 @@ public class AppleAuthService {
         KeyFactory keyFactory = KeyFactory.getInstance("EC");  // 애플은 Elliptic Curve 알고리즘 사용 (ES256)
         return keyFactory.generatePrivate(keySpec);
     }
+
 
 
 }

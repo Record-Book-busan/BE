@@ -31,8 +31,18 @@ public interface AppleClient {
                                       @RequestParam("code") String code
     );
 
+
+    @PostMapping(value = "/token", consumes = "application/x-www-form-urlencoded")
+    AppleTokenResponse refreshAccessToken(
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("grant_type") String grantType,
+            @RequestParam("refresh_token") String refreshToken
+    );
+
     @PostMapping(value = "/revoke", consumes = "application/x-www-form-urlencoded")
     void revoke(AppleRevokeRequest request);
 
 
 }
+
