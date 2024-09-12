@@ -17,6 +17,8 @@ import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.LoginType;
 import busim.kkilogbu.user.entity.User;
+import busim.kkilogbu.user.entity.UserConsent;
+import busim.kkilogbu.user.repository.UserConsentRepository;
 import busim.kkilogbu.user.repository.UserRepository;
 import busim.kkilogbu.user.util.NicknameGeneratorStrategy;
 import io.jsonwebtoken.Claims;
@@ -47,6 +49,7 @@ public class UserService {
     private final AppleTokenService appleTokenService;
     private final AppleAuthService appleAuthService;
     private final AppleAutomaticLoginService appleAutomaticLoginService;
+    private final UserConsentRepository userConsentRepository;
 
     public User userInfo(UserDto userDto) {
         userDto.toUser(userDto);
@@ -149,6 +152,19 @@ public class UserService {
     }
 
 
+    @Transactional
+    public void saveUserConsent(Long userId, UserConsentRequest consentRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다"));
+
+        UserConsent consent = UserConsent.builder()
+                .user(user)  // User 객체 설정
+                .termsAgreed(consentRequest.isTermsAgreed())
+                .privacyAgreed(consentRequest.isPrivacyAgreed())
+                .build();
+
+        userConsentRepository.save(consent);
+    }
 
 
     public UserInfoResponse getUserInfo() {

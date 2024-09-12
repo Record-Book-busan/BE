@@ -2,10 +2,7 @@ package busim.kkilogbu.user.controller;
 
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
-import busim.kkilogbu.user.appple.domain.dto.AppleSignInRequest;
-import busim.kkilogbu.user.appple.domain.dto.AutomaticLoginRequest;
-import busim.kkilogbu.user.appple.domain.dto.LoginResponse;
-import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
+import busim.kkilogbu.user.appple.domain.dto.*;
 import busim.kkilogbu.user.dto.RequestUserCategory;
 import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
@@ -86,6 +83,15 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("예상치 못한 오류가 발생했습니다: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/signin/{userId}/consent")
+    public ResponseEntity<String> saveUserConsent(
+            @PathVariable(name = "userId") Long userId,
+            @RequestBody UserConsentRequest consentRequest) {
+
+        userService.saveUserConsent(userId, consentRequest);
+        return ResponseEntity.ok("개인정보 와 약관동의 하셨습니다");
     }
 
 
