@@ -1,6 +1,7 @@
 package busim.kkilogbu.user.entity;
 
 import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
 import jakarta.persistence.Entity;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
 public class BlackList {
-	@Id @GeneratedValue
+	@Id @GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	@ManyToOne(fetch = LAZY)
