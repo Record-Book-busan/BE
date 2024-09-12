@@ -7,4 +7,5 @@ public class AppleSignInRequest {
 
     private String authorizationCode;
     private String identityToken;
+    private String phoneIdentificationNumber;
 }

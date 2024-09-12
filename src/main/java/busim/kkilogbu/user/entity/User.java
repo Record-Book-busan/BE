@@ -41,6 +41,8 @@ public class User {
 	@Column(length = 1000)
 	private String accessToken;  // 액세스 토큰
 
+	private String phoneIdentificationNumber;
+
 	//약관 동의 체크
 	private boolean agreePrivacy;
 

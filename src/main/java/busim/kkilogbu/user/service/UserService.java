@@ -21,6 +21,7 @@ import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.LoginType;
 import busim.kkilogbu.user.entity.User;
 import busim.kkilogbu.user.repository.UserRepository;
+import busim.kkilogbu.user.util.NicknameGeneratorStrategy;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
@@ -36,10 +37,11 @@ import org.springframework.web.client.HttpClientErrorException;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    
+
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final NicknameGeneratorStrategy nicknameGeneratorStrategy;
 
     private final AppleClient appleClient;
     private final AppleTokenService appleTokenService;
@@ -50,9 +52,10 @@ public class UserService {
         return userRepository.save(userDto.toUser(userDto));
     }
 
+
     // 애플 로그인 처리
     @Transactional(readOnly = false)
-    public SignInResponse appleSignIn(String authorizationCode, String identityToken) throws Exception {
+    public SignInResponse appleSignIn(String authorizationCode, String identityToken, String phoneIdentificationNumber) throws Exception {
         // 1. identityToken을 사용해 JWT 검증 (애플의 공개 키 사용)
         Claims claims = appleTokenService.verifyIdentityToken(identityToken);
         String appleUserId = claims.getSubject();  // JWT에서 애플 사용자 ID 추출
@@ -64,11 +67,11 @@ public class UserService {
         AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authorizationCode);
         log.info("access token 교환 성공!! : " + tokenResponse);
 
-       // 3. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
+        // 3. DB에서 사용자 조회 (존재하지 않으면 새로 생성)
         User user = userRepository.findByAppleUserId(appleUserId)
                 .orElseGet(() -> {
                     log.info("애플 사용자 ID " + appleUserId + "를 가진 사용자가 존재하지 않음, 새 사용자 생성");
-                    User newUser = registerNewUser(claims);
+                    User newUser = registerNewUser(claims, phoneIdentificationNumber);
                     log.info("새 사용자 생성, ID 값은 자동 할당됩니다. 이메일: " + newUser.getEmail());
                     newUser.updateTokens(tokenResponse.refreshToken(), tokenResponse.accessToken()); // 토큰도 함께 업데이트
                     User savedUser = userRepository.save(newUser);  // 새로 생성된 사용자 저장
@@ -78,7 +81,7 @@ public class UserService {
                 });
 
         // 4. 기존 사용자일 경우 토큰 업데이트 후 저장
-        if (user.getAppleUserId()!= null) {  // 기존 사용자인 경우
+        if (user.getAppleUserId() != null) {  // 기존 사용자인 경우
             user.updateTokens(tokenResponse.refreshToken(), tokenResponse.accessToken());
             userRepository.save(user);  // 업데이트된 사용자 정보 저장
         }
@@ -87,7 +90,7 @@ public class UserService {
         return SignInResponseMapper.toSignInResponse(user, tokenResponse);
     }
 
-    private User registerNewUser(Claims claims) {
+    private User registerNewUser(Claims claims, String phoneIdentificationNumber) {
         // 이메일 정보가 없을 수 있으므로 예외 처리
         String email = claims.get("email", String.class);
 
@@ -96,13 +99,23 @@ public class UserService {
             // 이메일이 없는 경우 처리 방법: 예를 들어 기본 이메일 설정
             email = "unknown@apple.com"; // 임시 이메일 설정 (필요시 사용자에게 입력 요청)
         }
+        // 전화 고유 식별 번호가 없을 수 있으므로 예외 처리
+        if (phoneIdentificationNumber == null || phoneIdentificationNumber.isEmpty()) {
+            throw new IllegalArgumentException("전화 고유 식별 번호가 없습니다.");
+        }
 
+        // 새로운 사용자 등록
         return User.builder()
                 .appleUserId(claims.getSubject())  // 애플 사용자 ID 설정
                 .email(email)  // 이메일 설정
-                .loginType(LoginType.APPLE)
+                .loginType(LoginType.APPLE)  // 로그인 타입 설정 (애플)
+                .nickname(nicknameGeneratorStrategy.generateNickname())  // 닉네임 생성
+                .phoneIdentificationNumber(phoneIdentificationNumber)  // 전화 고유 식별 번호 설정
                 .build();
     }
+
+
+
 
 
 
@@ -204,7 +217,7 @@ public class UserService {
             // AppleRevokeRequest 객체 생성
             AppleRevokeRequest appleRevokeRequest = AppleRevokeRequest.builder()
                     .clientId("com.busim.recordbookbusan")  // 클라이언트 ID (Bundle ID)
-                    .clientSecret(this.createSecret())  // JWT로 서명된 client_secret 생성
+                    .clientSecret(appleAuthService.createClientSecret())  // JWT로 서명된 client_secret 생성
                     .token(accessToken)  // 해지할 OAuth 액세스 토큰
                     .tokenTypeHint("access_token")  // 해지할 토큰 유형 (access_token)
                     .build();
@@ -217,10 +230,5 @@ public class UserService {
         }
     }
 
-    // client_secret 생성 메소드 (JWT 서명)
-    private String createSecret() {
-        // 30일 동안 유효한 JWT 생성 (createSecret 로직 참고)
-        // 생략: 앞에서 설명한 createSecret 로직 재사용
-        return "생성된 client_secret";  // JWT 생성 로직에 맞게 구현 필요
-    }
+
 }

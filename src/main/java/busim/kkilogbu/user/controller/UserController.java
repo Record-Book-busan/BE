@@ -9,6 +9,9 @@ import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoRequest;
 import busim.kkilogbu.user.dto.UserInfoResponse;
+import busim.kkilogbu.user.entity.LoginType;
+import busim.kkilogbu.user.repository.UserRepository;
+import busim.kkilogbu.user.service.UserPhoneService;
 import busim.kkilogbu.user.service.UserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,43 +28,45 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 
 import javax.naming.AuthenticationException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/kkilogbu/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserPhoneService userPhoneService;
 
 
     @PostMapping("/signin/apple")
     public ResponseEntity<?> appleSignIn(@RequestBody AppleSignInRequest request) {
         try {
-
             String authorizationCode = request.getAuthorizationCode();
             String identityToken = request.getIdentityToken();
+            String phoneIdentificationNumber = request.getPhoneIdentificationNumber();
 
-            SignInResponse result = userService.appleSignIn(authorizationCode, identityToken);
+            // 동일한 phoneIdentificationNumber가 있는지 확인
+            Optional<LoginType> existingLoginType = userPhoneService.checkUserByPhoneIdentification(phoneIdentificationNumber);
+
+            if (existingLoginType.isPresent()) {
+                // 동일한 번호가 있으면 200 응답과 함께 소셜 로그인 타입 반환
+                return ResponseEntity.ok("이미 등록된 번호입니다. 로그인 타입: " + existingLoginType.get());
+            }
+
+            // 동일한 번호가 없으면 애플 로그인 진행
+            SignInResponse result = userService.appleSignIn(authorizationCode, identityToken, phoneIdentificationNumber);
             return ResponseEntity.ok(result);
 
-    } catch (IllegalArgumentException e) {
-        // 잘못된 매개변수나 토큰이 유효하지 않은 경우
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다: " + e.getMessage());
-
-    } catch (
-    EntityNotFoundException e) {
-        // 사용자를 찾을 수 없는 경우
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다: " + e.getMessage());
-
-    } catch (HttpServerErrorException e) {
-        // 애플 서버에서 문제가 발생한 경우
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("애플 서버에 문제가 발생했습니다: " + e.getMessage());
-
-    } catch (Exception e) {
-            // 그 외 예상하지 못한 예외
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다: " + e.getMessage());
+        } catch (HttpServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("애플 서버에 문제가 발생했습니다: " + e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("예상치 못한 오류가 발생했습니다: " + e.getMessage());
         }
     }
-
         // 회원 탈퇴 API
     @DeleteMapping("/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable(name = "userId") Long userId, @RequestParam String accessToken) {

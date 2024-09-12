@@ -1,5 +1,6 @@
 package busim.kkilogbu.user.repository;
 
+import busim.kkilogbu.user.entity.LoginType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 애플 사용자 ID로 사용자 조회
     Optional<User> findByAppleUserId(String appleUserId);
+    Optional<User> findByPhoneIdentificationNumber(String phoneIdentificationNumber);
+
+
+
 }
