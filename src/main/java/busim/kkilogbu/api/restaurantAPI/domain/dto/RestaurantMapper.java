@@ -7,6 +7,10 @@ import busim.kkilogbu.place.dto.SearchResultResponse;
 public class RestaurantMapper {
 
     public static RestaurantResponseDto toRestaurantResponseDto(Restaurant restaurant) {
+        String image  = "";
+        if(restaurant.getImageUrls().get(0).startsWith("[\'")){
+            image = restaurant.getImageUrls().get(0).substring(2, restaurant.getImageUrls().get(0).length()-2);
+        }
         return RestaurantResponseDto.builder()
                 .id(restaurant.getId())
                 .title(restaurant.getTitle())
@@ -17,7 +21,7 @@ public class RestaurantMapper {
                 .phoneNumber(restaurant.getPhoneNumber())
                 .businessType(restaurant.getBusinessType())
                 .detailedInformation(restaurant.getDetailedInformation())
-                .imageUrl(restaurant.getImageUrls().get(0))
+                .imageUrl(image)
                 .restaurantName(restaurant.getRestaurantName())
                 .categories(restaurant.getCategories()) // 카테고리 리스트를 DTO로 변환
                 .type(restaurant.getType())

@@ -41,7 +41,6 @@ public class ToiletDataServiceImpl implements ToiletDataService {
                         .toiletName(csvRecord.get("화장실명"))
                         .locationRoadNameAddress(csvRecord.get("소재지도로명주소"))
                         .locationJibunAddress(csvRecord.get("소재지지번주소"))
-                        .unisexToilet(csvRecord.get("남녀공용화장실여부"))
                         .maleToiletCount(parseInteger(csvRecord.get("남성용-대변기수")))
                         .maleUrinalCount(parseInteger(csvRecord.get("남성용-소변기수")))
                         .maleDisabledToiletCount(parseInteger(csvRecord.get("남성용-장애인용대변기수")))
@@ -54,9 +53,9 @@ public class ToiletDataServiceImpl implements ToiletDataService {
                         .managementAgency(csvRecord.get("관리기관명"))
                         .phoneNumber(csvRecord.get("전화번호"))
                         .openingHours(csvRecord.get("개방시간"))
-                        .installationYear(csvRecord.get("설치년도"))
-                        .latitude(parseDouble(csvRecord.get("위도")))
-                        .longitude(parseDouble(csvRecord.get("경도")))
+                        .installationYear(csvRecord.get("설치연월"))
+                        .latitude(parseDouble(csvRecord.get("WGS84위도")))
+                        .longitude(parseDouble(csvRecord.get("WGS84경도")))
                         .build();
 
                 toiletDataList.add(toiletData);
