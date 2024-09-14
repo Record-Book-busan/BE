@@ -1,5 +1,6 @@
 package busim.kkilogbu.sociaLogin.appple.service;
 
+import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleRevokeRequest;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenResponse;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.SignInResponse;
 import busim.kkilogbu.sociaLogin.appple.service.AppleAuthService;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Service
@@ -77,4 +79,7 @@ public class AppleLoginService {
         // 변경된 사용자 정보 저장
         userRepository.save(user);
     }
+
+
+
 }

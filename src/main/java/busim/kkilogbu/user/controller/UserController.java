@@ -8,7 +8,6 @@ import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
 import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.entity.LoginType;
-import busim.kkilogbu.user.service.UserPhoneService;
 import busim.kkilogbu.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -30,26 +29,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserPhoneService userPhoneService;
-
 
     @PostMapping("/signin/{loginType}")
-    public ResponseEntity<?> appleSignIn(@PathVariable("loginType") LoginType loginType, @RequestBody AppleSignInRequest request) {
+    public ResponseEntity<?> socialSignIn(@PathVariable("loginType") LoginType loginType, @RequestBody AppleSignInRequest request) {
         try {
             String authorizationCode = request.getAuthorizationCode();
             String identityToken = request.getIdentityToken();
-            String phoneIdentificationNumber = request.getPhoneIdentificationNumber();
-
-            // 동일한 phoneIdentificationNumber가 있는지 확인
-            Optional<LoginType> existingLoginType = userPhoneService.checkUserByPhoneIdentification(phoneIdentificationNumber);
-
-            if (existingLoginType.isPresent()) {
-                // 동일한 번호가 있으면 200 응답과 함께 소셜 로그인 타입 반환
-                return ResponseEntity.ok("이미 등록된 번호입니다. 로그인 타입: " + existingLoginType.get());
-            }
 
             // 동일한 번호가 없으면 애플 로그인 진행
-            SignInResponse result = userService.appleSignIn(authorizationCode, identityToken, phoneIdentificationNumber);
+            var result = userService.socialSignIn(authorizationCode, identityToken, loginType);
             return ResponseEntity.ok(result);
 
         } catch (IllegalArgumentException e) {
@@ -63,27 +51,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login/{loginType}")
-    public ResponseEntity<?> appleAutomaticLogin(
-            @PathVariable("loginType") LoginType loginType,  // Enum으로 직접 받음
-            @RequestBody AutomaticLoginRequest request) {
-
-        try {
-            String deviceIdentificationCode = request.getDeviceIdentificationCode();
-            String accessToken = request.getAccessToken();
-
-            // 자동 로그인 처리
-            LoginResponse result = userService.automaticLogin(deviceIdentificationCode, accessToken, loginType);
-            return ResponseEntity.ok(result);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다: " + e.getMessage());
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("예상치 못한 오류가 발생했습니다: " + e.getMessage());
-        }
-    }
 
     @PostMapping("/signin/{userId}/consent")
     public ResponseEntity<String> saveUserConsent(
