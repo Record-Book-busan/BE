@@ -1,7 +1,7 @@
-package busim.kkilogbu.user.appple.service;
+package busim.kkilogbu.sociaLogin.appple.service;
 
-import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
-import busim.kkilogbu.user.appple.domain.dto.LoginResponse;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenResponse;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.LoginResponse;
 import busim.kkilogbu.user.entity.users.User;
 import busim.kkilogbu.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;

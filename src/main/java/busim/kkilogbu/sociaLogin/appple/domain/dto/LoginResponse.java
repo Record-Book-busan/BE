@@ -1,4 +1,4 @@
-package busim.kkilogbu.user.appple.domain.dto;
+package busim.kkilogbu.sociaLogin.appple.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

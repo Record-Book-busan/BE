@@ -2,7 +2,7 @@ package busim.kkilogbu.user.controller;
 
 import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.record.dto.MyRecordResponse;
-import busim.kkilogbu.user.appple.domain.dto.*;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.*;
 import busim.kkilogbu.user.dto.RequestUserCategory;
 import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
@@ -33,8 +33,8 @@ public class UserController {
     private final UserPhoneService userPhoneService;
 
 
-    @PostMapping("/signin/apple")
-    public ResponseEntity<?> appleSignIn(@RequestBody AppleSignInRequest request) {
+    @PostMapping("/signin/{loginType}")
+    public ResponseEntity<?> appleSignIn(@PathVariable("loginType") LoginType loginType, @RequestBody AppleSignInRequest request) {
         try {
             String authorizationCode = request.getAuthorizationCode();
             String identityToken = request.getIdentityToken();

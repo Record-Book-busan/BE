@@ -17,6 +17,7 @@ public class CreateRecordRequest {
 	@NotNull(message = "DataCategory 2 is required")
 	private Long cat2;
 */
+
 	@Schema(description = "위도", example = "37.5665")
 	@NotNull(message = "Latitude is required")
 	private Double lat;

@@ -1,15 +1,14 @@
-package busim.kkilogbu.user.appple.service;
+package busim.kkilogbu.sociaLogin.appple.service;
 
 
-import busim.kkilogbu.user.appple.controller.AppleClient;
-import busim.kkilogbu.user.appple.domain.dto.AppleKeyInfo;
-import busim.kkilogbu.user.appple.domain.dto.ApplePublicKeyResponse;
+import busim.kkilogbu.sociaLogin.appple.controller.AppleClient;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleKeyInfo;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.ApplePublicKeyResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;

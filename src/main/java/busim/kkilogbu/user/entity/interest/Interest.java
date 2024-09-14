@@ -24,8 +24,6 @@ public class Interest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-
     // 관광지 카테고리 (문자열 리스트로 저장)
     @ElementCollection
     @CollectionTable(name = "interest_tourist_categories", joinColumns = @JoinColumn(name = "interest_id"))

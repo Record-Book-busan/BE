@@ -1,14 +1,12 @@
-package busim.kkilogbu.user.appple.service;
+package busim.kkilogbu.sociaLogin.appple.service;
 
-import busim.kkilogbu.user.appple.controller.AppleClient;
-import busim.kkilogbu.user.appple.domain.dto.AppleTokenRequest;
-import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
-import io.jsonwebtoken.JwsHeader;
+import busim.kkilogbu.sociaLogin.appple.controller.AppleClient;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenRequest;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenResponse;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyFactory;

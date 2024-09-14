@@ -1,7 +1,7 @@
 package busim.kkilogbu.user.dto;
 
-import busim.kkilogbu.user.appple.domain.dto.AppleTokenResponse;
-import busim.kkilogbu.user.appple.domain.dto.SignInResponse;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenResponse;
+import busim.kkilogbu.sociaLogin.appple.domain.dto.SignInResponse;
 import busim.kkilogbu.user.entity.users.User;
 import lombok.Getter;
 
