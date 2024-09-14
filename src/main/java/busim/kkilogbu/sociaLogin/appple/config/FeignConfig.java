@@ -1,4 +1,4 @@
-package busim.kkilogbu.user.appple;
+package busim.kkilogbu.sociaLogin.appple.config;
 
 
 import feign.Logger;

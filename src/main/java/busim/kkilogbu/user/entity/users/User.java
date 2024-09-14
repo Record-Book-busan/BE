@@ -28,21 +28,23 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	private String email;
+
+
 	private String username;
-	private String nickname;
 	private Long category;
 	private LocalDateTime createdAt;
 	private String ProfileImage;
 
-	@Column(length = 1000)
-	private String appleUserId;  // 애플 사용자 ID
-	@Column(length = 1000)
-	private String email;        // 이메일
-	@Column(length = 1000)
-	private String refreshToken; // Refresh Token
+	// 단방향으로 소셜 로그인 정보 참조
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "user_id")  // 외래키를 통해 연결
+	private List<SocialLoginInfo> socialLoginInfos = new ArrayList<>();
 
-	@Column(length = 1000)
-	private String accessToken;  // 액세스 토큰
+	// 소셜 로그인 정보 추가
+	public void addSocialLoginInfo(SocialLoginInfo socialLoginInfo) {
+		this.socialLoginInfos.add(socialLoginInfo);
+	}
 
 	private String phoneIdentificationNumber;
 
@@ -58,21 +60,10 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<BlackList> blackLists = new ArrayList<>();
 
-	@Enumerated(EnumType.STRING)
-	private LoginType loginType;
-
 
 	@OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
 	private List<UserInterest> userInterests = new ArrayList<>();
 
-	public void updateTokens(String refreshToken,String accessToken){
-		this.refreshToken = refreshToken;
-		this.accessToken = accessToken;
-	}
-
-	public void changeNickname(String nickname) {
-		this.nickname = nickname;
-	}
 	public void changeProfileImage(String profileImage) {
 		this.ProfileImage = profileImage;
 	}

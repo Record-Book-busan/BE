@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableFeignClients(basePackages = "busim.kkilogbu.user.appple")
+@EnableFeignClients(basePackages = "busim.kkilogbu.sociaLogin.appple")
 public class KkilogbuApplication {
 
 	public static void main(String[] args) {
