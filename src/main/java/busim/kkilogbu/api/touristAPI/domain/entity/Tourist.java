@@ -25,13 +25,9 @@ public class Tourist {
     private Double longitude;     // 경도
     private Double latitude;      // 위도
 
-
     private String categoryLarge;   // 대분류
-
     private String categoryMedium;  // 중분류
     private String categorySmall;   // 소분류
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id")
-    private Place place;
+
 }

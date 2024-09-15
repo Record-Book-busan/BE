@@ -60,8 +60,5 @@ public class Restaurant {
 
         private String type; // 식당 유형을 나타내는 필드 (1: 특정 맛집, 0: 그냥 맛집)
 
-        // Place와 다대일 관계 설정
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "place_id")
-        private Place place;
+
 }

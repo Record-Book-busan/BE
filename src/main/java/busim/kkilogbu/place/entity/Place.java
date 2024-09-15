@@ -38,13 +38,7 @@ public class Place {
 	@OneToMany(mappedBy = "place")
 	private List<Bookmark> bookmark = new ArrayList<>();
 
-	// 관광지와의 일대다 관계
-	@OneToMany(mappedBy = "place")
-	private List<Tourist> tourists = new ArrayList<>();
 
-	// 맛집과의 일대다 관계
-	@OneToMany(mappedBy = "place")
-	private List<Restaurant> restaurants = new ArrayList<>();
 
 	// Builder 패턴으로 객체 생성
 	@Builder
