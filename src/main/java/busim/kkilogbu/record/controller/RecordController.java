@@ -69,60 +69,60 @@ public class RecordController {
 	}
 
 
-
-
-	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
-	@GetMapping("/{markId}")
-	public ResponseEntity<RecordDetailResponse> getRecordDetail(
-			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-		return ResponseEntity.ok(service.getPlaceDetail(markId));
-	}
-
-	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
-	@PostMapping
-	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
-		service.createRecord(request);
-		return ResponseEntity.ok().build();
-	}
-
-	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
-	@PostMapping("/{markId}/report")
-	public ResponseEntity<?> report(
-			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-		blackListService.report(markId);
-		return ResponseEntity.ok().build();
-	}
-
-	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
-	@PostMapping("/{markId}/bookmark")
-	public ResponseEntity<?> bookmark(
-			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-		bookmarkService.bookmark(markId, "record");
-		return ResponseEntity.ok().build();
-	}
-
-	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
-	@DeleteMapping("/{markId}/bookmark")
-	public ResponseEntity<?> deleteBookmark(
-			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-		bookmarkService.unbookmark(markId, "record");
-		return ResponseEntity.ok().build();
-	}
-
-	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
-	@PatchMapping("/{markId}")
-	public ResponseEntity<?> updatePlace(
-			@Parameter(description = "기록 ID") @PathVariable Long markId,
-			@RequestBody @Valid UpdateRecordRequest request) {
-		service.updateRecord(markId, request);
-		return ResponseEntity.ok().build();
-	}
-
-	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
-	@DeleteMapping("/{markId}")
-	public ResponseEntity<?> deletePlace(
-			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-		service.deleteRecord(markId);
-		return ResponseEntity.ok().build();
-	}
+//
+//
+//	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
+//	@GetMapping("/{markId}")
+//	public ResponseEntity<RecordDetailResponse> getRecordDetail(
+//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+//		return ResponseEntity.ok(service.getPlaceDetail(markId));
+//	}
+//
+//	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
+//	@PostMapping
+//	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
+//		service.createRecord(request);
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
+//	@PostMapping("/{markId}/report")
+//	public ResponseEntity<?> report(
+//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+//		blackListService.report(markId);
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
+//	@PostMapping("/{markId}/bookmark")
+//	public ResponseEntity<?> bookmark(
+//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+//		bookmarkService.bookmark(markId, "record");
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
+//	@DeleteMapping("/{markId}/bookmark")
+//	public ResponseEntity<?> deleteBookmark(
+//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+//		bookmarkService.unbookmark(markId, "record");
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
+//	@PatchMapping("/{markId}")
+//	public ResponseEntity<?> updatePlace(
+//			@Parameter(description = "기록 ID") @PathVariable Long markId,
+//			@RequestBody @Valid UpdateRecordRequest request) {
+//		service.updateRecord(markId, request);
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
+//	@DeleteMapping("/{markId}")
+//	public ResponseEntity<?> deletePlace(
+//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+//		service.deleteRecord(markId);
+//		return ResponseEntity.ok().build();
+//	}
 }

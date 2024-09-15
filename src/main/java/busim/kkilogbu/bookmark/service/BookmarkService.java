@@ -22,72 +22,72 @@ public class BookmarkService {
 	private final BookmarkRepository bookmarkRepository;
 	private final UserRepository userRepository;
 
-	@Transactional
-	public void bookmark(Long id, String type){
-		// TODO : 로그인 구현후 변경
-		User user = User.builder().nickname("tester").build();
-		userRepository.save(user);
-
-		if(type == "record"){
-			Records records = recordRepository.findById(id).orElseThrow(
-				() -> new IllegalArgumentException("존제하지 않는 records")
-			);
-			if(bookmarkRepository.existsByUserAndRecords(user, records)){
-				// TODO : 예외처리 변경
-				throw new IllegalArgumentException("이미 북마크 중입니다");
-			}
-			Bookmark bookmark = Bookmark.builder().build();
-			bookmarkRepository.save(bookmark);
-			bookmark.connect(user, records, null);
-		}
-		else if(type == "place"){
-			Place place = placeRepository.findById(id).orElseThrow(
-				() -> new IllegalArgumentException("존제하지 않는 place")
-			);
-			if(bookmarkRepository.existsByUserAndPlace(user, place)){
-				// TODO : 예외처리 변경
-				throw new IllegalArgumentException("이미 북마크 중입니다");
-			}
-			Bookmark bookmark = Bookmark.builder().build();
-			bookmarkRepository.save(bookmark);
-			bookmark.connect(user, null, place);
-		}
-		else{
-			// TODO : 예외처리 변경
-			throw new IllegalArgumentException("type is not valid");
-		}
-	}
-
-	@Transactional
-	public void unbookmark(Long id, String type){
-		// TODO : 로그인 구현후 변경
-		User user = User.builder().nickname("tester").build();
-		userRepository.save(user);
-
-		Bookmark bookmark;
-		if(type == "record"){
-			Records records = recordRepository.findById(id).orElseThrow(
-				() -> new IllegalArgumentException("존제하지 않는 records")
-			);
-			bookmark = bookmarkRepository.findByUserAndRecords(user, records).orElseThrow(
-				// TODO : 예외처리 변경
-				() -> new IllegalArgumentException("북마크 중이 아닙니다")
-			);
-			bookmark.disconnect();
-		}
-		else if(type == "place"){
-			Place place = placeRepository.findById(id).orElseThrow(
-				() -> new IllegalArgumentException("존제하지 않는 place")
-			);
-			bookmark = bookmarkRepository.findByUserAndPlace(user, place).orElseThrow(
-				// TODO : 예외처리 변경
-				() -> new IllegalArgumentException("북마크 중이 아닙니다")
-			);
-			bookmark.disconnect();
-		}
-		else{
-			throw new IllegalArgumentException("type is not valid");
-		}
-		bookmarkRepository.delete(bookmark);
-	}
+//	@Transactional
+//	public void bookmark(Long id, String type){
+//		// TODO : 로그인 구현후 변경
+//		User user = User.builder().nickname("tester").build();
+//		userRepository.save(user);
+//
+//		if(type == "record"){
+//			Records records = recordRepository.findById(id).orElseThrow(
+//				() -> new IllegalArgumentException("존제하지 않는 records")
+//			);
+//			if(bookmarkRepository.existsByUserAndRecords(user, records)){
+//				// TODO : 예외처리 변경
+//				throw new IllegalArgumentException("이미 북마크 중입니다");
+//			}
+//			Bookmark bookmark = Bookmark.builder().build();
+//			bookmarkRepository.save(bookmark);
+//			bookmark.connect(user, records, null);
+//		}
+//		else if(type == "place"){
+//			Place place = placeRepository.findById(id).orElseThrow(
+//				() -> new IllegalArgumentException("존제하지 않는 place")
+//			);
+//			if(bookmarkRepository.existsByUserAndPlace(user, place)){
+//				// TODO : 예외처리 변경
+//				throw new IllegalArgumentException("이미 북마크 중입니다");
+//			}
+//			Bookmark bookmark = Bookmark.builder().build();
+//			bookmarkRepository.save(bookmark);
+//			bookmark.connect(user, null, place);
+//		}
+//		else{
+//			// TODO : 예외처리 변경
+//			throw new IllegalArgumentException("type is not valid");
+//		}
+//	}
+//
+//	@Transactional
+//	public void unbookmark(Long id, String type){
+//		// TODO : 로그인 구현후 변경
+//		User user = User.builder().nickname("tester").build();
+//		userRepository.save(user);
+//
+//		Bookmark bookmark;
+//		if(type == "record"){
+//			Records records = recordRepository.findById(id).orElseThrow(
+//				() -> new IllegalArgumentException("존제하지 않는 records")
+//			);
+//			bookmark = bookmarkRepository.findByUserAndRecords(user, records).orElseThrow(
+//				// TODO : 예외처리 변경
+//				() -> new IllegalArgumentException("북마크 중이 아닙니다")
+//			);
+//			bookmark.disconnect();
+//		}
+//		else if(type == "place"){
+//			Place place = placeRepository.findById(id).orElseThrow(
+//				() -> new IllegalArgumentException("존제하지 않는 place")
+//			);
+//			bookmark = bookmarkRepository.findByUserAndPlace(user, place).orElseThrow(
+//				// TODO : 예외처리 변경
+//				() -> new IllegalArgumentException("북마크 중이 아닙니다")
+//			);
+//			bookmark.disconnect();
+//		}
+//		else{
+//			throw new IllegalArgumentException("type is not valid");
+//		}
+//		bookmarkRepository.delete(bookmark);
+//	}
 }
