@@ -26,6 +26,8 @@ public class PlaceMarkResponse {
 	@Schema(description = "이미지 URL", example = "https://example.com/image.jpg")
 	private String imageUrl;   // 이미지 URL
 
-	@Schema(description = "대분류 카테고리", example = "맛집 or 관광")
+	@Schema(description = "대분류 카테고리", example = "어떤 맛집, 어떤 관광")
 	private String category;   // 대분류 카테고리
+
+	private String type;
 }

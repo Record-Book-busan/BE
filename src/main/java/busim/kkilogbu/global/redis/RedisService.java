@@ -85,12 +85,13 @@ public class RedisService {
 				RestaurantResponseDto.class);
 			placesFromRedisNew.forEach(place -> {
 				places.add(PlaceMarkResponse.builder()
-					.id(place.getId())
-					.lat(place.getLatitude())
-					.lng(place.getLongitude())
-					.imageUrl(place.getImageUrl())
-					.category(category.name())
-					.build());
+								.id(place.getId())
+								.lat(place.getLatitude())
+								.lng(place.getLongitude())
+								.imageUrl(place.getImageUrl())
+								.category(category.name())
+								.type("restaurant")  // "restaurant"으로 타입 설정
+								.build());
 			});
 		}
 
@@ -118,12 +119,13 @@ public class RedisService {
 				TouristResponseDto.class);
 			placesFromRedisNew.forEach(place -> {
 				places.add(PlaceMarkResponse.builder()
-					.id(place.getId())
-					.lat(place.getLatitude())
-					.lng(place.getLongitude())
-					.imageUrl(place.getImageUrl())
-					.category(category.name())
-					.build());
+						.id(place.getId())
+						.lat(place.getLatitude())
+						.lng(place.getLongitude())
+						.imageUrl(place.getImageUrl())
+						.category(category.name())
+						.type("tourist")  // "tourist"로 타입 설정
+						.build());
 			});
 		}
 
