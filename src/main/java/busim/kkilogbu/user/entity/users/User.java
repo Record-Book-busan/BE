@@ -30,26 +30,17 @@ public class User {
 
 	private String email;
 
-
-	private String username;
 	private Long category;
 	private LocalDateTime createdAt;
 	private String ProfileImage;
 
-	// 단방향으로 소셜 로그인 정보 참조
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "user_id")  // 외래키를 통해 연결
-	private List<SocialLoginInfo> socialLoginInfos = new ArrayList<>();
+	private String nickname;
+	private String loginType;  // 소셜 로그인 유형 (애플, 구글, 카카오)
 
-	// 소셜 로그인 정보 추가
-	public void addSocialLoginInfo(SocialLoginInfo socialLoginInfo) {
-		this.socialLoginInfos.add(socialLoginInfo);
-	}
+	private String socialUserId;  // 소셜 로그인 사용자 ID
+	private String socialLoginAccessToken;   // 소셜 로그인 액세스 토큰
+	private String socialLoginRefreshToken;  // 소셜 로그인 리프레시 토큰
 
-	private String phoneIdentificationNumber;
-
-	//약관 동의 체크
-	private boolean agreePrivacy;
 
 	@OneToMany(mappedBy = "user")
 	private List<Records> records = new ArrayList<>();
@@ -71,5 +62,9 @@ public class User {
 		this.category = category;
 	}
 
-
+	// 소셜 로그인 토큰 정보 업데이트 메소드
+	public void updateTokens(String accessToken, String refreshToken) {
+		this.socialLoginAccessToken = accessToken;
+		this.socialLoginRefreshToken = refreshToken;
+	}
 }
