@@ -34,6 +34,7 @@ public class RecordService {
 	private final TouristRepository touristRepository;
 
 
+	@Transactional(readOnly = true)
 	public List<TouristIdImageResponse> getTouristGrid(String query, int offset, int limit) {
 		int page = offset / limit;  // offset을 페이지 번호로 변환
 
@@ -46,6 +47,7 @@ public class RecordService {
 				.collect(Collectors.toList());
 	}
 
+	@Transactional(readOnly = true)
 	public TouristGridResponse getTouristDetail(Long touristId) {
 		// touristId로 관광지 조회
 		Tourist tourist = touristRepository.findById(touristId)
