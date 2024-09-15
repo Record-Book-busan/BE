@@ -21,8 +21,7 @@ public class UserDto {
     public User toUser(UserDto userDto){
         return User.builder()
                 .id(id)
-                .username(userDto.username)
-                .nickname(userDto.nickname)
+          //      .username(userDto.username)
                 .build();
     }
 
