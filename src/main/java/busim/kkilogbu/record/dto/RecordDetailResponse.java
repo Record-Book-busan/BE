@@ -33,5 +33,6 @@ public class RecordDetailResponse {
 	@Schema(description = "기록 생성 시간", example = "2023-09-01T12:00:00")
 	private String createdAt;
 
-	// TODO : 북마크 여부?
+	@Schema(description = "기록의 주소", example = "서울특별시 중구 명동")
+	private String address;
 }

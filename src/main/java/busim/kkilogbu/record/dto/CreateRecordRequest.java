@@ -37,6 +37,8 @@ public class CreateRecordRequest {
 	@NotNull(message = "Image URL is required")
 	private String imageUrl;
 
-
+	@Schema(description = "기록의 주소", example = "서울특별시 중구 명동")
+	@NotNull(message = "Address is required")
+	private String address;
 
 }

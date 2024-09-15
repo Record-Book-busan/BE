@@ -34,10 +34,10 @@ public class RecordService {
 		);
 
 		// TODO : 로그인 구현 후 변경
-		User user = User.builder().nickname("tester").build();
-		if(blackListService.isBlocked(user, records.getUser())){
-			throw new BaseException("차단된 사용자입니다.", HttpStatus.FORBIDDEN);
-		}
+		// User user = User.builder().nickname("tester").build();
+		// if(blackListService.isBlocked(user, records.getUser())){
+		// 	throw new BaseException("차단된 사용자입니다.", HttpStatus.FORBIDDEN);
+		// }
 
 		return RecordMapper.toCreateRecordDetailResponse(records);
 	}
@@ -56,6 +56,7 @@ public class RecordService {
 			// 해당 위치 정보가 있으면 가져오고 없으면 새로 생성
 			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(), request.getLng())
 					.orElseGet(() -> AddressInfo.builder()
+							.address(request.getAddress())
 							.latitude(request.getLat())
 							.longitude(request.getLng())
 							.build());
