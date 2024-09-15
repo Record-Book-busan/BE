@@ -19,5 +19,13 @@ public interface TouristRepository extends JpaRepository<Tourist, Long> {
             "LOWER(t.categorySmall) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Tourist> findByMultipleFields(@Param("query") String query, Pageable pageable);
 
+    @Query("SELECT t FROM Tourist t WHERE " +
+            "LOWER(t.categoryLarge) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(t.categoryMedium) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(t.categorySmall) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(t.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(t.location) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<Tourist> findByMultiplesFields(@Param("query") String query, Pageable pageable);
+
 
 }

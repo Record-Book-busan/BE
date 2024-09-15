@@ -50,5 +50,17 @@ public class TouristMapper {
                 .build();
     }
 
+    public static TouristGridResponse toGridResponse(Tourist tourist) {
+        return TouristGridResponse.builder()
+                .id(tourist.getId())
+                .title(tourist.getName())
+                .thumbnailUrl(tourist.getImageUrl())  // 썸네일 이미지 URL
+                .address(tourist.getLocation())  // 주소
+                .lat(tourist.getLatitude())  // 위도
+                .lng(tourist.getLongitude())  // 경도
+                .touristCategory(TouristCategory.fromString(tourist.getCategoryLarge()))
+                .build();
+    }
+
 
 }

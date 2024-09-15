@@ -1,21 +1,17 @@
 package busim.kkilogbu.record.controller;
 
+import busim.kkilogbu.api.touristAPI.domain.dto.TouristGridResponse;
+import busim.kkilogbu.api.touristAPI.domain.dto.TouristIdImageResponse;
 import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.Ex.BaseException;
-import busim.kkilogbu.global.Ex.ErrorResponse;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
-import busim.kkilogbu.global.redis.dto.Cluster;
-import busim.kkilogbu.record.dto.CreateRecordRequest;
-import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
-import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.service.RecordService;
 import busim.kkilogbu.user.service.BlackListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "<RecordController>", description = "기록 관리 API")
 public class RecordController {
-	private final RecordService service;
+	private final RecordService recordService;
 	private final RedisService redisService;
 	private final BookmarkService bookmarkService;
 	private final BlackListService blackListService;
@@ -68,8 +64,24 @@ public class RecordController {
 
 	}
 
+	@GetMapping("/images")
+	public ResponseEntity<List<TouristIdImageResponse>> fetchTouristImages(
+			@Parameter(description = "검색어", example = "서울") @RequestParam String query,
+			@Parameter(description = "데이터의 시작점", example = "0") @RequestParam(defaultValue = "0") int offset,
+			@Parameter(description = "한 번에 가져올 데이터 수", example = "9") @RequestParam(defaultValue = "9") int limit) {
+		List<TouristIdImageResponse> imageUrls = recordService.getTouristGrid(query, offset, limit);
+		return ResponseEntity.ok(imageUrls);
+	}
 
-//
+	// 관광지 상세 조회
+	@GetMapping("/images/{touristId}")
+	public ResponseEntity<TouristGridResponse> getTouristDetail(@PathVariable Long touristId) {
+		TouristGridResponse touristDetail = recordService.getTouristDetail(touristId);
+		return ResponseEntity.ok(touristDetail);
+	}
+
+
+
 //
 //	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
 //	@GetMapping("/{markId}")
@@ -77,14 +89,14 @@ public class RecordController {
 //			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 //		return ResponseEntity.ok(service.getPlaceDetail(markId));
 //	}
-//
+
 //	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
 //	@PostMapping
 //	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
 //		service.createRecord(request);
 //		return ResponseEntity.ok().build();
 //	}
-//
+
 //	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
 //	@PostMapping("/{markId}/report")
 //	public ResponseEntity<?> report(

@@ -29,7 +29,7 @@ public class BlackListService {
 //		blocked.report(user, writer);
 //		blackListRepository.save(blocked);
 //	}
-//	public boolean isBlocked(User listener, User speaker) {
-//		return blackListRepository.existsByUserAndReportedUser(listener, speaker);
-//	}
+	public boolean isBlocked(User listener, User speaker) {
+		return blackListRepository.existsByUserAndReportedUser(listener, speaker);
+	}
 }

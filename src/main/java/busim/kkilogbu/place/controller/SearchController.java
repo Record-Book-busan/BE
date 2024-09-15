@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/kkilogbu/place")
+@RequestMapping("/kkilogbu/place/search")
 @RequiredArgsConstructor
 public class SearchController {
 
@@ -31,7 +31,7 @@ public class SearchController {
             @ApiResponse(responseCode = "200", description = "검색 성공"),
             @ApiResponse(responseCode = "200", description = "검색 결과가 없음")
     })
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<List<SearchResultResponse>> search(
             @Parameter(description = "검색어", example = "맛집") @RequestParam(name = "query") String query,
             @Parameter(description = "데이터의 시작점", example = "0") @RequestParam(name = "offset") int offset,  // 데이터의 시작점
