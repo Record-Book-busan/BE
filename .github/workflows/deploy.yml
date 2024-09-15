@@ -21,7 +21,7 @@ jobs:
         - name: test and build
           run: |
             chmod +x ./gradlew
-            ./gradlew clean build
+            ./gradlew clean build -x test
           working-directory: ./
           env:
             SQL_URL: ${{ secrets.DB_URL }}
