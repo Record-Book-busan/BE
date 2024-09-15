@@ -1,8 +1,10 @@
 package busim.kkilogbu.place.service;
 
+import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantMapper;
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantResponseDto;
 
 import busim.kkilogbu.api.restaurantAPI.repository.RestaurantRepository;
+import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristResponseDto;
 
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
@@ -29,43 +31,19 @@ public class PlaceService {
     private final RestaurantRepository restaurantRepository;
     private final TouristRepository touristRepository;
 
-    /**
-     * 맛집 상세 정보 조회
-     */
+
     public PlaceDetailResponse getRestaurantDetail(Long placeId) {
         var restaurant = restaurantRepository.findById(placeId)
                 .orElseThrow(() -> new BaseException("맛집을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        return PlaceDetailResponse.builder()
-                .id(restaurant.getId())
-                .title(restaurant.getRestaurantName())
-                .address(restaurant.getAddress())
-                .lng(restaurant.getLongitude())
-                .lat(restaurant.getLatitude())
-                .cat1("restaurant")
-                .restaurantCat2(restaurant.getCategories())
-                .report(restaurant.getDetailedInformation())
-                .imageUrl(restaurant.getImageUrls())
-                .build();
+        return RestaurantMapper.toPlaceDetailResponse(restaurant);
     }
 
-    /**
-     * 관광지 상세 정보 조회
-     */
     public PlaceDetailResponse getTouristDetail(Long placeId) {
         var tourist = touristRepository.findById(placeId)
                 .orElseThrow(() -> new BaseException("관광지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        return PlaceDetailResponse.builder()
-                .id(tourist.getId())
-                .title(tourist.getName())
-                .address(tourist.getLocation())
-                .lat(tourist.getLongitude())
-                .lng(tourist.getLatitude())
-                .cat1("tourist")
-                .touristCat2(TouristCategory.fromString(tourist.getCategoryLarge()))
-                .report(tourist.getCategorySmall())
-                .imageUrl2(tourist.getImageUrl())
-                .build();
+        return TouristMapper.toPlaceDetailResponse(tourist);
     }
+
 }
