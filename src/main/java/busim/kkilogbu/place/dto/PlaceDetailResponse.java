@@ -23,5 +23,7 @@ public class PlaceDetailResponse {
 	private TouristCategory touristCat2;
 	private List<String> restaurantCat2;
 	private String report;
+	private String phoneNumber;
+	private String businessType;
 	// TODO : 북마크 여부?
 }

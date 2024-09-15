@@ -1,6 +1,8 @@
 package busim.kkilogbu.place.controller;
 
 import busim.kkilogbu.global.Ex.BaseException;
+import busim.kkilogbu.place.dto.PlaceDetailResponse;
+import busim.kkilogbu.place.dto.SearchDetailResponse;
 import busim.kkilogbu.place.dto.SearchResultResponse;
 import busim.kkilogbu.place.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +24,7 @@ import java.util.List;
 public class SearchController {
 
     private final SearchService searchService;
+
 
     @Operation(summary = "검색", description = "검색어를 기반으로 맛집 또는 관광지를 검색합니다.")
     @ApiResponses(value = {
@@ -46,4 +46,25 @@ public class SearchController {
 
         return ResponseEntity.ok(searchResults.getContent());
     }
+
+    @GetMapping("/{type}/{placeId}")
+    public ResponseEntity<PlaceDetailResponse> getSearchDetail(
+            @Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId,
+            @Parameter(description = "장소 유형(맛집 또는 관광)", example = "restaurant or tourist") @PathVariable("type") String type) {
+
+        PlaceDetailResponse searchDetail;
+
+        // 'type'에 따라 맛집 또는 관광지 조회
+        if ("restaurant".equalsIgnoreCase(type)) {
+            searchDetail = searchService.getSearchRestaurantDetail(placeId);
+        } else if ("tourist".equalsIgnoreCase(type)) {
+            searchDetail = searchService.getSearchTouristDetail(placeId);
+        } else {
+            throw new IllegalArgumentException("유효하지 않은 유형입니다.");
+        }
+
+        return ResponseEntity.ok(searchDetail);
+    }
 }
+
+

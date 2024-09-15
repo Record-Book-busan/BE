@@ -14,6 +14,8 @@ public class SearchResultResponse {
         @Schema(description = "ID", example = "1")
         private Long id;
 
+        private String division;
+
         @Schema(description = "장소명 (맛집 또는 관광지)", example = "서울 맛집")
         private String name;          // 장소명 (맛집 또는 관광지)
 
