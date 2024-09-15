@@ -4,12 +4,10 @@ import busim.kkilogbu.user.entity.interest.Interest;
 import busim.kkilogbu.user.entity.users.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,4 +24,9 @@ public class UserInterest {
     @ManyToOne
     @JoinColumn(name = "interest_id")
     private Interest interest;
+
+    public UserInterest(User user, Interest interest) {
+        this.user = user;
+        this.interest = interest;
+    }
 }

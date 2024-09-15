@@ -44,13 +44,11 @@ public class InterestService {
 
         interestRepository.save(interest);
 
-        // UserInterest 생성 및 저장
-        UserInterest userInterest = UserInterest.builder()
-                .user(user)
-                .interest(interest)
-                .build();
+        // UserInterest 생성 및 저장 (빌더 사용 안함)
+        UserInterest userInterest = new UserInterest(user, interest);
 
         userInterestRepository.save(userInterest);
+
     }
 
     @Transactional(readOnly = true)

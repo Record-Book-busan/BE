@@ -1,10 +1,8 @@
 package busim.kkilogbu.sociaLogin.appple.service;
 
-import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleRevokeRequest;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenResponse;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.SignInResponse;
-import busim.kkilogbu.sociaLogin.appple.service.AppleAuthService;
-import busim.kkilogbu.sociaLogin.appple.service.AppleTokenService;
+
 import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.entity.LoginType;
 import busim.kkilogbu.user.entity.users.User;
