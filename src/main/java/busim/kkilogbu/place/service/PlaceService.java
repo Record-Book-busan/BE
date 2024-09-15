@@ -8,6 +8,7 @@ import busim.kkilogbu.api.touristAPI.domain.dto.TouristResponseDto;
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.place.dto.RestaurantCategory;
+import busim.kkilogbu.place.dto.TouristCategory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,8 @@ public class PlaceService {
                 .lng(restaurant.getLongitude())
                 .lat(restaurant.getLatitude())
                 .cat1("restaurant")
+                .restaurantCat2(restaurant.getCategories())
+                .report(restaurant.getDetailedInformation())
                 .imageUrl(restaurant.getImageUrls())
                 .build();
     }
@@ -60,7 +63,8 @@ public class PlaceService {
                 .lat(tourist.getLongitude())
                 .lng(tourist.getLatitude())
                 .cat1("tourist")
-                .cat2(tourist.getCategoryMedium())
+                .touristCat2(TouristCategory.fromString(tourist.getCategoryLarge()))
+                .report(tourist.getCategorySmall())
                 .imageUrl2(tourist.getImageUrl())
                 .build();
     }

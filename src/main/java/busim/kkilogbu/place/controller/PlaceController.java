@@ -112,7 +112,7 @@ public class PlaceController {
 	 		@ApiResponse(responseCode = "404", description = "장소를 찾을 수 없습니다.")})
 	 		@GetMapping("/{type}/{placeId}")
 	 		public ResponseEntity<PlaceDetailResponse> getPlaceDetail(
-	 		@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId,
+	 		@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId")  Long placeId,
 	 		@Parameter(description = "장소 유형(맛집 또는 관광)", example = "restaurant or tourist") @PathVariable("type") String type) {
 
 	 	// 'type'에 따라 맛집 또는 관광지 조회
@@ -130,27 +130,27 @@ public class PlaceController {
 
 
 
-	@Operation(summary = "장소 북마크 추가", description = "특정 장소를 북마크합니다.")
-	@PostMapping("/{placeId}/bookmark")
-	public ResponseEntity<?> bookmark(
-			@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId) {
-		bookmarkService.bookmark(placeId, "place");
-		return ResponseEntity.ok().build();
-	}
-
-	@Operation(summary = "장소 북마크 삭제", description = "특정 장소의 북마크를 삭제합니다.")
-	@DeleteMapping("/{placeId}/bookmark")
-	public ResponseEntity<?> deleteBookmark(
-			@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId) {
-		bookmarkService.unbookmark(placeId, "place");
-		return ResponseEntity.ok().build();
-	}
-
-	@GetMapping("/upload")
-	public ResponseEntity<?> upload() {
-		redisService.saveRestaurantDataInRedis();
-		redisService.saveTouristDataInRedis();
-		return ResponseEntity.ok().build();
-	}
+//	@Operation(summary = "장소 북마크 추가", description = "특정 장소를 북마크합니다.")
+//	@PostMapping("/{placeId}/bookmark")
+//	public ResponseEntity<?> bookmark(
+//			@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId) {
+//		bookmarkService.bookmark(placeId, "place");
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@Operation(summary = "장소 북마크 삭제", description = "특정 장소의 북마크를 삭제합니다.")
+//	@DeleteMapping("/{placeId}/bookmark")
+//	public ResponseEntity<?> deleteBookmark(
+//			@Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId) {
+//		bookmarkService.unbookmark(placeId, "place");
+//		return ResponseEntity.ok().build();
+//	}
+//
+//	@GetMapping("/upload")
+//	public ResponseEntity<?> upload() {
+//		redisService.saveRestaurantDataInRedis();
+//		redisService.saveTouristDataInRedis();
+//		return ResponseEntity.ok().build();
+//	}
 
 }

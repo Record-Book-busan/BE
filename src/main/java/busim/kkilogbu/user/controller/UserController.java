@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/kkilogbu/user")
@@ -36,7 +36,10 @@ public class UserController {
             String authorizationCode = request.getAuthorizationCode();
             String identityToken = request.getIdentityToken();
 
-            // 동일한 번호가 없으면 애플 로그인 진행
+            if (loginType == LoginType.ANONYMOUS) {
+                return ResponseEntity.ok("익명 사용자로 로그인되었습니다.");
+            }
+
             var result = userService.socialSignIn(authorizationCode, identityToken, loginType);
             return ResponseEntity.ok(result);
 
@@ -80,39 +83,39 @@ public class UserController {
     /**
      * 유저 정보 조회
      */
-    @GetMapping
-    public ResponseEntity<UserInfoResponse> getUserInfo(){
-        return ResponseEntity.ok(userService.getUserInfo());
-    }
+//    @GetMapping
+//    public ResponseEntity<UserInfoResponse> getUserInfo(){
+//        return ResponseEntity.ok(userService.getUserInfo());
+//    }
 
-    /**
-     * 내 기록 조회
-     */
-    @GetMapping("/record")
-    public ResponseEntity<Slice<MyRecordResponse>> getMyRecord(@PageableDefault(size = 10, page = 0) Pageable pageable){
-        return ResponseEntity.ok(userService.getMyRecord(pageable));
-    }
-
-    /**
-     * 북마크 조회
-     */
-    @GetMapping("/bookmark")
-    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable, @PathParam("type") String type){
-        return ResponseEntity.ok(userService.getBookmark(pageable, type));
-    }
+//    /**
+//     * 내 기록 조회
+//     */
+//    @GetMapping("/record")
+//    public ResponseEntity<Slice<MyRecordResponse>> getMyRecord(@PageableDefault(size = 10, page = 0) Pageable pageable){
+//        return ResponseEntity.ok(userService.getMyRecord(pageable));
+//    }
+//
+//    /**
+//     * 북마크 조회
+//     */
+//    @GetMapping("/bookmark")
+//    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable, @PathParam("type") String type){
+//        return ResponseEntity.ok(userService.getBookmark(pageable, type));
+//    }
 
     @PostMapping
     public ResponseEntity<?> userInfo(@RequestBody UserDto user){
         return ResponseEntity.ok(userService.userInfo(user));
     }
 
-    /**
-     * 닉네임 중복 체크
-     */
-    @PostMapping("/name/check")
-    public ResponseEntity<Boolean> checkNicknameDuplicate(@Valid @RequestBody(required = true) RequestUserNickname request){
-        return ResponseEntity.ok(userService.checkUsernameDuplicate(request.getNickName()));
-    }
+//    /**
+//     * 닉네임 중복 체크
+//     */
+//    @PostMapping("/name/check")
+//    public ResponseEntity<Boolean> checkNicknameDuplicate(@Valid @RequestBody(required = true) RequestUserNickname request){
+//        return ResponseEntity.ok(userService.checkUsernameDuplicate(request.getNickName()));
+//    }
 
 //    /**
 //     * 닉네임 변경, 프로필 사진 변경
@@ -124,12 +127,12 @@ public class UserController {
 //        return ResponseEntity.ok().build();
 //    }
 
-    /**
-     * 유저 카테고리 변경
-     */
-    @PostMapping("/category")
-    public ResponseEntity<?> userCategory(@RequestBody(required = true) RequestUserCategory request){
-        userService.changeCategory(request.getCategory());
-        return ResponseEntity.ok().build();
-    }
+//    /**
+//     * 유저 카테고리 변경
+//     */
+//    @PostMapping("/category")
+//    public ResponseEntity<?> userCategory(@RequestBody(required = true) RequestUserCategory request){
+//        userService.changeCategory(request.getCategory());
+//        return ResponseEntity.ok().build();
+//    }
 }
