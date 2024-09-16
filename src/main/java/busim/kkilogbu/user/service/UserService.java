@@ -53,22 +53,6 @@ public class UserService {
     }
 
 
-    @Transactional
-    public SignInResponse socialSignIn(String authorizationCode, String identityToken, LoginType loginType) throws Exception {
-        switch (loginType) {
-            case APPLE:
-                return appleLoginService.signInOrRegister(authorizationCode, identityToken);
-//
-//            case GOOGLE:
-//                return googleLoginService.signInOrRegister(authorizationCode);  // 구글 로그인 처리 (identityToken 불필요)
-//
-//            case KAKAO:
-//                return kakaoLoginService.signInOrRegister(authorizationCode);  // 카카오 로그인 처리 (identityToken 불필요)
-
-            default:
-                throw new IllegalArgumentException("지원하지 않는 로그인 타입입니다.");
-        }
-    }
 
 
 
