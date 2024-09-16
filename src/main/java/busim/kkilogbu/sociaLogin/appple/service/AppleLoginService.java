@@ -66,6 +66,7 @@ public class AppleLoginService {
                 .loginType(LoginType.APPLE.name())  // 로그인 유형 설정
                 .socialUserId(claims.getSubject())  // 소셜 사용자 ID 설정
                 .createdAt(LocalDateTime.now())  // 생성일자 설정
+                        .role("USER")
                 .build());
     }
 }

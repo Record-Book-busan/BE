@@ -28,7 +28,7 @@ public class User {
 	private String email;
 	private Long category;
 	private LocalDateTime createdAt;
-	private String ProfileImage;
+	private String profileImage;
 	private String nickname;
 	private String loginType;
 	private String socialUserId;
@@ -53,7 +53,7 @@ public class User {
 	private List<UserInterest> userInterests = new ArrayList<>();
 
 	public void changeProfileImage(String profileImage) {
-		this.ProfileImage = profileImage;
+		this.profileImage = profileImage;
 	}
 
 	public void categoryChange(Long category) {
@@ -64,4 +64,15 @@ public class User {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 	}
+
+	public void kakaoSignin(String socialUserId, String email, String nickname, String profileImage){
+		this.socialUserId = socialUserId;
+		this.email = email;
+		this.nickname = nickname;
+		this.profileImage = profileImage;
+		this.loginType = "KAKAO";
+		this.role = "USER";
+	}
+
+
 }
