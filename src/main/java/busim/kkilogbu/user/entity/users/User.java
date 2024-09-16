@@ -32,8 +32,9 @@ public class User {
 	private String nickname;
 	private String loginType;
 	private String socialUserId;
-	private String socialLoginAccessToken;
-	private String socialLoginRefreshToken;
+	private String accessToken;
+	private String refreshToken;
+	private String role;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "user")
@@ -60,7 +61,7 @@ public class User {
 	}
 
 	public void updateTokens(String accessToken, String refreshToken) {
-		this.socialLoginAccessToken = accessToken;
-		this.socialLoginRefreshToken = refreshToken;
+		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
 	}
 }
