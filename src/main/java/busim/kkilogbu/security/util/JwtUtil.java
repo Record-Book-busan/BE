@@ -14,6 +14,7 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -25,6 +26,8 @@ public class JwtUtil {
 
     // Access Token 만료 시간 (1시간)
     private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60;
+
+    private final long GUEST_ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
 
     // Refresh Token 만료 시간 (20일)
     private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
@@ -54,15 +57,16 @@ public class JwtUtil {
 
     // 비회원(게스트)용 Access Token 생성 (RSA 서명)
     public String createGuestToken() {
-        String guestId = java.util.UUID.randomUUID().toString();  // 게스트 사용자용 UUID 생성
+        String guestId = UUID.randomUUID().toString();  // 게스트 사용자용 UUID 생성
         return Jwts.builder()
                 .setSubject(guestId)  // guestId를 subject로 설정
                 .claim("role", "GUEST")  // 역할을 GUEST로 설정
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))  // 만료 시간
+                .setExpiration(new Date(System.currentTimeMillis() + GUEST_ACCESS_TOKEN_EXPIRATION))  // 만료 시간
                 .signWith(privateKey, SignatureAlgorithm.RS256)  // RSA-SHA256 서명
                 .compact();
     }
+
 
     // Refresh Token 생성 (RSA 서명)
     public String createRefreshToken(String userId) {
@@ -76,7 +80,7 @@ public class JwtUtil {
     }
 
     // JWT에서 사용자 이름 또는 guestId 추출
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         String role = extractClaim(token, claims -> claims.get("role", String.class));
 
         if ("GUEST".equals(role)) {
@@ -92,6 +96,12 @@ public class JwtUtil {
         }
         throw new IllegalStateException("알 수 없는 사용자 유형");
     }
+
+    public String extractRole(String token) {
+        // JWT에서 'role' 클레임을 추출
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
 
     // 클레임 추출
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

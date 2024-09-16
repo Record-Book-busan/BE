@@ -21,10 +21,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // 이메일을 통해 데이터베이스에서 사용자 정보 조회
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException("이메일로 사용자를 찾을 수 없습니다: " + email);
-        }
+        User user = userRepository.findByEmail(email).orElseThrow(()
+        -> new UsernameNotFoundException("이메일로 사용자를 찾을 수 없습니다: " + email));
         // 비밀번호가 없는 소셜 로그인 사용자 처리
         return new CustomUserDetails(user);
     }

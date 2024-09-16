@@ -37,7 +37,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Authorization 헤더가 존재하고 "Bearer "로 시작하는 경우 토큰 추출
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7);  // "Bearer " 이후의 토큰 추출
-            email = jwtUtil.extractUsername(token); // JWT에서 사용자 ID 추출
+            // role 확인 (GUEST인지 USER인지)
+            String role = jwtUtil.extractRole(token); // JWT에서 role 추출
+
+            // GUEST 역할일 경우, 필터를 통과하되 인증 설정을 하지 않음
+            if ("GUEST".equals(role)) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            // JWT가 GUEST가 아닌 경우, 사용자 정보 처리
+            email = jwtUtil.extractEmail(token);
         }
 
         // JWT가 존재하고 SecurityContext에 인증 정보가 없는 경우
