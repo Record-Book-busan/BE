@@ -8,11 +8,11 @@ import lombok.Getter;
 @Getter
 public class SignInResponseMapper {
 
-    public static SignInResponse toSignInResponse(User user, AppleTokenResponse tokenResponse) {
+    public static SignInResponse toSignInResponse(User user,String accessToken,String refreshToken) {
         return SignInResponse.builder()
                 .userId(user.getId())
-                .accessToken("Bearer " + tokenResponse.accessToken())
-                .refreshToken(tokenResponse.refreshToken())
+                .accessToken("Bearer " + accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }

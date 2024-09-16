@@ -1,5 +1,6 @@
 package busim.kkilogbu.sociaLogin.appple.service;
 
+import busim.kkilogbu.security.util.JwtUtil;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.AppleTokenResponse;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.SignInResponse;
 
@@ -25,7 +26,8 @@ public class AppleLoginService {
     private final AppleTokenService appleTokenService;
     private final AppleAuthService appleAuthService;
     private final UserRepository userRepository;
-    private final NicknameGeneratorStrategy nicknameGenerator;  // 닉네임 생성기 의존성 추가
+    private final NicknameGeneratorStrategy nicknameGenerator;  // 닉네임 생성기
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public SignInResponse signInOrRegister(String authorizationCode, String identityToken) throws Exception {
@@ -42,11 +44,15 @@ public class AppleLoginService {
         User user = userRepository.findBySocialUserId(appleUserId)
                 .orElseGet(() -> registerNewUser(claims)); // 새 사용자만 회원가입
 
-        // 토큰 정보만 업데이트 (기본 정보는 변경하지 않음)
-        user.updateTokens(tokenResponse.accessToken(), tokenResponse.refreshToken());
+        String accessToken = jwtUtil.createAccessToken(String.valueOf(user.getId()));  // 회원 ID로 Access Token 생성
+        String refreshToken = jwtUtil.createRefreshToken(String.valueOf(user.getId()));  // 회원 ID로 Refresh Token 생성
+
+        // 사용자의 토큰 정보를 DB에 업데이트
+        user.updateTokens(accessToken, refreshToken);
+
 
         // 회원가입 또는 로그인 처리 후 응답 생성
-        return SignInResponseMapper.toSignInResponse(user, tokenResponse);
+        return SignInResponseMapper.toSignInResponse(user, accessToken, refreshToken);
     }
 
     // 새로운 사용자 등록 (회원가입)
