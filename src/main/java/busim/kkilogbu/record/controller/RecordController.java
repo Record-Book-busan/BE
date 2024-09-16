@@ -91,14 +91,14 @@ public class RecordController {
 //	}
 
 //	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
-//	@PostMapping
+//	@PostMapping("/auth")
 //	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
 //		service.createRecord(request);
 //		return ResponseEntity.ok().build();
 //	}
 
 //	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
-//	@PostMapping("/{markId}/report")
+//	@PostMapping("/auth/{markId}/report")
 //	public ResponseEntity<?> report(
 //			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 //		blackListService.report(markId);
@@ -106,7 +106,7 @@ public class RecordController {
 //	}
 //
 //	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
-//	@PostMapping("/{markId}/bookmark")
+//	@PostMapping("/auth/{markId}/bookmark")
 //	public ResponseEntity<?> bookmark(
 //			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 //		bookmarkService.bookmark(markId, "record");
@@ -114,7 +114,7 @@ public class RecordController {
 //	}
 //
 //	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
-//	@DeleteMapping("/{markId}/bookmark")
+//	@DeleteMapping("/auth/{markId}/bookmark")
 //	public ResponseEntity<?> deleteBookmark(
 //			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 //		bookmarkService.unbookmark(markId, "record");
@@ -122,7 +122,7 @@ public class RecordController {
 //	}
 //
 //	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
-//	@PatchMapping("/{markId}")
+//	@PatchMapping("/auth/{markId}")
 //	public ResponseEntity<?> updatePlace(
 //			@Parameter(description = "기록 ID") @PathVariable Long markId,
 //			@RequestBody @Valid UpdateRecordRequest request) {
@@ -131,7 +131,7 @@ public class RecordController {
 //	}
 //
 //	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
-//	@DeleteMapping("/{markId}")
+//	@DeleteMapping("/auth/{markId}")
 //	public ResponseEntity<?> deletePlace(
 //			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 //		service.deleteRecord(markId);
