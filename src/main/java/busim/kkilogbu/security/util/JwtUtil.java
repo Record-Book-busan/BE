@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 public class JwtUtil {
 
@@ -96,11 +98,30 @@ public class JwtUtil {
         }
         throw new IllegalStateException("알 수 없는 사용자 유형");
     }
-
     public String extractRole(String token) {
-        // JWT에서 'role' 클레임을 추출
-        return extractClaim(token, claims -> claims.get("role", String.class));
+        try {
+            // JWT에서 'role' 클레임을 추출
+            String role = extractClaim(token, claims -> claims.get("role", String.class));
+
+            if ("GUEST".equals(role)) {
+                // GUEST 역할일 경우, 추가 처리 로직이 필요하다면 여기에 작성
+                log.info("GUEST 사용자 역할 확인됨.");
+                return "GUEST";  // GUEST일 때 처리
+            } else if ("USER".equals(role)) {
+                // USER 역할일 경우, 일반적인 처리
+                log.info("USER 역할 확인됨.");
+                return "USER";
+            } else {
+                // 기타 알려지지 않은 역할에 대한 처리
+                log.warn("알 수 없는 사용자 역할: {}", role);
+                throw new IllegalStateException("알 수 없는 역할이 발견되었습니다: " + role);
+            }
+        } catch (Exception e) {
+            log.error("역할 추출 중 오류 발생: {}", e.getMessage());
+            throw new IllegalArgumentException("역할을 추출할 수 없습니다.", e);
+        }
     }
+
 
 
     // 클레임 추출

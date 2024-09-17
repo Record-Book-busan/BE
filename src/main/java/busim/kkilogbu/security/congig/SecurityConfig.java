@@ -11,8 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,13 +24,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화 (JWT 사용)
+        http
+                .csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화 (JWT 사용)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/kkilogbu/user/signin/**").permitAll()  // /signin 경로는 인증 없이 접근 가능
-                        .requestMatchers("/kkilogbu/record/auth/**").hasAnyAuthority("USER") // /record/auth는 회원만 접근 가능
-                        .anyRequest().authenticated()  // 나머지 모든 요청은 인증 필요
+                        // 로그인 경로는 인증 없이 접근 가능
+                        .requestMatchers("/kkilogbu/user/signin/**").permitAll()
+                        // Swagger 및 정적 리소스 경로 접근 허용
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/static/**", "/css/**", "/image/**", "/favicon.ico/**").permitAll()
+                        // 회원 전용 경로 설정
+                        .requestMatchers("/kkilogbu/record/auth/**").hasAuthority("USER")
+                        .requestMatchers("/kkilogbu/**").hasAnyAuthority("USER", "GUEST")
+                     //   .requestMatchers("/kkilogbu/**").hasAnyAuthority("USER")
+                        // 그 외 나머지 경로는 인증 필요
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션을 사용하지 않음
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션을 사용하지 않음 (JWT 사용)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
 
         return http.build();
@@ -40,13 +47,11 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/error/**", "/favicon.ico", "/swagger-ui/**");
+                .requestMatchers("/error/**", "/favicon.ico", "/swagger-ui/**", "/static/**", "/css/**", "/images/**", "/favicon.ico/**");
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 }

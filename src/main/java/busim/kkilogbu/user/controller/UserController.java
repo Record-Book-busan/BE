@@ -34,7 +34,6 @@ public class UserController {
             String authorizationCode = request.getAuthorizationCode();
             String identityToken = request.getIdentityToken();
 
-
             var result = appleLoginService.signInOrRegister(authorizationCode, identityToken);
             return ResponseEntity.ok(result);
 
