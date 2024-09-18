@@ -5,19 +5,24 @@ import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.dto.SearchDetailResponse;
 import busim.kkilogbu.place.dto.SearchResultResponse;
 import busim.kkilogbu.place.service.SearchService;
+import busim.kkilogbu.security.domain.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/kkilogbu/place/search")
 @RequiredArgsConstructor
@@ -33,9 +38,12 @@ public class SearchController {
     })
     @GetMapping()
     public ResponseEntity<List<SearchResultResponse>> search(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "검색어", example = "맛집") @RequestParam(name = "query") String query,
             @Parameter(description = "데이터의 시작점", example = "0") @RequestParam(name = "offset") int offset,  // 데이터의 시작점
             @Parameter(description = "한 번에 가져올 데이터 크기", example = "10") @RequestParam(name = "limit") int limit) {  // 한 번에 가져올 데이터 크기
+
+        log.info("CustmUserDetails : " + customUserDetails.getUsername());
 
         Page<SearchResultResponse> searchResults = searchService.search(query, offset, limit);
 
@@ -49,16 +57,16 @@ public class SearchController {
 
     @GetMapping("/{type}/{placeId}")
     public ResponseEntity<PlaceDetailResponse> getSearchDetail(
-            @Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long placeId,
+            @Parameter(description = "장소 ID", example = "1") @PathVariable("placeId") Long id,
             @Parameter(description = "장소 유형(맛집 또는 관광)", example = "restaurant or tourist") @PathVariable("type") String type) {
 
         PlaceDetailResponse searchDetail;
 
         // 'type'에 따라 맛집 또는 관광지 조회
         if ("restaurant".equalsIgnoreCase(type)) {
-            searchDetail = searchService.getSearchRestaurantDetail(placeId);
+            searchDetail = searchService.getSearchRestaurantDetail(id);
         } else if ("tourist".equalsIgnoreCase(type)) {
-            searchDetail = searchService.getSearchTouristDetail(placeId);
+            searchDetail = searchService.getSearchTouristDetail(id);
         } else {
             throw new IllegalArgumentException("유효하지 않은 유형입니다.");
         }

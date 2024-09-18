@@ -33,8 +33,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/static/**", "/css/**", "/image/**", "/favicon.ico/**").permitAll()
                         // 회원 전용 경로 설정
                         .requestMatchers("/kkilogbu/record/auth/**").hasAuthority("USER")
-                        .requestMatchers("/kkilogbu/**").hasAnyAuthority("USER", "GUEST")
-                     //   .requestMatchers("/kkilogbu/**").hasAnyAuthority("USER")
+                        .requestMatchers("/kkilogbu/**").hasAuthority("GUEST")
+                       // .requestMatchers("/kkilogbu/**").hasAuthority("USER")
                         // 그 외 나머지 경로는 인증 필요
                         .anyRequest().authenticated()
                 )
