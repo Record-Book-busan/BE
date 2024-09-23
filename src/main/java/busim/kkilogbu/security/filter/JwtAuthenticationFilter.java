@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 요청의 Authorization 헤더에서 JWT 추출
         String authorizationHeader = request.getHeader("Authorization");
         String token = null;
-        String email = null;
+        String userTokenId = null;
 
         // Authorization 헤더가 존재하고 "Bearer "로 시작하는 경우 토큰 추출
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -63,13 +63,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             // JWT가 GUEST가 아닌 경우, 사용자 정보 처리
-            email = jwtUtil.extractEmail(token);
+            userTokenId = jwtUtil.extractId(token);
         }
 
         // JWT가 존재하고 SecurityContext에 인증 정보가 없는 경우
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (userTokenId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // 데이터베이스 또는 기타 방법으로 사용자 정보 로드
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userTokenId);
 
             // JWT 토큰이 유효한지 확인
             if (jwtUtil.validateToken(token, false)) {  // Access Token으로 유효성 검증

@@ -17,10 +17,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String userTokenId) throws UsernameNotFoundException {
         // 이메일을 통해 데이터베이스에서 사용자 정보 조회
-        Users users = userRepository.findByEmail(email).orElseThrow(()
-        -> new UsernameNotFoundException("이메일로 사용자를 찾을 수 없습니다: " + email));
+        Users users = userRepository.findBySocialUserId(userTokenId).orElseThrow(()
+        -> new UsernameNotFoundException("이메일로 사용자를 찾을 수 없습니다: " + userTokenId));
         // 비밀번호가 없는 소셜 로그인 사용자 처리
         return new CustomUserDetails(users);
     }

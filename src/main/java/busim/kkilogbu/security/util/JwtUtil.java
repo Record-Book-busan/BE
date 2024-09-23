@@ -81,7 +81,7 @@ public class JwtUtil {
     }
 
     // JWT에서 사용자 이름 또는 guestId 추출
-    public String extractEmail(String token) {
+    public String extractId(String token) {
         String role = extractClaim(token, claims -> claims.get("role", String.class));
 
         if ("GUEST".equals(role)) {
@@ -93,7 +93,7 @@ public class JwtUtil {
             Users users = userRepository.findBySocialUserId(socialUserId)
                     .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + socialUserId));
 
-            return users.getSocialUserId();  // 이메일 반환
+            return users.getSocialUserId();  
         }
         throw new IllegalStateException("알 수 없는 사용자 유형");
     }

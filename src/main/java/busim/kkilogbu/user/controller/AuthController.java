@@ -30,10 +30,10 @@ public class AuthController {
             // Refresh Token 유효성 검증
             if (jwtUtil.validateToken(refreshToken, true)) {
                 // Refresh Token이 유효하다면, userId를 추출
-                String userEmail = jwtUtil.extractEmail(refreshToken);
+                String userTokenId = jwtUtil.extractId(refreshToken);
 
-                Users users = userRepository.findByEmail(userEmail)
-                        .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userEmail));
+                Users users = userRepository.findBySocialUserId(userTokenId)
+                        .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userTokenId));
 
                 // 새로운 Access Token 생성 (사용자의 ID 사용)
                 String newAccessToken = jwtUtil.createAccessToken(String.valueOf(users.getId()));
