@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/kkilogbu/record")
+@RequestMapping("/kkilogbu/record/auth")
 @RequiredArgsConstructor
 @Tag(name = "<RecordController>", description = "기록 관리 API")
 public class RecordController {
@@ -64,6 +64,8 @@ public class RecordController {
 
 	}
 
+
+	 // TODO 페이크 기록 글 조회
 	@GetMapping("/images")
 	public ResponseEntity<List<TouristIdImageResponse>> fetchTouristImages(
 			@Parameter(description = "검색어", example = "서울") @RequestParam String query,
@@ -73,7 +75,7 @@ public class RecordController {
 		return ResponseEntity.ok(imageUrls);
 	}
 
-	// 관광지 상세 조회
+	// TODO 관광지 상세 조회
 	@GetMapping("/images/{touristId}")
 	public ResponseEntity<TouristGridResponse> getTouristDetail(@PathVariable Long touristId) {
 		TouristGridResponse touristDetail = recordService.getTouristDetail(touristId);

@@ -21,7 +21,7 @@ import org.springframework.web.client.HttpServerErrorException;
 
 
 @RestController
-@RequestMapping("/kkilogbu/user")
+@RequestMapping("/kkilogbu/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -81,7 +81,7 @@ public class UserController {
             userService.deleteUserAccount(userId, accessToken);
             return ResponseEntity.ok("탈퇴 되었습니다.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User deletion failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Users deletion failed: " + e.getMessage());
         }
     }
 

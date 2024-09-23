@@ -4,7 +4,7 @@ import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -23,14 +23,14 @@ public class BlackList {
 	private Long id;
 
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@JoinColumn(name = "users_id")
+	private Users users;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "reported_user_id")
-	private User reportedUser;
+	private Users reportedUsers;
 
-	public void report(User user, User reportedUser) {
-		user.getBlackLists().add(this);
+	public void report(Users users, Users reportedUsers) {
+		users.getBlackLists().add(this);
 	}
 }

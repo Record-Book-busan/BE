@@ -1,11 +1,10 @@
 package busim.kkilogbu.security.util;
 
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -47,9 +46,9 @@ public class JwtUtil {
     }
 
     // 회원용 Access Token 생성 (RSA 서명)
-    public String createAccessToken(String userId) {
+    public String createAccessToken(String socialUserId) {
         return Jwts.builder()
-                .setSubject(userId)  // userId를 subject로 설정
+                .setSubject(socialUserId)  // userId를 subject로 설정
                 .claim("role", "USER")  // 역할을 USER로 설정
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))  // 만료 시간
@@ -71,9 +70,9 @@ public class JwtUtil {
 
 
     // Refresh Token 생성 (RSA 서명)
-    public String createRefreshToken(String userId) {
+    public String createRefreshToken(String socialUserId) {
         return Jwts.builder()
-                .setSubject(userId)
+                .setSubject(socialUserId)
                 .claim("role", "REFRESH")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))  // 만료 시간
@@ -88,13 +87,13 @@ public class JwtUtil {
         if ("GUEST".equals(role)) {
             return extractClaim(token, Claims::getSubject);  // guestId 반환
         } else if ("USER".equals(role)) {
-            String userId = extractClaim(token, Claims::getSubject);
+            String socialUserId = extractClaim(token, Claims::getSubject);
 
             // userId로 데이터베이스에서 사용자 조회
-            User user = userRepository.findById(Long.valueOf(userId))
-                    .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+            Users users = userRepository.findBySocialUserId(socialUserId)
+                    .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + socialUserId));
 
-            return user.getEmail();  // 이메일 반환
+            return users.getSocialUserId();  // 이메일 반환
         }
         throw new IllegalStateException("알 수 없는 사용자 유형");
     }

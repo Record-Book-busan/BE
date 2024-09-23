@@ -9,13 +9,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import busim.kkilogbu.user.entity.users.Users;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.contents.entity.Contents;
-import busim.kkilogbu.user.entity.users.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,8 +29,8 @@ public class Records {
 	private Long id;
 
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@JoinColumn(name = "users_id")
+	private Users users;
 
 
 	@CreatedDate
@@ -51,10 +51,10 @@ public class Records {
 	)
 	private List<Bookmark> bookmark = new ArrayList<>();
 
-	public void connect(User user, AddressInfo addressInfo, Contents contents) {
+	public void connect(Users users, AddressInfo addressInfo, Contents contents) {
 		// TODO : 로그인 구현시 추가
-		this.user = user;
-		user.getRecords().add(this);
+		this.users = users;
+		users.getRecords().add(this);
 		this.addressInfo = addressInfo;
 		addressInfo.getRecords().add(this);
 		this.contents = contents;
@@ -66,10 +66,10 @@ public class Records {
 	}
 
 
-	public static Records createRecord(User user, AddressInfo addressInfo, Contents contents) {
+	public static Records createRecord(Users users, AddressInfo addressInfo, Contents contents) {
 		Records record = new Records();  // Records 객체 생성
-		// record.user = user;
-		// user.getRecords().add(record);
+		// record.users = users;
+		// users.getRecords().add(record);
 		record.addressInfo = addressInfo;
 		record.contents = contents;
 		contents.connect(record, null);

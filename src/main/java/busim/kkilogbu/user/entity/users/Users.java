@@ -3,6 +3,7 @@ package busim.kkilogbu.user.entity.users;
 import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.user.entity.BlackList;
+import busim.kkilogbu.user.entity.UserConsent;
 import busim.kkilogbu.user.entity.UserInterest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,12 +15,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Table(name = "users")
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Users {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,26 +33,37 @@ public class User {
 	private String profileImage;
 	private String nickname;
 	private String loginType;
+
+	@Column(length = 1000)
 	private String socialUserId;
+
+	@Column(length = 1000)
 	private String accessToken;
+
+	@Column(length = 1000)
 	private String refreshToken;
+
 	private String role;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "user")
+
+	@OneToMany(mappedBy = "users")
 	private List<Records> records = new ArrayList<>();
 
-	@Builder.Default
-	@OneToMany(mappedBy = "user")
+
+	@OneToMany(mappedBy = "users")
 	private List<Bookmark> bookmarks = new ArrayList<>();
 
-	@Builder.Default
-	@OneToMany(mappedBy = "user")
+
+	@OneToMany(mappedBy = "users")
 	private List<BlackList> blackLists = new ArrayList<>();
 
-	@Builder.Default
-	@OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+
+	@OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
 	private List<UserInterest> userInterests = new ArrayList<>();
+
+
+	@OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+	private List<UserConsent> userConsents = new ArrayList<>();
 
 	public void changeProfileImage(String profileImage) {
 		this.profileImage = profileImage;

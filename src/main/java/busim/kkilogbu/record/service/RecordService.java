@@ -47,6 +47,7 @@ public class RecordService {
 				.collect(Collectors.toList());
 	}
 
+
 	@Transactional(readOnly = true)
 	public TouristGridResponse getTouristDetail(Long touristId) {
 		// touristId로 관광지 조회
@@ -64,8 +65,8 @@ public class RecordService {
 //		);
 //
 //		// TODO : 로그인 구현 후 변경
-//	 	User user = User.builder().nickname("tester").build();
-//		if(blackListService.isBlocked(user, records.getUser())){
+//	 	Users users = Users.builder().nickname("tester").build();
+//		if(blackListService.isBlocked(users, records.getUsers())){
 //			throw new BaseException("차단된 사용자입니다.", HttpStatus.FORBIDDEN);
 //		}
 //
@@ -91,7 +92,7 @@ public class RecordService {
 //							.build());
 //
 //			// TODO: 로그인 구현 후 변경
-//	//		User tmp = User.builder().nickname("tmp").build();
+//	//		Users tmp = Users.builder().nickname("tmp").build();
 //
 //			// Record 객체 생성 및 저장
 //			Records record = Records.createRecord(null, addressInfo, contents);

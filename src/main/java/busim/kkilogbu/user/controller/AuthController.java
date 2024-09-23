@@ -2,7 +2,7 @@ package busim.kkilogbu.user.controller;
 import busim.kkilogbu.security.util.JwtUtil;
 import busim.kkilogbu.user.dto.RefreshTokenRequest;
 import busim.kkilogbu.user.dto.RefreshTokenResponse;
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,11 +32,11 @@ public class AuthController {
                 // Refresh Token이 유효하다면, userId를 추출
                 String userEmail = jwtUtil.extractEmail(refreshToken);
 
-                User user = userRepository.findByEmail(userEmail)
+                Users users = userRepository.findByEmail(userEmail)
                         .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userEmail));
 
                 // 새로운 Access Token 생성 (사용자의 ID 사용)
-                String newAccessToken = jwtUtil.createAccessToken(String.valueOf(user.getId()));
+                String newAccessToken = jwtUtil.createAccessToken(String.valueOf(users.getId()));
                 // 응답으로 새로운 Access Token을 반환
                 return ResponseEntity.ok(new RefreshTokenResponse("Bearer " + newAccessToken, refreshToken));
             } else {

@@ -1,6 +1,6 @@
 package busim.kkilogbu.security.domain;
 
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
+    private final Users users;
 
 
     @Override
@@ -38,7 +38,7 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // User의 role을 GrantedAuthority로 변환하여 반환
-        return List.of(new SimpleGrantedAuthority(user.getRole()));
+        return List.of(new SimpleGrantedAuthority(users.getRole()));
     }
 
     @Override
@@ -50,6 +50,6 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         // email을 username으로 사용
-        return user.getEmail();
+        return users.getEmail();
     }
 }

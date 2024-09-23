@@ -2,7 +2,7 @@ package busim.kkilogbu.user.service;
 
 
 import busim.kkilogbu.user.entity.interest.Interest;
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.entity.UserInterest;
 import busim.kkilogbu.user.repository.InterestRepository;
 import busim.kkilogbu.user.repository.UserInterestRepository;
@@ -28,7 +28,7 @@ public class InterestService {
 
     @Transactional
     public void saveUserInterests(Long userId, List<String> touristCategoryNames, List<String> restaurantCategoryNames) {
-        User user = userRepository.findById(userId)
+        Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("회원 가입 안되었습니다."));
 
 
@@ -45,7 +45,7 @@ public class InterestService {
         interestRepository.save(interest);
 
         // UserInterest 생성 및 저장 (빌더 사용 안함)
-        UserInterest userInterest = new UserInterest(user, interest);
+        UserInterest userInterest = new UserInterest(users, interest);
 
         userInterestRepository.save(userInterest);
 
@@ -54,15 +54,15 @@ public class InterestService {
     @Transactional(readOnly = true)
     public Map<String, List<String>> getUserInterests(Long userId) {
         // 1. 유저 조회
-        User user = userRepository.findById(userId)
+        Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("회원 가입 안되었습니다."));
 
         // 2. 관광지 및 맛집 카테고리 리스트 그대로 반환
-        List<String> touristCategories = user.getUserInterests().stream()
+        List<String> touristCategories = users.getUserInterests().stream()
                 .flatMap(userInterest -> userInterest.getInterest().getTouristCategories().stream())
                 .collect(Collectors.toList());
 
-        List<String> restaurantCategories = user.getUserInterests().stream()
+        List<String> restaurantCategories = users.getUserInterests().stream()
                 .flatMap(userInterest -> userInterest.getInterest().getRestaurantCategories().stream())
                 .collect(Collectors.toList());
 

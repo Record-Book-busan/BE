@@ -28,13 +28,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화 (JWT 사용)
                 .authorizeHttpRequests(auth -> auth
                         // 로그인 경로는 인증 없이 접근 가능
-                        .requestMatchers("/kkilogbu/user/signin/**").permitAll()
+                        .requestMatchers("/kkilogbu/users/signin/**").permitAll()
                         // Swagger 및 정적 리소스 경로 접근 허용
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/static/**", "/css/**", "/image/**", "/favicon.ico/**").permitAll()
                         // 회원 전용 경로 설정
                         .requestMatchers("/kkilogbu/record/auth/**").hasAuthority("USER")
-                        .requestMatchers("/kkilogbu/**").hasAuthority("GUEST")
-                       // .requestMatchers("/kkilogbu/**").hasAuthority("USER")
+                       // .requestMatchers("/kkilogbu/**").hasAuthority("GUEST")
+
+                        .requestMatchers("/kkilogbu/**").hasAnyAuthority("GUEST", "USER")
+
                         // 그 외 나머지 경로는 인증 필요
                         .anyRequest().authenticated()
                 )
