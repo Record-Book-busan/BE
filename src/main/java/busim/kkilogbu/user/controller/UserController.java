@@ -1,22 +1,18 @@
 package busim.kkilogbu.user.controller;
 
-import busim.kkilogbu.bookmark.dto.BookmarkResponse;
-import busim.kkilogbu.record.dto.MyRecordResponse;
+
+import busim.kkilogbu.security.util.JwtUtil;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.*;
-import busim.kkilogbu.user.dto.RequestUserCategory;
-import busim.kkilogbu.user.dto.RequestUserNickname;
+import busim.kkilogbu.sociaLogin.appple.service.AppleLoginService;
+
 import busim.kkilogbu.user.dto.UserDto;
-import busim.kkilogbu.user.dto.UserInfoResponse;
-import busim.kkilogbu.user.entity.LoginType;
+
 import busim.kkilogbu.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
+
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.web.PageableDefault;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,22 +21,20 @@ import org.springframework.web.client.HttpServerErrorException;
 
 
 @RestController
-@RequestMapping("/kkilogbu/user")
+@RequestMapping("/kkilogbu/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final AppleLoginService appleLoginService;
+    private final JwtUtil jwtUtil;
 
-    @PostMapping("/signin/{loginType}")
-    public ResponseEntity<?> socialSignIn(@PathVariable("loginType") LoginType loginType, @RequestBody AppleSignInRequest request) {
+    @PostMapping("/signin/apple")
+    public ResponseEntity<?> socialSignIn(@RequestBody AppleSignInRequest request) {
         try {
             String authorizationCode = request.getAuthorizationCode();
             String identityToken = request.getIdentityToken();
 
-            if (loginType == LoginType.ANONYMOUS) {
-                return ResponseEntity.ok("익명 사용자로 로그인되었습니다.");
-            }
-
-            var result = userService.socialSignIn(authorizationCode, identityToken, loginType);
+            var result = appleLoginService.signInOrRegister(authorizationCode, identityToken);
             return ResponseEntity.ok(result);
 
         } catch (IllegalArgumentException e) {
@@ -54,6 +48,20 @@ public class UserController {
         }
     }
 
+    @PostMapping("/signin/anonymous")
+    public ResponseEntity<String> guestSignIn() {
+        try {
+
+            // 비회원용 JWT 생성
+            String guestToken = jwtUtil.createGuestToken();
+
+            // 게스트 사용자의 정보를 저장할 필요가 없다면, 게스트용 JWT만 발급하여 응답
+            return ResponseEntity.ok("Bearer " + guestToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("비회원 로그인 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/signin/{userId}/consent")
     public ResponseEntity<String> saveUserConsent(
@@ -73,7 +81,7 @@ public class UserController {
             userService.deleteUserAccount(userId, accessToken);
             return ResponseEntity.ok("탈퇴 되었습니다.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User deletion failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Users deletion failed: " + e.getMessage());
         }
     }
 

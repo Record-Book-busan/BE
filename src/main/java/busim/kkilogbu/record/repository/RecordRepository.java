@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 
 @Repository
 public interface RecordRepository extends JpaRepository<Records, Long> {
@@ -18,5 +18,5 @@ public interface RecordRepository extends JpaRepository<Records, Long> {
 	List<Records> findByAddressInfoIn(List<Long> addressInfoIds);
 	@Query("SELECT r FROM Records r JOIN FETCH r.addressInfo JOIN FETCH r.contents WHERE r.id = :id")
 	Optional<Records> findFetchById(Long id);
-	Slice<Records> findByUser(User user, Pageable pageable);
+	Slice<Records> findByUsers(Users users, Pageable pageable);
 }

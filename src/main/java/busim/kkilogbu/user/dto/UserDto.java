@@ -1,6 +1,6 @@
 package busim.kkilogbu.user.dto;
 
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,8 +18,8 @@ public class UserDto {
     private String nickname;
 
 
-    public User toUser(UserDto userDto){
-        return User.builder()
+    public Users toUser(UserDto userDto){
+        return Users.builder()
                 .id(id)
           //      .username(userDto.username)
                 .build();

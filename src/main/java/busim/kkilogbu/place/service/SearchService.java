@@ -10,6 +10,7 @@ import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.dto.SearchResultResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.List;
 import java.util.ArrayList;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -60,8 +62,8 @@ public class SearchService {
         return searchResultsPage;
     }
 
-    public PlaceDetailResponse getSearchRestaurantDetail(Long placeId) {
-        var restaurant = restaurantRepository.findById(placeId)
+    public PlaceDetailResponse getSearchRestaurantDetail(Long id) {
+        var restaurant = restaurantRepository.findById(id)
                 .orElseThrow(() -> new BaseException("맛집을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         return RestaurantMapper.toPlaceDetailResponse(restaurant);

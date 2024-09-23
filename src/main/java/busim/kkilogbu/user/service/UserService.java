@@ -1,20 +1,14 @@
 package busim.kkilogbu.user.service;
 
-import busim.kkilogbu.bookmark.dto.BookmarkResponse;
-import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.bookmark.repository.BookmarkRepository;
 
-import busim.kkilogbu.record.dto.MyRecordResponse;
-import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.sociaLogin.appple.controller.AppleClient;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.*;
 import busim.kkilogbu.sociaLogin.appple.service.AppleAuthService;
 import busim.kkilogbu.sociaLogin.appple.service.AppleLoginService;
 import busim.kkilogbu.user.dto.UserDto;
-import busim.kkilogbu.user.dto.UserInfoResponse;
-import busim.kkilogbu.user.entity.LoginType;
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.entity.UserConsent;
 import busim.kkilogbu.user.repository.UserConsentRepository;
 import busim.kkilogbu.user.repository.UserRepository;
@@ -22,8 +16,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -47,39 +39,23 @@ public class UserService {
     private final UserConsentRepository userConsentRepository;
     private final AppleLoginService appleLoginService;
 
-    public User userInfo(UserDto userDto) {
+    public Users userInfo(UserDto userDto) {
         userDto.toUser(userDto);
         return userRepository.save(userDto.toUser(userDto));
     }
 
 
-    @Transactional
-    public SignInResponse socialSignIn(String authorizationCode, String identityToken, LoginType loginType) throws Exception {
-        switch (loginType) {
-            case APPLE:
-                return appleLoginService.signInOrRegister(authorizationCode, identityToken);
-//
-//            case GOOGLE:
-//                return googleLoginService.signInOrRegister(authorizationCode);  // 구글 로그인 처리 (identityToken 불필요)
-//
-//            case KAKAO:
-//                return kakaoLoginService.signInOrRegister(authorizationCode);  // 카카오 로그인 처리 (identityToken 불필요)
-
-            default:
-                throw new IllegalArgumentException("지원하지 않는 로그인 타입입니다.");
-        }
-    }
 
 
 
 
     @Transactional
     public void saveUserConsent(Long userId, UserConsentRequest consentRequest) {
-        User user = userRepository.findById(userId)
+        Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다"));
 
         UserConsent consent = UserConsent.builder()
-                .user(user)  // User 객체 설정
+                .users(users)  // Users 객체 설정
                 .termsAgreed(consentRequest.isTermsAgreed())
                 .privacyAgreed(consentRequest.isPrivacyAgreed())
                 .build();
@@ -90,14 +66,14 @@ public class UserService {
 
 //    public UserInfoResponse getUserInfo() {
 //        // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-//        User tmp = User.builder().username("tmp").build();
+//        Users tmp = Users.builder().username("tmp").build();
 //
-//        User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
+//        Users users = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
 //            () -> new RuntimeException("존재하지 않는 아이디 입니다")
 //        );
 //        return UserInfoResponse.builder()
-//                .nickname(user.getNickname())
-//                .profileImage(user.getProfileImage())
+//                .nickname(users.getNickname())
+//                .profileImage(users.getProfileImage())
 //        .build();
 //    }
 
@@ -108,23 +84,23 @@ public class UserService {
 //    @Transactional
 //    public void changeCategory(Long category) {
 //        // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-//        User tmp = User.builder().username("tmp").build();
+//        Users tmp = Users.builder().username("tmp").build();
 //
-//        User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
+//        Users users = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
 //            () -> new RuntimeException("존재하지 않는 아이디 입니다")
 //        );
-//        user.categoryChange(category);
+//        users.categoryChange(category);
 //    }
 //
 //    public Slice<MyRecordResponse> getMyRecord(Pageable pageable) {
 //        // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-//        User tmp = User.builder().username("tmp").build();
+//        Users tmp = Users.builder().username("tmp").build();
 //
-//        User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
+//        Users users = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
 //            () -> new RuntimeException("존재하지 않는 아이디 입니다")
 //        );
 //
-//        Slice<Records> findUserRecords = recordRepository.findByUser(user, pageable);
+//        Slice<Records> findUserRecords = recordRepository.findByUser(users, pageable);
 //        return findUserRecords.map((record) -> {
 //            return MyRecordResponse.builder()
 //                .id(record.getId())
@@ -139,20 +115,20 @@ public class UserService {
 //
 //    public Slice<BookmarkResponse> getBookmark(Pageable pageable, String type) {
 //        // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-//        User tmp = User.builder().username("tmp").build();
+//        Users tmp = Users.builder().username("tmp").build();
 //
-//         User user = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
+//         Users users = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
 //            () -> new RuntimeException("존재하지 않는 아이디 입니다"));
 //
 //         Slice<Bookmark> findUserBookmark = null;
 //         if(type.equals("RECORD")){
-//            findUserBookmark = bookmarkRepository.findByUserAndRecordIsNotNull(user, pageable);
+//            findUserBookmark = bookmarkRepository.findByUserAndRecordIsNotNull(users, pageable);
 //            return findUserBookmark.map((bookmark -> {
 //                return getBookmarkResponse(bookmark.getId(), bookmark.getRecords().getContents().getTitle(),
 //                    bookmark.getRecords().getAddressInfo().getAddress());
 //            }));
 //         }else if(type.equals("PLACE")){
-//            findUserBookmark = bookmarkRepository.findByUserAndPlaceIsNotNull(user, pageable);
+//            findUserBookmark = bookmarkRepository.findByUserAndPlaceIsNotNull(users, pageable);
 //            return findUserBookmark.map((bookmark -> {
 //                return getBookmarkResponse(bookmark.getId(), bookmark.getPlace().getContents().getTitle(),
 //                    bookmark.getPlace().getAddressInfo().getAddress());

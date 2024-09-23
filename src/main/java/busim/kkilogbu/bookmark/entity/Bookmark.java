@@ -5,7 +5,7 @@ import static lombok.AccessLevel.*;
 
 import busim.kkilogbu.place.entity.Place;
 import busim.kkilogbu.record.entity.Records;
-import busim.kkilogbu.user.entity.users.User;
+import busim.kkilogbu.user.entity.users.Users;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,8 +23,8 @@ public class Bookmark {
 
 
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@JoinColumn(name = "users_id")
+	private Users users;
 
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "records_id")
@@ -35,15 +35,15 @@ public class Bookmark {
 	private Place place;
 
 	@Builder
-	public Bookmark(User user, Records records, Place place) {
-		this.user = user;
+	public Bookmark(Users users, Records records, Place place) {
+		this.users = users;
 		this.records = records;
 		this.place = place;
 	}
 
-	public void connect(User user, Records records, Place place) {
-		this.user = user;
-		user.getBookmarks().add(this);
+	public void connect(Users users, Records records, Place place) {
+		this.users = users;
+		users.getBookmarks().add(this);
 		if(records != null) {
 			this.records = records;
 			records.getBookmark().add(this);
@@ -55,8 +55,8 @@ public class Bookmark {
 	}
 
 	public void disconnect() {
-		if(user != null) {
-			user.getBookmarks().remove(this);
+		if(users != null) {
+			users.getBookmarks().remove(this);
 		}
 		if(records != null) {
 			records.getBookmark().remove(this);
