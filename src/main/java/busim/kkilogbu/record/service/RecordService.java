@@ -1,11 +1,15 @@
 package busim.kkilogbu.record.service;
 
+import busim.kkilogbu.addressInfo.entity.AddressInfo;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristGridResponse;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristIdImageResponse;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
 import busim.kkilogbu.api.touristAPI.domain.entity.Tourist;
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
+import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.Ex.BaseException;
+
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMapper;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.security.service.CustomUserDetailsService;
 import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.service.BlackListService;
 import busim.kkilogbu.user.service.UserService;
@@ -78,48 +84,48 @@ public class RecordService {
 
 		return RecordMapper.toCreateRecordDetailResponse(records);
 	}
-//
-//	@Transactional
-//	public void createRecord(CreateRecordRequest request) {
-//		try {
-//
-//			// Contents 객체 생성
-//			Contents contents = Contents.builder()
-//					.content(request.getContent())
-//					.title(request.getTitle())
-//					.imageUrl(request.getImageUrl())
-//					.build();
-//
-//			// 해당 위치 정보가 있으면 가져오고 없으면 새로 생성
-//			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(), request.getLng())
-//					.orElseGet(() -> AddressInfo.builder()
-//							.latitude(request.getLat())
-//							.longitude(request.getLng())
-//							.build());
-//
-//			// TODO: 로그인 구현 후 변경
-//	//		Users tmp = Users.builder().nickname("tmp").build();
-//
-//			// Record 객체 생성 및 저장
-//			Records record = Records.createRecord(null, addressInfo, contents);
-//			recordRepository.save(record);
-//
-//			// Redis에 저장
-//			redisService.saveTotalPlaceInRedis(
-//					request.getLat(),
-//					request.getLng(),
-//					RecordMapper.toCreateRecordDetailResponse(record),
-//					"record"
-//			);
-//
-//		} catch (DataAccessException e) {
-//			throw new BaseException("데이터베이스 작업 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
-//		} catch (Exception e) {
-//			throw new BaseException("기록 생성 중 예상치 못한 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//	}
-//
-//
+
+	@Transactional
+	public void createRecord(CreateRecordRequest request) {
+		try {
+			Users currentUser = userService.getCurrentUser();
+
+			// Contents 객체 생성
+			Contents contents = Contents.builder()
+					.content(request.getContent())
+					.title(request.getTitle())
+					.imageUrl(request.getImageUrl())
+					.build();
+
+			// 해당 위치 정보가 있으면 가져오고 없으면 새로 생성
+			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(), request.getLng())
+					.orElseGet(() -> AddressInfo.builder()
+							.address(request.getAddress())
+							.latitude(request.getLat())
+							.longitude(request.getLng())
+							.build());
+
+
+			// Record 객체 생성 및 저장
+			Records record = Records.createRecord(currentUser, addressInfo, contents);
+			recordRepository.save(record);
+
+			// Redis에 저장
+			redisService.saveTotalPlaceInRedis(
+					request.getLat(),
+					request.getLng(),
+					RecordMapper.toCreateRecordDetailResponse(record),
+					"record"
+			);
+
+		} catch (DataAccessException e) {
+			throw new BaseException("데이터베이스 작업 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			throw new BaseException("기록 생성 중 예상치 못한 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
 //	@Transactional
 //	public void updateRecord(Long markId, UpdateRecordRequest request) {
 //		Records records = recordRepository.findFetchById(markId).orElseThrow(() -> {

@@ -6,6 +6,7 @@ import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.service.RecordService;
@@ -13,6 +14,7 @@ import busim.kkilogbu.user.service.BlackListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,12 +95,12 @@ public class RecordController {
 		return ResponseEntity.ok(recordService.getPlaceDetail(markId));
 	}
 
-//	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
-//	@PostMapping("/auth")
-//	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
-//		service.createRecord(request);
-//		return ResponseEntity.ok().build();
-//	}
+	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
+	@PostMapping("/auth")
+	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
+		recordService.createRecord(request);
+		return ResponseEntity.ok().build();
+	}
 
 //	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
 //	@PostMapping("/auth/{markId}/report")
