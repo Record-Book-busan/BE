@@ -15,8 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import busim.kkilogbu.addressInfo.repository.AddressInfoRepository;
 import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.record.dto.RecordDetailResponse;
+import busim.kkilogbu.record.dto.RecordMapper;
+import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.service.BlackListService;
+import busim.kkilogbu.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -32,6 +37,7 @@ public class RecordService {
 	private final RedisService redisService;
 	private final BlackListService blackListService;
 	private final TouristRepository touristRepository;
+	private final UserService userService;
 
 
 	@Transactional(readOnly = true)
@@ -58,20 +64,20 @@ public class RecordService {
 		return TouristMapper.toGridResponse(tourist);
 	}
 
-//	@Transactional(readOnly = true)
-//	public RecordDetailResponse getPlaceDetail(Long id) {
-//		Records records = recordRepository.findFetchById(id).orElseThrow(() ->
-//				new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND)
-//		);
-//
-//		// TODO : 로그인 구현 후 변경
-//	 	Users users = Users.builder().nickname("tester").build();
-//		if(blackListService.isBlocked(users, records.getUsers())){
-//			throw new BaseException("차단된 사용자입니다.", HttpStatus.FORBIDDEN);
-//		}
-//
-//		return RecordMapper.toCreateRecordDetailResponse(records);
-//	}
+	@Transactional(readOnly = true)
+	public RecordDetailResponse getPlaceDetail(Long id) {
+		Users user = userService.getCurrentUser();
+		Records records = recordRepository.findFetchById(id).orElseThrow(() ->
+				new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND)
+		);
+
+
+		if(blackListService.isBlocked(user, records.getUsers())){
+			throw new BaseException("차단된 사용자입니다.", HttpStatus.FORBIDDEN);
+		}
+
+		return RecordMapper.toCreateRecordDetailResponse(records);
+	}
 //
 //	@Transactional
 //	public void createRecord(CreateRecordRequest request) {

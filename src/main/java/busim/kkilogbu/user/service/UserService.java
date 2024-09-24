@@ -3,6 +3,8 @@ package busim.kkilogbu.user.service;
 import busim.kkilogbu.bookmark.repository.BookmarkRepository;
 
 import busim.kkilogbu.record.repository.RecordRepository;
+import busim.kkilogbu.security.domain.CustomUserDetails;
+import busim.kkilogbu.security.service.CustomUserDetailsService;
 import busim.kkilogbu.sociaLogin.appple.controller.AppleClient;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.*;
 import busim.kkilogbu.sociaLogin.appple.service.AppleAuthService;
@@ -16,6 +18,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -29,6 +33,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CustomUserDetailsService customUserDetailsService;
     private final RecordRepository recordRepository;
     private final BookmarkRepository bookmarkRepository;
 
@@ -173,4 +178,9 @@ public class UserService {
         }
     }
 
+    public Users getCurrentUser(){
+        String name = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication().getName();
+		CustomUserDetails customUserDetails = (CustomUserDetails)customUserDetailsService.loadUserByUsername(name);
+        return customUserDetails.getUsers();
+    }
 }

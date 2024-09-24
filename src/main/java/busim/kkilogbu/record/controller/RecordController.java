@@ -6,6 +6,7 @@ import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.Ex.BaseException;
 import busim.kkilogbu.global.ZoomLevel;
 import busim.kkilogbu.global.redis.RedisService;
+import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.service.RecordService;
 import busim.kkilogbu.user.service.BlackListService;
@@ -84,13 +85,13 @@ public class RecordController {
 
 
 
-//
-//	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
-//	@GetMapping("/{markId}")
-//	public ResponseEntity<RecordDetailResponse> getRecordDetail(
-//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-//		return ResponseEntity.ok(service.getPlaceDetail(markId));
-//	}
+
+	@Operation(summary = "기록 상세 정보 가져오기", description = "특정 기록의 상세 정보를 가져옵니다.")
+	@GetMapping("/{markId}")
+	public ResponseEntity<RecordDetailResponse> getRecordDetail(
+			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+		return ResponseEntity.ok(recordService.getPlaceDetail(markId));
+	}
 
 //	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
 //	@PostMapping("/auth")
