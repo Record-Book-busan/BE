@@ -9,6 +9,7 @@ import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
+import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.service.RecordService;
 import busim.kkilogbu.user.service.BlackListService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,15 +126,15 @@ public class RecordController {
 //		bookmarkService.unbookmark(markId, "record");
 //		return ResponseEntity.ok().build();
 //	}
-//
-//	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
-//	@PatchMapping("/auth/{markId}")
-//	public ResponseEntity<?> updatePlace(
-//			@Parameter(description = "기록 ID") @PathVariable Long markId,
-//			@RequestBody @Valid UpdateRecordRequest request) {
-//		service.updateRecord(markId, request);
-//		return ResponseEntity.ok().build();
-//	}
+
+	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
+	@PatchMapping("/auth/{markId}")
+	public ResponseEntity<?> updatePlace(
+			@Parameter(description = "기록 ID") @PathVariable Long markId,
+			@RequestBody @Valid UpdateRecordRequest request) {
+		recordService.updateRecord(markId, request);
+		return ResponseEntity.ok().build();
+	}
 
 	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
 	@DeleteMapping("/{markId}")

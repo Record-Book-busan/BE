@@ -12,7 +12,8 @@ public class UpdateRecordRequest {
 	private Double lat;
 	@NotNull(message = "Longitude is required")
 	private Double lng;
-
+	@NotNull(message = "Address is required")
+	private String address;
 	@NotNull(message = "Title is required")
 	private String title;
 	@NotNull(message = "Content is required")

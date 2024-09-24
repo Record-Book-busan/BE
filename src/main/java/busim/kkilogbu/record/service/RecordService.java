@@ -22,6 +22,7 @@ import busim.kkilogbu.global.redis.RedisService;
 import busim.kkilogbu.record.dto.CreateRecordRequest;
 import busim.kkilogbu.record.dto.RecordDetailResponse;
 import busim.kkilogbu.record.dto.RecordMapper;
+import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
 import busim.kkilogbu.security.service.CustomUserDetailsService;
@@ -125,36 +126,37 @@ public class RecordService {
 		}
 	}
 
+	@Transactional
+	public void updateRecord(Long markId, UpdateRecordRequest request) {
+		Users currentUser = userService.getCurrentUser();
 
-//	@Transactional
-//	public void updateRecord(Long markId, UpdateRecordRequest request) {
-//		Records records = recordRepository.findFetchById(markId).orElseThrow(() -> {
-//			// TODO : custom exception 추가
-//			return new RuntimeException("해당하는 장소가 없습니다.");
-//		});
-//		Contents contents = records.getContents();
-//		AddressInfo oldAddress = records.getAddressInfo();
-//		double lat = oldAddress.getLatitude();
-//		double lng = oldAddress.getLongitude();
-//
-//		// 위도 경도가 변경되었을 경우
-//		if (lat != request.getLat() || lng != request.getLng()) {
-//			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(),
-//					request.getLng())
-//				.orElseGet(() -> AddressInfo.builder()
-//					.latitude(request.getLat())
-//					.longitude(request.getLng())
-//					.build());
-//			records.connect(addressInfo);
-//
-//			oldAddress.getRecords().remove(records);
-//			// 기존 addressInfo에 record와 place가 없을 경우 삭제
-//			if (oldAddress.getRecords().isEmpty() && oldAddress.getPlace().isEmpty()) {
-//				addressInfoRepository.delete(oldAddress);
-//			}
-//		}
-//		contents.update(request.getContent(), request.getTitle(), request.getImageUrl());
-//	}
+		Records records = recordRepository.findByUsersAndId(currentUser, markId).orElseThrow(() -> {
+			return new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND);
+		});
+		Contents contents = records.getContents();
+		AddressInfo oldAddress = records.getAddressInfo();
+		double lat = oldAddress.getLatitude();
+		double lng = oldAddress.getLongitude();
+
+		// 위도 경도가 변경되었을 경우
+		if (lat != request.getLat() || lng != request.getLng()) {
+			AddressInfo addressInfo = addressInfoRepository.findByLatitudeAndLongitude(request.getLat(),
+					request.getLng())
+				.orElseGet(() -> AddressInfo.builder()
+					.address(request.getAddress())
+					.latitude(request.getLat())
+					.longitude(request.getLng())
+					.build());
+			records.connect(addressInfo);
+
+			oldAddress.getRecords().remove(records);
+			// 기존 addressInfo에 record와 place가 없을 경우 삭제
+			if (oldAddress.getRecords().isEmpty() && oldAddress.getPlace().isEmpty()) {
+				addressInfoRepository.delete(oldAddress);
+			}
+		}
+		contents.update(request.getContent(), request.getTitle(), request.getImageUrl());
+	}
 
 	@Transactional
 	public void deleteRecord(Long markId) {
