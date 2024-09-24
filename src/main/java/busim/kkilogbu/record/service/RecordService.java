@@ -155,21 +155,21 @@ public class RecordService {
 //		}
 //		contents.update(request.getContent(), request.getTitle(), request.getImageUrl());
 //	}
-//
-//	@Transactional
-//	public void deleteRecord(Long markId) {
-//		Records records = recordRepository.findFetchById(markId).orElseThrow(() ->{
-//			// TODO : custom exception 추가
-//			return new RuntimeException("해당하는 장소가 없습니다.");
-//		});
-//		AddressInfo oldAddress = records.getAddressInfo();
-//		oldAddress.getRecords().remove(records);
-//		if (oldAddress.getRecords().isEmpty() && oldAddress.getPlace().isEmpty()) {
-//			addressInfoRepository.delete(oldAddress);
-//		}
-//		recordRepository.delete(records);
-//	}
-//
+
+	@Transactional
+	public void deleteRecord(Long markId) {
+		Users user = userService.getCurrentUser();
+		Records records = recordRepository.findByUsersAndId(user, markId).orElseThrow(() ->{
+			return new BaseException("해당하는 장소가 없습니다.", HttpStatus.NOT_FOUND);
+		});
+		AddressInfo oldAddress = records.getAddressInfo();
+		oldAddress.getRecords().remove(records);
+		if (oldAddress.getRecords().isEmpty() && oldAddress.getPlace().isEmpty()) {
+			addressInfoRepository.delete(oldAddress);
+		}
+		recordRepository.delete(records);
+	}
+
 //	private RecordMarkResponse createRecordMarkResponse(Records records) {
 //		return RecordMarkResponse.builder()
 //			.id(records.getId())

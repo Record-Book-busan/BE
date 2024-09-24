@@ -96,7 +96,7 @@ public class RecordController {
 	}
 
 	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
-	@PostMapping("/auth")
+	@PostMapping
 	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
 		recordService.createRecord(request);
 		return ResponseEntity.ok().build();
@@ -134,12 +134,12 @@ public class RecordController {
 //		service.updateRecord(markId, request);
 //		return ResponseEntity.ok().build();
 //	}
-//
-//	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
-//	@DeleteMapping("/auth/{markId}")
-//	public ResponseEntity<?> deletePlace(
-//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-//		service.deleteRecord(markId);
-//		return ResponseEntity.ok().build();
-//	}
+
+	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
+	@DeleteMapping("/{markId}")
+	public ResponseEntity<?> deletePlace(
+			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+		recordService.deleteRecord(markId);
+		return ResponseEntity.ok().build();
+	}
 }
