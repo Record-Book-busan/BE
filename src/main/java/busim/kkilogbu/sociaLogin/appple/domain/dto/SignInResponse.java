@@ -17,4 +17,5 @@ public class SignInResponse {
     private String accessToken;
     private String refreshToken;
     private Instant accessTokenAt;
+    private Boolean isAgreed;
 }
