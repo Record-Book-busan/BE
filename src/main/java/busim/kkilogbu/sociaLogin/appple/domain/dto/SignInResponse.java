@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -14,4 +16,5 @@ public class SignInResponse {
     private Long userId;
     private String accessToken;
     private String refreshToken;
+    private Instant accessTokenAt;
 }

@@ -135,7 +135,7 @@ public class KakaoService {
         }
 
         // SignInResponseMapper를 사용해 SignInResponse 생성 및 반환
-        SignInResponse signInResponse = SignInResponseMapper.toSignInResponse(users, newAccessToken, newRefreshToken);
+        SignInResponse signInResponse = SignInResponseMapper.createSignInResponse(users, newAccessToken, newRefreshToken);
         log.info("로그인 응답 반환 완료: 사용자 ID={}", users.getId());
 
         return signInResponse;
