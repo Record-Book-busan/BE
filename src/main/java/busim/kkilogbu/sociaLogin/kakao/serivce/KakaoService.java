@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -143,6 +146,7 @@ public class KakaoService {
         Users newUsers = Users.builder()
                 .socialUserId(kakaoSub)
                 .loginType("KAKKO")
+                .createdAt(LocalDateTime.now())
                 .email(email)
                 .nickname(nickname)
                 .profileImage(picture)
