@@ -26,7 +26,7 @@ public class JwtUtil {
     private final PublicKey publicKey;
 
     // Access Token 만료 시간 (30일)
-    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 30;
+    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 180;
 
     private final long GUEST_ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
 
