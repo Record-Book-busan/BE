@@ -8,6 +8,7 @@ import busim.kkilogbu.sociaLogin.appple.domain.dto.SignInResponse;
 import busim.kkilogbu.sociaLogin.kakao.dto.KakaoTokenDto;
 import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.entity.users.Users;
+import busim.kkilogbu.user.repository.UserConsentRepository;
 import busim.kkilogbu.user.repository.UserRepository;
 import busim.kkilogbu.user.service.UserService;
 
@@ -32,47 +33,12 @@ public class KakaoService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-    //    private final ObjectMapper objectMapper = new ObjectMapper();
-//    private final RestTemplate restTemplate = new RestTemplate();
+    private final UserConsentRepository userConsentRepository;
+
     private final WebClient webClient = WebClient.builder()
             .baseUrl("https://kapi.kakao.com")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
             .build();
-
-
-//        // 카카오 소셜 로그인 메서드
-//        public SignInResponse login(String jsonString) throws Exception {
-//            // JSON 문자열을 파싱하여 JsonNode로 변환
-//            JsonNode kakao_parse = objectMapper.readTree(jsonString);  // JSON 파싱
-//
-//            // 카카오 API에서 받은 사용자 정보와 토큰 파싱
-//            JsonNode kakao_profile = kakao_parse.get("kakaoProfileResult");
-//            JsonNode kakao_token = kakao_parse.get("accessToken");
-//
-//            // 사용자 정보 추출
-//            String kakao_sub = kakao_profile.get("id").asText(); // 카카오 사용자 고유 ID
-//            String email = kakao_profile.get("email").asText();
-//            String username = kakao_profile.get("nickname").asText();
-//            String picture = kakao_profile.get("profileImageUrl").asText();
-//
-//            // 사용자 정보 저장 또는 업데이트
-//            Users users = userRepository.findBySocialUserId(kakao_sub)
-//                    .orElseThrow(() -> new IllegalArgumentException("카카오 계정으로 이미 등록된 사용자가 없습니다"));
-//
-//
-//            // Access Token 및 Refresh Token 생성
-//            String accessToken = jwtUtil.createAccessToken(kakao_sub);  // Access Token 생성
-//            String refreshToken = jwtUtil.createRefreshToken(kakao_sub);  // Refresh Token 생성
-//
-//            // 사용자 정보 업데이트 (로그인 타입과 역할 포함)
-//            users.kakaoSignin(kakao_sub, email, username, picture);
-//            users.updateTokens(accessToken, refreshToken);
-//
-//            userRepository.save(users);
-//
-//            // SignInResponseMapper를 사용해 SignInResponse 생성 및 반환
-//            return SignInResponseMapper.toSignInResponse(users, accessToken, refreshToken);
-//        }
 
 
     // 사용자 정보 조회
@@ -126,20 +92,28 @@ public class KakaoService {
         if (users == null) {
             // 신규 사용자일 경우 회원가입 진행
             log.info("새로운 카카오 사용자 발견. 회원가입 진행 중: 카카오 ID={}", kakaoSub);
+
             users = registerNewUser(kakaoSub, email, nickname, picture, newAccessToken, newRefreshToken);
             log.info("새로운 사용자 저장 완료: 사용자 ID={}", users.getId());
+
         } else {
             // 기존 사용자일 경우 사용자 정보 및 토큰 업데이트
             log.info("기존 카카오 사용자 정보 업데이트 진행 중: 사용자 ID={}", users.getId());
             updateUserTokens(users, newAccessToken, newRefreshToken);
         }
+// 약관 및 개인정보 처리 동의 여부 확인
+        boolean isAgreed = userConsentRepository.existsByUsersAndTermsAgreedTrueAndPrivacyAgreedTrue(users);
+        log.info("약관 및 개인정보 동의 상태: {}", isAgreed);
 
         // SignInResponseMapper를 사용해 SignInResponse 생성 및 반환
-        SignInResponse signInResponse = SignInResponseMapper.createSignInResponse(users, newAccessToken, newRefreshToken);
+        SignInResponse signInResponse = SignInResponseMapper.createSignInResponse(users, newAccessToken, newRefreshToken, isAgreed);
         log.info("로그인 응답 반환 완료: 사용자 ID={}", users.getId());
 
         return signInResponse;
+
     }
+
+
 
     // 신규 사용자 등록 메서드
     private Users registerNewUser(String kakaoSub, String email, String nickname, String picture, String accessToken, String refreshToken) {
