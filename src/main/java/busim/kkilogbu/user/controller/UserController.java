@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -63,13 +65,12 @@ public class UserController {
         }
     }
 
-    @PostMapping("/signin/{userId}/consent")
+    @PostMapping("/signin/consent")
     public ResponseEntity<String> saveUserConsent(
-            @PathVariable(name = "userId") Long userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody UserConsentRequest consentRequest) {
-
-        userService.saveUserConsent(userId, consentRequest);
-        return ResponseEntity.ok("개인정보 와 약관동의 하셨습니다");
+        userService.saveUserConsent(userDetails.getUsername(), consentRequest);
+        return ResponseEntity.ok("개인정보 와 약관동의 해주셔서 감사합니다 :D ");
     }
 
 
