@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/kkilogbu/record/auth")
+@RequestMapping("/kkilogbu/record")
 @RequiredArgsConstructor
 @Tag(name = "<RecordController>", description = "기록 관리 API")
 public class RecordController {
@@ -69,6 +69,9 @@ public class RecordController {
 	}
 
 
+
+
+/*--------------------------------- 페이크 기록 글 조회 ---------------------------------*/
 	 // TODO 페이크 기록 글 조회
 	@GetMapping("/images")
 	public ResponseEntity<List<TouristIdImageResponse>> fetchTouristImages(
@@ -79,13 +82,13 @@ public class RecordController {
 		return ResponseEntity.ok(imageUrls);
 	}
 
-	// TODO 관광지 상세 조회
+	// TODO 페이크 기록 글 상세 조회
 	@GetMapping("/images/{touristId}")
 	public ResponseEntity<TouristGridResponse> getTouristDetail(@PathVariable Long touristId) {
 		TouristGridResponse touristDetail = recordService.getTouristDetail(touristId);
 		return ResponseEntity.ok(touristDetail);
 	}
-
+/*--------------------------------- 페이크 기록 글 조회 ---------------------------------*/
 
 
 
@@ -97,38 +100,38 @@ public class RecordController {
 	}
 
 	@Operation(summary = "새 기록 생성", description = "새로운 기록을 생성합니다.")
-	@PostMapping
+	@PostMapping("/auth")
 	public ResponseEntity<?> createRecord(@RequestBody @Valid CreateRecordRequest request) {
 		recordService.createRecord(request);
 		return ResponseEntity.ok().build();
 	}
 
 	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
-	@PostMapping("/{markId}/report")
+	@PostMapping("/auth/{markId}/report")
 	public ResponseEntity<?> report(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 		blackListService.report(markId);
 		return ResponseEntity.ok().build();
 	}
 
-//	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
-//	@PostMapping("/auth/{markId}/bookmark")
-//	public ResponseEntity<?> bookmark(
-//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-//		bookmarkService.bookmark(markId, "record");
-//		return ResponseEntity.ok().build();
-//	}
-//
-//	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
-//	@DeleteMapping("/auth/{markId}/bookmark")
-//	public ResponseEntity<?> deleteBookmark(
-//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-//		bookmarkService.unbookmark(markId, "record");
-//		return ResponseEntity.ok().build();
-//	}
+	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
+	@PostMapping("/auth/{markId}/bookmark/auth")
+	public ResponseEntity<?> bookmark(
+			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+		bookmarkService.bookmark(markId);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
+	@DeleteMapping("/auth/{markId}/bookmark/auth")
+	public ResponseEntity<?> deleteBookmark(
+			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+		bookmarkService.unbookmark(markId, "record");
+		return ResponseEntity.ok().build();
+	}
 
 	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
-	@PatchMapping("/{markId}")
+	@PatchMapping("/auth/{markId}")
 	public ResponseEntity<?> updatePlace(
 			@Parameter(description = "기록 ID") @PathVariable Long markId,
 			@RequestBody @Valid UpdateRecordRequest request) {
@@ -137,7 +140,7 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 삭제", description = "기존 기록을 삭제합니다.")
-	@DeleteMapping("/{markId}")
+	@DeleteMapping("/auth/{markId}")
 	public ResponseEntity<?> deletePlace(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 		recordService.deleteRecord(markId);
