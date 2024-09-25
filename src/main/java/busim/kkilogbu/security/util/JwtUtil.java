@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
@@ -46,8 +47,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(socialUserId)  // userId를 subject로 설정
                 .claim("role", "USER")  // 역할을 USER로 설정
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))  // 만료 시간 설정
+                .setIssuedAt(Date.from(Instant.now()))  // 현재 UTC 시간으로 발급 시간 설정
+                .setExpiration(Date.from(Instant.now().plusMillis(ACCESS_TOKEN_EXPIRATION)))  // UTC 시간으로 만료 시간 설정
                 .signWith(secretKey, SignatureAlgorithm.HS256)  // HMAC-SHA256 서명
                 .compact();
     }
@@ -58,8 +59,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(guestId)  // guestId를 subject로 설정
                 .claim("role", "GUEST")  // 역할을 GUEST로 설정
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + GUEST_ACCESS_TOKEN_EXPIRATION))  // 만료 시간
+                .setIssuedAt(Date.from(Instant.now()))  // 현재 UTC 시간으로 발급 시간 설정
+                .setExpiration(Date.from(Instant.now().plusMillis(GUEST_ACCESS_TOKEN_EXPIRATION)))  // UTC 시간으로 만료 시간 설정
                 .signWith(secretKey, SignatureAlgorithm.HS256)  // HMAC-SHA256 서명
                 .compact();
     }
@@ -69,8 +70,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(socialUserId)
                 .claim("role", "REFRESH")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))  // 만료 시간
+                .setIssuedAt(Date.from(Instant.now()))  // 현재 UTC 시간으로 발급 시간 설정
+                .setExpiration(Date.from(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION)))  // UTC 시간으로 만료 시간 설정
                 .signWith(secretKey, SignatureAlgorithm.HS256)  // HMAC-SHA256 서명
                 .compact();
     }
