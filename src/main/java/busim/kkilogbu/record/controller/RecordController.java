@@ -103,14 +103,14 @@ public class RecordController {
 		return ResponseEntity.ok().build();
 	}
 
-//	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
-//	@PostMapping("/auth/{markId}/report")
-//	public ResponseEntity<?> report(
-//			@Parameter(description = "기록 ID") @PathVariable Long markId) {
-//		blackListService.report(markId);
-//		return ResponseEntity.ok().build();
-//	}
-//
+	@Operation(summary = "작성자 차단", description = "특정 기록의 작성자를 신고, 차단합니다.")
+	@PostMapping("/{markId}/report")
+	public ResponseEntity<?> report(
+			@Parameter(description = "기록 ID") @PathVariable Long markId) {
+		blackListService.report(markId);
+		return ResponseEntity.ok().build();
+	}
+
 //	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
 //	@PostMapping("/auth/{markId}/bookmark")
 //	public ResponseEntity<?> bookmark(
@@ -128,7 +128,7 @@ public class RecordController {
 //	}
 
 	@Operation(summary = "기록 수정", description = "기존 기록을 수정합니다.")
-	@PatchMapping("/auth/{markId}")
+	@PatchMapping("/{markId}")
 	public ResponseEntity<?> updatePlace(
 			@Parameter(description = "기록 ID") @PathVariable Long markId,
 			@RequestBody @Valid UpdateRecordRequest request) {
