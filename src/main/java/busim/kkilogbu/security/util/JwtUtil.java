@@ -25,13 +25,13 @@ public class JwtUtil {
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
 
-    // Access Token 만료 시간 (1시간)
-    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60;
+    // Access Token 만료 시간 (30일)
+    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 180;
 
     private final long GUEST_ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
 
-    // Refresh Token 만료 시간 (20일)
-    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
+    // Refresh Token 만료 시간 (40일)
+    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 40;
 
     // RSA 비대칭키 생성자
     public JwtUtil(UserRepository userRepository) throws Exception {
