@@ -38,12 +38,10 @@ public class SearchController {
     })
     @GetMapping()
     public ResponseEntity<List<SearchResultResponse>> search(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @Parameter(description = "검색어", example = "맛집") @RequestParam(name = "query") String query,
             @Parameter(description = "데이터의 시작점", example = "0") @RequestParam(name = "offset") int offset,  // 데이터의 시작점
             @Parameter(description = "한 번에 가져올 데이터 크기", example = "10") @RequestParam(name = "limit") int limit) {  // 한 번에 가져올 데이터 크기
 
-        log.info("CustmUserDetails : " + customUserDetails.getUsername());
 
         Page<SearchResultResponse> searchResults = searchService.search(query, offset, limit);
 
