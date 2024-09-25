@@ -51,7 +51,7 @@ public class AppleLoginService {
 
 
         // 회원가입 또는 로그인 처리 후 응답 생성
-        return SignInResponseMapper.toSignInResponse(users, accessToken, refreshToken);
+        return SignInResponseMapper.createSignInResponse(users, accessToken, refreshToken);
     }
 
     // 새로운 사용자 등록 (회원가입)

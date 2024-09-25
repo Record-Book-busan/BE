@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -132,7 +135,7 @@ public class KakaoService {
         }
 
         // SignInResponseMapper를 사용해 SignInResponse 생성 및 반환
-        SignInResponse signInResponse = SignInResponseMapper.toSignInResponse(users, newAccessToken, newRefreshToken);
+        SignInResponse signInResponse = SignInResponseMapper.createSignInResponse(users, newAccessToken, newRefreshToken);
         log.info("로그인 응답 반환 완료: 사용자 ID={}", users.getId());
 
         return signInResponse;
@@ -143,6 +146,7 @@ public class KakaoService {
         Users newUsers = Users.builder()
                 .socialUserId(kakaoSub)
                 .loginType("KAKKO")
+                .createdAt(LocalDateTime.now())
                 .email(email)
                 .nickname(nickname)
                 .profileImage(picture)

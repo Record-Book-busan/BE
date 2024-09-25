@@ -50,8 +50,8 @@ public class UserService {
 
 
     @Transactional
-    public void saveUserConsent(Long userId, UserConsentRequest consentRequest) {
-        Users users = userRepository.findById(userId)
+    public void saveUserConsent(String socialUserId, UserConsentRequest consentRequest) {
+        Users users = userRepository.findBySocialUserId(socialUserId)
                 .orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다"));
 
         UserConsent consent = UserConsent.builder()
