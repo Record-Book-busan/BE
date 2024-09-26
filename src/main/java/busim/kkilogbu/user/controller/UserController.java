@@ -1,6 +1,9 @@
 package busim.kkilogbu.user.controller;
 
 
+import java.util.List;
+
+import busim.kkilogbu.bookmark.dto.BookmarkResponse;
 import busim.kkilogbu.security.util.JwtUtil;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.*;
 import busim.kkilogbu.sociaLogin.appple.service.AppleLoginService;
@@ -8,10 +11,10 @@ import busim.kkilogbu.sociaLogin.appple.service.AppleLoginService;
 import busim.kkilogbu.user.dto.UserDto;
 
 import busim.kkilogbu.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
-
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -104,13 +107,16 @@ public class UserController {
 //        return ResponseEntity.ok(userService.getMyRecord(pageable));
 //    }
 //
-//    /**
-//     * 북마크 조회
-//     */
-//    @GetMapping("/bookmark")
-//    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable, @PathParam("type") String type){
-//        return ResponseEntity.ok(userService.getBookmark(pageable, type));
-//    }
+//
+
+    @Operation(
+            summary = "북마크 조회",
+            description = "북마크한 기록을 조회합니다."
+    )
+    @GetMapping("/bookmark/record")
+    public ResponseEntity<List<BookmarkResponse>> getBookmark(){
+        return ResponseEntity.ok(userService.getBookmark());
+    }
 
     @PostMapping
     public ResponseEntity<?> userInfo(@RequestBody UserDto user){

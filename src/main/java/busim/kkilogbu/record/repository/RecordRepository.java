@@ -22,10 +22,5 @@ public interface RecordRepository extends JpaRepository<Records, Long> {
 	Optional<Records> findFetchById(Long id);
 	Slice<Records> findByUsers(Users users, Pageable pageable);
 	Optional<Records> findByUsersAndId(Users users, Long id);
-
-	@Query("SELECT t FROM Tourist t WHERE " +
-		"LOWER(t.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-		"LOWER(t.categoryMedium) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-		"LOWER(t.categorySmall) LIKE LOWER(CONCAT('%', :query, '%'))")
-	Page<Records> findByMultipleFields(Pageable pageable);
+	Page<Records> findAll(Pageable pageable);
 }

@@ -49,7 +49,7 @@ public class RecordService {
 
 		Pageable pageable = PageRequest.of(page, limit); // 페이지와 사이즈 설정
 		// Page<Tourist> tourists = touristRepository.findByMultipleFields(query, pageable);
-		Page<Records> records = recordRepository.findByMultipleFields(pageable);
+		Page<Records> records = recordRepository.findAll(pageable);
 
 		// Tourist 객체에서 id와 imageUrl만 추출하여 TouristIdImageResponse로 변환
 		return records.stream()

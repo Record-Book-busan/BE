@@ -1,5 +1,10 @@
 package busim.kkilogbu.user.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import busim.kkilogbu.bookmark.dto.BookmarkResponse;
+import busim.kkilogbu.bookmark.entity.Bookmark;
 import busim.kkilogbu.bookmark.repository.BookmarkRepository;
 
 import busim.kkilogbu.record.repository.RecordRepository;
@@ -36,7 +41,6 @@ public class UserService {
     private final CustomUserDetailsService customUserDetailsService;
     private final RecordRepository recordRepository;
     private final BookmarkRepository bookmarkRepository;
-
 
     private final AppleClient appleClient;
 
@@ -117,39 +121,25 @@ public class UserService {
 //                .build();
 //        });
 //    }
-//
-//    public Slice<BookmarkResponse> getBookmark(Pageable pageable, String type) {
-//        // TODO : 로그인 기능 구현시 세션에서 유저 정보 가져오기
-//        Users tmp = Users.builder().username("tmp").build();
-//
-//         Users users = userRepository.findByUsername(tmp.getUsername()).orElseThrow(
-//            () -> new RuntimeException("존재하지 않는 아이디 입니다"));
-//
-//         Slice<Bookmark> findUserBookmark = null;
-//         if(type.equals("RECORD")){
-//            findUserBookmark = bookmarkRepository.findByUserAndRecordIsNotNull(users, pageable);
-//            return findUserBookmark.map((bookmark -> {
-//                return getBookmarkResponse(bookmark.getId(), bookmark.getRecords().getContents().getTitle(),
-//                    bookmark.getRecords().getAddressInfo().getAddress());
-//            }));
-//         }else if(type.equals("PLACE")){
-//            findUserBookmark = bookmarkRepository.findByUserAndPlaceIsNotNull(users, pageable);
-//            return findUserBookmark.map((bookmark -> {
-//                return getBookmarkResponse(bookmark.getId(), bookmark.getPlace().getContents().getTitle(),
-//                    bookmark.getPlace().getAddressInfo().getAddress());
-//            }));
-//         }else{
-//            throw new RuntimeException("잘못된 타입입니다");
-//         }
-//    }
-//
-//    private BookmarkResponse getBookmarkResponse(Long id, String title, String address) {
-//        return BookmarkResponse.builder()
-//            .id(id)
-//            .title(title)
-//            .address(address)
-//            .build();
-//    }
+
+   public List<BookmarkResponse> getBookmark() {
+       Users user = getCurrentUser();
+
+       List<Bookmark> findUserBookmark = bookmarkRepository.findByUsers(user);
+       return findUserBookmark.stream().map((bookmark -> {
+           return getBookmarkResponse(bookmark.getId(), bookmark.getRecords().getContents().getTitle(),
+               bookmark.getRecords().getAddressInfo().getAddress());
+       })).collect(Collectors.toList());
+
+   }
+
+   private BookmarkResponse getBookmarkResponse(Long id, String title, String address) {
+       return BookmarkResponse.builder()
+           .id(id)
+           .title(title)
+           .address(address)
+           .build();
+   }
 
     @Transactional
     public void deleteUserAccount(Long userId, String accessToken) {
