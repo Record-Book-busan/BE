@@ -19,4 +19,5 @@ public interface RecordRepository extends JpaRepository<Records, Long> {
 	@Query("SELECT r FROM Records r JOIN FETCH r.addressInfo JOIN FETCH r.contents WHERE r.id = :id")
 	Optional<Records> findFetchById(Long id);
 	Slice<Records> findByUsers(Users users, Pageable pageable);
+	Optional<Records> findByUsersAndId(Users users, Long id);
 }
