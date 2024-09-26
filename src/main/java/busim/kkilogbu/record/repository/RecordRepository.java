@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import busim.kkilogbu.record.entity.Records;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +22,10 @@ public interface RecordRepository extends JpaRepository<Records, Long> {
 	Optional<Records> findFetchById(Long id);
 	Slice<Records> findByUsers(Users users, Pageable pageable);
 	Optional<Records> findByUsersAndId(Users users, Long id);
+
+	@Query("SELECT t FROM Tourist t WHERE " +
+		"LOWER(t.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+		"LOWER(t.categoryMedium) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+		"LOWER(t.categorySmall) LIKE LOWER(CONCAT('%', :query, '%'))")
+	Page<Records> findByMultipleFields(Pageable pageable);
 }

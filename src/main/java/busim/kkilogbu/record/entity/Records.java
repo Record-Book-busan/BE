@@ -68,8 +68,8 @@ public class Records {
 
 	public static Records createRecord(Users users, AddressInfo addressInfo, Contents contents) {
 		Records record = new Records();  // Records 객체 생성
-		// record.users = users;
-		// users.getRecords().add(record);
+		record.users = users;
+		users.getRecords().add(record);
 		record.addressInfo = addressInfo;
 		record.contents = contents;
 		contents.connect(record, null);
