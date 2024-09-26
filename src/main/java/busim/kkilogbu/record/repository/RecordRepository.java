@@ -20,7 +20,7 @@ public interface RecordRepository extends JpaRepository<Records, Long> {
 	List<Records> findByAddressInfoIn(List<Long> addressInfoIds);
 	@Query("SELECT r FROM Records r JOIN FETCH r.addressInfo JOIN FETCH r.contents WHERE r.id = :id")
 	Optional<Records> findFetchById(Long id);
-	Slice<Records> findByUsers(Users users, Pageable pageable);
+	Page<Records> findByUsers(Users users, Pageable pageable);
 	Optional<Records> findByUsersAndId(Users users, Long id);
 	Page<Records> findAll(Pageable pageable);
 }

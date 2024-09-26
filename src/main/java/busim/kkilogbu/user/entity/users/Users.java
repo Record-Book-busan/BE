@@ -69,6 +69,10 @@ public class Users {
 		this.profileImage = profileImage;
 	}
 
+	public void changeNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
 	public void categoryChange(Long category) {
 		this.category = category;
 	}
