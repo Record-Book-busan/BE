@@ -115,7 +115,7 @@ public class RecordController {
 	}
 
 	@Operation(summary = "기록 북마크", description = "특정 기록을 북마크합니다.")
-	@PostMapping("/auth/{markId}/bookmark/auth")
+	@PostMapping("/auth/{markId}/bookmark")
 	public ResponseEntity<?> bookmark(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 		bookmarkService.bookmark(markId);
@@ -123,7 +123,7 @@ public class RecordController {
 	}
 
 	@Operation(summary = "북마크 삭제", description = "특정 기록의 북마크를 삭제합니다.")
-	@DeleteMapping("/auth/{markId}/bookmark/auth")
+	@DeleteMapping("/auth/{markId}/bookmark")
 	public ResponseEntity<?> deleteBookmark(
 			@Parameter(description = "기록 ID") @PathVariable Long markId) {
 		bookmarkService.unbookmark(markId, "record");
