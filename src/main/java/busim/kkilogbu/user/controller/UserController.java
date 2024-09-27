@@ -69,8 +69,8 @@ public class UserController {
     public ResponseEntity<String> saveUserConsent(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody UserConsentRequest consentRequest) {
-        userService.saveUserConsent(userDetails.getUsername(), consentRequest);
-        return ResponseEntity.ok("개인정보 와 약관동의 해주셔서 감사합니다 :D ");
+        String consent = userService.saveUserConsent(userDetails.getUsername(), consentRequest);
+        return ResponseEntity.ok(consent);
     }
 
 
