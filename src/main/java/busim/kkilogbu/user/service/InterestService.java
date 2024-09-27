@@ -50,14 +50,13 @@ public class InterestService {
         userInterestRepository.save(userInterest);
 
     }
-
     @Transactional(readOnly = true)
-    public Map<String, List<String>> getUserInterests(Long userId) {
+    public Map<String, Object> getUserInterests(String socialUserId) {
         // 1. 유저 조회
-        Users users = userRepository.findById(userId)
+        Users users = userRepository.findBySocialUserId(socialUserId)
                 .orElseThrow(() -> new EntityNotFoundException("회원 가입 안되었습니다."));
 
-        // 2. 관광지 및 맛집 카테고리 리스트 그대로 반환
+        // 2. 관광지 및 맛집 카테고리 리스트 반환
         List<String> touristCategories = users.getUserInterests().stream()
                 .flatMap(userInterest -> userInterest.getInterest().getTouristCategories().stream())
                 .collect(Collectors.toList());
@@ -66,12 +65,12 @@ public class InterestService {
                 .flatMap(userInterest -> userInterest.getInterest().getRestaurantCategories().stream())
                 .collect(Collectors.toList());
 
-        // 3. 카테고리별로 반환
-        Map<String, List<String>> categories = new HashMap<>();
+        // 3. 카테고리별로 반환 (Map<String, Object>)
+        Map<String, Object> categories = new HashMap<>();
         categories.put("touristCategories", touristCategories);
         categories.put("restaurantCategories", restaurantCategories);
 
         return categories;
-
     }
+
 }
