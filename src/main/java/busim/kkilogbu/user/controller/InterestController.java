@@ -1,12 +1,15 @@
 package busim.kkilogbu.user.controller;
 
 
+import busim.kkilogbu.security.domain.CustomUserDetails;
 import busim.kkilogbu.user.dto.InterestRequest;
 import busim.kkilogbu.user.service.InterestService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,10 +23,17 @@ public class InterestController {
     private final InterestService interestService;
     private InterestRequest interestRequest;
 
+    /**
+     *
+     *
+     * @param interestRequests
+     * @param allSkip
+     * @return
+     */
 
-    @PostMapping("/my/{userId}")
+    @PostMapping("/my")
     public ResponseEntity<String> saveInterests(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody InterestRequest interestRequests,
             @RequestParam(required = false) Boolean allSkip) {
 
@@ -33,7 +43,7 @@ public class InterestController {
         }
 
         try {
-            interestService.saveUserInterests(userId,  interestRequest.convertRestaurantCategoriesToString(interestRequests.getRestaurantCategories()), interestRequest.convertTouristCategoriesToString(interestRequests.getTouristCategories())
+            interestService.saveUserInterests(customUserDetails.getUsername(),  interestRequest.convertRestaurantCategoriesToString(interestRequests.getRestaurantCategories()), interestRequest.convertTouristCategoriesToString(interestRequests.getTouristCategories())
            );
             return ResponseEntity.ok("관심사가 저장되었습니다.");
         } catch (EntityNotFoundException e) {

@@ -27,8 +27,8 @@ public class InterestService {
     private final UserInterestRepository userInterestRepository;
 
     @Transactional
-    public void saveUserInterests(Long userId, List<String> touristCategoryNames, List<String> restaurantCategoryNames) {
-        Users users = userRepository.findById(userId)
+    public void saveUserInterests(String socialUserId, List<String> touristCategoryNames, List<String> restaurantCategoryNames) {
+        Users users = userRepository.findBySocialUserId(socialUserId)
                 .orElseThrow(() -> new EntityNotFoundException("회원 가입 안되었습니다."));
 
 

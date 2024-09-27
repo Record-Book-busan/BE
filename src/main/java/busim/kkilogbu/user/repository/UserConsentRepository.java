@@ -12,4 +12,6 @@ public interface UserConsentRepository extends JpaRepository<UserConsent, Long> 
 
     boolean existsByUsersAndTermsAgreedTrueAndPrivacyAgreedTrue(Users users);
 
+    Optional<UserConsent> findByUsers(Users users);
+
 }
