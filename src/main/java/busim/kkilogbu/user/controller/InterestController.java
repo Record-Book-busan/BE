@@ -6,6 +6,7 @@ import busim.kkilogbu.user.dto.InterestRequest;
 import busim.kkilogbu.user.service.InterestService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/kkilogbu/interests")
 @RequiredArgsConstructor
@@ -36,20 +38,36 @@ public class InterestController {
     public ResponseEntity<String> saveInterests(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody InterestRequest interestRequests,
-            @RequestParam(required = false) Boolean allSkip) {
+            @RequestParam(name = "allSkip", required = false) Boolean allSkip
+    ) {
+        log.info("유저의 관심사 저장 요청을 받았습니다: {}", customUserDetails.getUsername());
 
         // allSkip이 true인 경우 요청을 건너뜁니다.
         if (Boolean.TRUE.equals(allSkip)) {
+            log.info("'allSkip' 값이 true여서 관심사 저장을 건너뜁니다. 유저: {}", customUserDetails.getUsername());
             return ResponseEntity.ok("관심사 저장이 건너뛰어졌습니다.");
         }
 
         try {
-            interestService.saveUserInterests(customUserDetails.getUsername(),  interestRequest.convertRestaurantCategoriesToString(interestRequests.getRestaurantCategories()), interestRequest.convertTouristCategoriesToString(interestRequests.getTouristCategories())
-           );
+            log.info("유저의 관심사를 저장 중입니다: {}", customUserDetails.getUsername());
+
+            // 카테고리 변환
+            List<String> restaurantCategories = interestRequests.convertRestaurantCategoriesToString(interestRequests.getRestaurantCategories());
+            List<String> touristCategories = interestRequests.convertTouristCategoriesToString(interestRequests.getTouristCategories());
+
+            log.debug("레스토랑 카테고리: {}", restaurantCategories);
+            log.debug("관광 카테고리: {}", touristCategories);
+
+            // 관심사 저장
+            interestService.saveUserInterests(customUserDetails.getUsername(), restaurantCategories, touristCategories);
+
+            log.info("유저의 관심사가 성공적으로 저장되었습니다: {}", customUserDetails.getUsername());
             return ResponseEntity.ok("관심사가 저장되었습니다.");
         } catch (EntityNotFoundException e) {
+            log.error("유저를 찾을 수 없습니다: {}", customUserDetails.getUsername(), e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저를 찾을 수 없습니다: " + e.getMessage());
         } catch (Exception e) {
+            log.error("유저의 관심사 저장 중 오류가 발생했습니다: {}", customUserDetails.getUsername(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("관심사 저장 중 오류가 발생했습니다.");
         }
     }

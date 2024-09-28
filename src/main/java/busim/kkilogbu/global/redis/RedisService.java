@@ -56,6 +56,7 @@ import busim.kkilogbu.place.dto.TouristCategory;
 @Slf4j
 @Transactional(readOnly = true)
 public class RedisService {
+
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 	private final RecordRepository recordRepository;

@@ -13,11 +13,13 @@ import busim.kkilogbu.user.repository.UserRepository;
 import busim.kkilogbu.user.service.UserService;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -28,6 +30,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 public class KakaoService {
+
 
 
     private final UserService userService;
@@ -136,5 +139,14 @@ public class KakaoService {
     private void updateUserTokens(Users users, String accessToken, String refreshToken) {
         users.updateTokens(accessToken, refreshToken);
         userRepository.save(users);
+    }
+
+    @Transactional
+    public  void deleteUserBySocialId(String socialUserId) {
+        // 유저 조회
+        Users user = userRepository.findBySocialUserId(socialUserId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 유저를 찾을 수 없습니다."));
+        // 유저 삭제
+        userRepository.delete(user);
     }
 }
