@@ -138,14 +138,14 @@ public class UserController {
    }
 
    @PostMapping("/name")
-   public ResponseEntity<?> changeUserImage(@RequestBody(required = true) UserNameUpdateRequest request){
-       userService.changeUserImage(request.getNickName());
+   public ResponseEntity<?> changeUserNickname(@RequestBody(required = true) UserNameUpdateRequest request){
+       userService.changeUserNickname(request.getNickName());
        return ResponseEntity.ok().build();
    }
 
    @PostMapping("/image")
-    public ResponseEntity<?> changeUserNickname(@RequestBody(required = true) UserImageUpdateRequest request){
-        userService.changeUserNickname(request.getProfileImage());
+    public ResponseEntity<?> changeUserImage(@RequestBody(required = true) UserImageUpdateRequest request){
+        userService.changeUserImage(request.getProfileImage());
         return ResponseEntity.ok().build();
     }
 
