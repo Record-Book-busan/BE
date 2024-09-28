@@ -191,11 +191,13 @@ public class UserService {
         return customUserDetails.getUsers();
     }
 
+    @Transactional
     public void changeUserImage(String nickName) {
         Users users = getCurrentUser();
         users.changeProfileImage(nickName);
     }
 
+    @Transactional
     public void changeUserNickname(String nickName) {
         Users users = getCurrentUser();
         users.changeNickname(nickName);
