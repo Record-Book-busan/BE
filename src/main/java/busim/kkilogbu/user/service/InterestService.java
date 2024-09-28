@@ -9,6 +9,7 @@ import busim.kkilogbu.user.repository.UserInterestRepository;
 import busim.kkilogbu.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InterestService {
@@ -28,13 +30,23 @@ public class InterestService {
 
     @Transactional
     public void saveUserInterests(String socialUserId, List<String> touristCategoryNames, List<String> restaurantCategoryNames) {
-        Users users = userRepository.findBySocialUserId(socialUserId)
-                .orElseThrow(() -> new EntityNotFoundException("회원 가입 안되었습니다."));
+        log.info("유저의 관심사를 저장합니다. 유저 ID: {}", socialUserId);
 
+        // 유저 조회
+        Users users = userRepository.findBySocialUserId(socialUserId)
+                .orElseThrow(() -> {
+                    log.error("유저를 찾을 수 없습니다. 유저 ID: {}", socialUserId);
+                    return new EntityNotFoundException("회원 가입 안되었습니다.");
+                });
+
+        log.info("유저를 찾았습니다. 유저 ID: {}", users.getId());
 
         // 그대로 문자열 리스트를 저장
         List<String> touristCategories = new ArrayList<>(touristCategoryNames);
         List<String> restaurantCategories = new ArrayList<>(restaurantCategoryNames);
+
+        log.debug("관광 카테고리 리스트: {}", touristCategories);
+        log.debug("레스토랑 카테고리 리스트: {}", restaurantCategories);
 
         // 새로운 Interest 생성 및 저장
         Interest interest = Interest.builder()
@@ -43,13 +55,16 @@ public class InterestService {
                 .build();
 
         interestRepository.save(interest);
+        log.info("Interest가 성공적으로 저장되었습니다. Interest ID: {}", interest.getId());
 
-        // UserInterest 생성 및 저장 (빌더 사용 안함)
+
         UserInterest userInterest = new UserInterest(users, interest);
 
         userInterestRepository.save(userInterest);
-
+        log.info("UserInterest가 성공적으로 저장되었습니다. 유저 ID: {}, Interest ID: {}", users.getId(), interest.getId());
     }
+
+
     @Transactional(readOnly = true)
     public Map<String, Object> getUserInterests(String socialUserId) {
         // 1. 유저 조회
