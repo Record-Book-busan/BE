@@ -98,6 +98,7 @@ public class UserService {
         return UserInfoResponse.builder()
             .nickname(users.getNickname())
             .profileImage(users.getProfileImage())
+            .email(users.getEmail())
             .build();
     }
 
