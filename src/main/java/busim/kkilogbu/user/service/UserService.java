@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
-
+import java.util.Optional;
 
 
 @Slf4j
@@ -61,17 +61,36 @@ public class UserService {
     }
 
     @Transactional
-    public void saveUserConsent(Long userId, UserConsentRequest consentRequest) {
-        Users users = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다"));
+    public String saveUserConsent(String socialUserId, UserConsentRequest consentRequest) {
+        // 유저 정보를 조회
+        Users users = userRepository.findBySocialUserId(socialUserId)
+                .orElseThrow(() -> new EntityNotFoundException("유저 정보가 없습니다"));
 
-        UserConsent consent = UserConsent.builder()
-            .users(users)  // Users 객체 설정
-            .termsAgreed(consentRequest.isTermsAgreed())
-            .privacyAgreed(consentRequest.isPrivacyAgreed())
-            .build();
+        // 해당 유저의 기존 동의 여부를 조회
+        Optional<UserConsent> existingConsent = userConsentRepository.findByUsers(users);
 
-        userConsentRepository.save(consent);
+        if (existingConsent.isPresent()) {
+            UserConsent consent = existingConsent.get();
+
+            // 이미 모든 항목에 동의했는지 체크
+            if (consent.isTermsAgreed() && consent.isPrivacyAgreed()) {
+                // 이미 동의한 경우 메시지 반환
+                return "이미 동의하셨습니다.";
+            }
+        }
+
+        // 새로운 동의 정보 생성
+        UserConsent newConsent = UserConsent.builder()
+                .users(users)  // Users 객체 설정
+                .termsAgreed(consentRequest.isTermsAgreed())
+                .privacyAgreed(consentRequest.isPrivacyAgreed())
+                .build();
+
+        // 동의 정보 저장
+        userConsentRepository.save(newConsent);
+
+        // 동의 성공 메시지 반환
+        return "동의해주셔서 감사합니다.";
     }
 
     public UserInfoResponse getUserInfo() {
@@ -136,6 +155,7 @@ public class UserService {
             .address(address)
             .build();
     }
+
 
     @Transactional
     public void deleteUserAccount(Long userId, String accessToken) {

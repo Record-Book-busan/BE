@@ -1,5 +1,7 @@
 package busim.kkilogbu.security.util;
 
+import busim.kkilogbu.sociaLogin.appple.domain.dto.SignInResponse;
+import busim.kkilogbu.user.dto.SignInResponseMapper;
 import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -9,74 +11,76 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
 public class JwtUtil {
 
     private final UserRepository userRepository;
-    private final PrivateKey privateKey;
-    private final PublicKey publicKey;
+    private final SecretKey secretKey;
 
-    // Access Token 만료 시간 (1시간)
-    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60;
+    // Access Token 만료 시간 (180 일)
+    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 180;
 
-    private final long GUEST_ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
+    // 비회원(게스트)용 Access Token 만료 시간 (100일)
+    private final long GUEST_ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 100;
 
-    // Refresh Token 만료 시간 (20일)
-    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 20;
+    // Refresh Token 만료 시간 (200일)
+    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 200;
 
-    // RSA 비대칭키 생성자
-    public JwtUtil(UserRepository userRepository) throws Exception {
+    // HMAC 대칭키 생성자
+    public JwtUtil(UserRepository userRepository) {
         this.userRepository = userRepository;
 
-        // RSA 키쌍 생성
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(2048); // RSA 2048 비트 키 쌍 생성
-        KeyPair keyPair = keyGen.generateKeyPair();
-        this.privateKey = keyPair.getPrivate();
-        this.publicKey = keyPair.getPublic();
+        // 강력한 비밀 키 설정 (알파벳 대소문자, 숫자, 특수문자 포함)
+        String secret = "KJsd89sd!kd2#9jsd@sdklfSDF*832jsdJ2kds";  // 비밀 키는 반드시 안전하게 관리되어야 함
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
     }
 
-    // 회원용 Access Token 생성 (RSA 서명)
     public String createAccessToken(String socialUserId) {
+        ZonedDateTime issuedAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));  // 한국 시간으로 발급 시간 설정
+        Instant issuedAtInstant = issuedAt.toInstant();  // Instant로 변환
+        Instant expiration = issuedAtInstant.plus(Duration.ofDays(180));  // 만료 시간 계산
         return Jwts.builder()
-                .setSubject(socialUserId)  // userId를 subject로 설정
-                .claim("role", "USER")  // 역할을 USER로 설정
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))  // 만료 시간
-                .signWith(privateKey, SignatureAlgorithm.RS256)  // RSA-SHA256 서명
+                .setSubject(socialUserId)
+                .claim("role", "USER")
+                .setIssuedAt(Date.from(issuedAtInstant))  // 발급 시간 설정
+                .setExpiration(Date.from(expiration))  // 만료 시간 설정
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 비회원(게스트)용 Access Token 생성 (RSA 서명)
+
+    // 비회원(게스트)용 Access Token 생성 (HMAC 서명)
     public String createGuestToken() {
         String guestId = UUID.randomUUID().toString();  // 게스트 사용자용 UUID 생성
         return Jwts.builder()
                 .setSubject(guestId)  // guestId를 subject로 설정
                 .claim("role", "GUEST")  // 역할을 GUEST로 설정
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + GUEST_ACCESS_TOKEN_EXPIRATION))  // 만료 시간
-                .signWith(privateKey, SignatureAlgorithm.RS256)  // RSA-SHA256 서명
+                .setIssuedAt(Date.from(Instant.now()))  // 현재 UTC 시간으로 발급 시간 설정
+                .setExpiration(Date.from(Instant.now().plusMillis(GUEST_ACCESS_TOKEN_EXPIRATION)))  // UTC 시간으로 만료 시간 설정
+                .signWith(secretKey, SignatureAlgorithm.HS256)  // HMAC-SHA256 서명
                 .compact();
     }
 
-
-    // Refresh Token 생성 (RSA 서명)
+    // Refresh Token 생성 (HMAC 서명)
     public String createRefreshToken(String socialUserId) {
         return Jwts.builder()
                 .setSubject(socialUserId)
                 .claim("role", "REFRESH")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))  // 만료 시간
-                .signWith(privateKey, SignatureAlgorithm.RS256)  // RSA-SHA256 서명
+                .setIssuedAt(Date.from(Instant.now()))  // 현재 UTC 시간으로 발급 시간 설정
+                .setExpiration(Date.from(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION)))  // UTC 시간으로 만료 시간 설정
+                .signWith(secretKey, SignatureAlgorithm.HS256)  // HMAC-SHA256 서명
                 .compact();
     }
 
@@ -93,25 +97,23 @@ public class JwtUtil {
             Users users = userRepository.findBySocialUserId(socialUserId)
                     .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + socialUserId));
 
-            return users.getSocialUserId();  
+            return users.getSocialUserId();
         }
         throw new IllegalStateException("알 수 없는 사용자 유형");
     }
+
+    // JWT에서 역할(role) 클레임 추출
     public String extractRole(String token) {
         try {
-            // JWT에서 'role' 클레임을 추출
             String role = extractClaim(token, claims -> claims.get("role", String.class));
 
             if ("GUEST".equals(role)) {
-                // GUEST 역할일 경우, 추가 처리 로직이 필요하다면 여기에 작성
                 log.info("GUEST 사용자 역할 확인됨.");
-                return "GUEST";  // GUEST일 때 처리
+                return "GUEST";
             } else if ("USER".equals(role)) {
-                // USER 역할일 경우, 일반적인 처리
                 log.info("USER 역할 확인됨.");
                 return "USER";
             } else {
-                // 기타 알려지지 않은 역할에 대한 처리
                 log.warn("알 수 없는 사용자 역할: {}", role);
                 throw new IllegalStateException("알 수 없는 역할이 발견되었습니다: " + role);
             }
@@ -121,18 +123,16 @@ public class JwtUtil {
         }
     }
 
-
-
     // 클레임 추출
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // 모든 클레임 추출 (RSA 공개키로 서명 검증)
+    // 모든 클레임 추출 (HMAC 서명 검증)
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(publicKey)  // 공개키로 서명 검증
+                .setSigningKey(secretKey)  // 비밀키로 서명 검증
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
