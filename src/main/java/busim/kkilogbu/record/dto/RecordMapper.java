@@ -10,6 +10,7 @@ public class RecordMapper {
                 .title(record.getContents().getTitle())
                 .content(record.getContents().getContent())
                 .imageUrl(record.getContents().getImageUrl())
+                .address(record.getAddressInfo().getAddress())
                 .lat(record.getAddressInfo().getLatitude())
                 .lng(record.getAddressInfo().getLongitude())
                 .createdAt(record.getCreatedAt())

@@ -1,10 +1,7 @@
 package busim.kkilogbu.record.service;
 
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
-import busim.kkilogbu.api.touristAPI.domain.dto.TouristGridResponse;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristIdImageResponse;
-import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
-import busim.kkilogbu.api.touristAPI.domain.entity.Tourist;
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
 import busim.kkilogbu.contents.entity.Contents;
 import busim.kkilogbu.global.Ex.BaseException;
@@ -25,7 +22,6 @@ import busim.kkilogbu.record.dto.RecordMapper;
 import busim.kkilogbu.record.dto.UpdateRecordRequest;
 import busim.kkilogbu.record.entity.Records;
 import busim.kkilogbu.record.repository.RecordRepository;
-import busim.kkilogbu.security.service.CustomUserDetailsService;
 import busim.kkilogbu.user.entity.users.Users;
 import busim.kkilogbu.user.service.BlackListService;
 import busim.kkilogbu.user.service.UserService;
@@ -48,27 +44,28 @@ public class RecordService {
 
 
 	@Transactional(readOnly = true)
-	public List<TouristIdImageResponse> getTouristGrid(String query, int offset, int limit) {
+	public List<TouristIdImageResponse> getTouristGrid(int offset, int limit) {
 		int page = offset / limit;  // offset을 페이지 번호로 변환
 
 		Pageable pageable = PageRequest.of(page, limit); // 페이지와 사이즈 설정
-		Page<Tourist> tourists = touristRepository.findByMultipleFields(query, pageable);
+		// Page<Tourist> tourists = touristRepository.findByMultipleFields(query, pageable);
+		Page<Records> records = recordRepository.findAll(pageable);
 
 		// Tourist 객체에서 id와 imageUrl만 추출하여 TouristIdImageResponse로 변환
-		return tourists.stream()
-				.map(tourist -> new TouristIdImageResponse(tourist.getId(), tourist.getImageUrl()))  // id와 imageUrl 추출
+		return records.stream()
+				.map(tourist -> new TouristIdImageResponse(tourist.getId(), tourist.getContents().getImageUrl()))  // id와 imageUrl 추출
 				.collect(Collectors.toList());
 	}
 
 
-	@Transactional(readOnly = true)
-	public TouristGridResponse getTouristDetail(Long touristId) {
-		// touristId로 관광지 조회
-		Tourist tourist = touristRepository.findById(touristId)
-				.orElseThrow(() -> new BaseException("관광지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
+
+	@Transactional(readOnly = true)
+	public RecordDetailResponse getTouristDetail(Long id) {
+		Records records = recordRepository.findById(id)
+				.orElseThrow(() -> new BaseException("관광지에 대한 기록을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 		// Tourist 엔티티를 TouristGridResponse로 변환하여 반환
-		return TouristMapper.toGridResponse(tourist);
+		return RecordMapper.toCreateRecordDetailResponse(records);
 	}
 
 	@Transactional(readOnly = true)

@@ -1,18 +1,29 @@
 package busim.kkilogbu.user.controller;
 
 
+import java.util.List;
+
+import busim.kkilogbu.bookmark.dto.BookmarkResponse;
+import busim.kkilogbu.record.dto.MyRecordResponse;
 import busim.kkilogbu.security.util.JwtUtil;
 import busim.kkilogbu.sociaLogin.appple.domain.dto.*;
 import busim.kkilogbu.sociaLogin.appple.service.AppleLoginService;
 
+import busim.kkilogbu.user.dto.RequestUserNickname;
 import busim.kkilogbu.user.dto.UserDto;
 
+import busim.kkilogbu.user.dto.UserImageUpdateRequest;
+import busim.kkilogbu.user.dto.UserNameUpdateRequest;
+import busim.kkilogbu.user.dto.UserInfoResponse;
 import busim.kkilogbu.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.persistence.EntityNotFoundException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-
+import org.hibernate.query.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -53,7 +64,6 @@ public class UserController {
     @PostMapping("/signin/anonymous")
     public ResponseEntity<String> guestSignIn() {
         try {
-
             // 비회원용 JWT 생성
             String guestToken = jwtUtil.createGuestToken();
 
@@ -88,53 +98,56 @@ public class UserController {
 
 
 
+    @Operation(
+            summary = "회원 정보 조회",
+            description = "회원의 정보를 조회합니다."
+    )
+   @GetMapping
+   public ResponseEntity<UserInfoResponse> getUserInfo(){
+       return ResponseEntity.ok(userService.getUserInfo());
+   }
 
-    /**
-     * 유저 정보 조회
-     */
-//    @GetMapping
-//    public ResponseEntity<UserInfoResponse> getUserInfo(){
-//        return ResponseEntity.ok(userService.getUserInfo());
-//    }
+   /**
+    * 내 기록 조회
+    */
+   @GetMapping("/record")
+   public ResponseEntity<List<MyRecordResponse>> getMyRecord(
+       @Parameter(description = "데이터의 시작점", example = "0") @RequestParam(defaultValue = "0") int offset,
+       @Parameter(description = "한 번에 가져올 데이터 수", example = "9") @RequestParam(defaultValue = "9") int limit
+   ){
+       return ResponseEntity.ok(userService.getMyRecord(offset, limit));
+   }
 
-//    /**
-//     * 내 기록 조회
-//     */
-//    @GetMapping("/record")
-//    public ResponseEntity<Slice<MyRecordResponse>> getMyRecord(@PageableDefault(size = 10, page = 0) Pageable pageable){
-//        return ResponseEntity.ok(userService.getMyRecord(pageable));
-//    }
-//
-//    /**
-//     * 북마크 조회
-//     */
-//    @GetMapping("/bookmark")
-//    public ResponseEntity<Slice<BookmarkResponse>> getBookmark(@PageableDefault(size = 10, page = 0) Pageable pageable, @PathParam("type") String type){
-//        return ResponseEntity.ok(userService.getBookmark(pageable, type));
-//    }
+    @Operation(
+            summary = "북마크 조회",
+            description = "북마크한 기록을 조회합니다."
+    )
+    @GetMapping("/bookmark/record")
+    public ResponseEntity<List<BookmarkResponse>> getBookmark(){
+        return ResponseEntity.ok(userService.getBookmark());
+    }
 
     @PostMapping
     public ResponseEntity<?> userInfo(@RequestBody UserDto user){
         return ResponseEntity.ok(userService.userInfo(user));
     }
 
-//    /**
-//     * 닉네임 중복 체크
-//     */
-//    @PostMapping("/name/check")
-//    public ResponseEntity<Boolean> checkNicknameDuplicate(@Valid @RequestBody(required = true) RequestUserNickname request){
-//        return ResponseEntity.ok(userService.checkUsernameDuplicate(request.getNickName()));
-//    }
+   @PostMapping("/name/check")
+   public ResponseEntity<Boolean> checkNicknameDuplicate(@Valid @RequestBody(required = true) RequestUserNickname request){
+       return ResponseEntity.ok(userService.checkUsernameDuplicate(request.getNickName()));
+   }
 
-//    /**
-//     * 닉네임 변경, 프로필 사진 변경
-//     */
-//    @PostMapping("/info")
-//    // TODO : 프로필 사진 변경
-//    public ResponseEntity<?> changeUserInfo(@RequestBody UserInfoRequest request){
-//        userService.changeUserInfo(request);
-//        return ResponseEntity.ok().build();
-//    }
+   @PostMapping("/name")
+   public ResponseEntity<?> changeUserImage(@RequestBody(required = true) UserNameUpdateRequest request){
+       userService.changeUserImage(request.getNickName());
+       return ResponseEntity.ok().build();
+   }
+
+   @PostMapping("/image")
+    public ResponseEntity<?> changeUserNickname(@RequestBody(required = true) UserImageUpdateRequest request){
+        userService.changeUserNickname(request.getProfileImage());
+        return ResponseEntity.ok().build();
+    }
 
 //    /**
 //     * 유저 카테고리 변경

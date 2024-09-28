@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import busim.kkilogbu.record.entity.Records;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +20,7 @@ public interface RecordRepository extends JpaRepository<Records, Long> {
 	List<Records> findByAddressInfoIn(List<Long> addressInfoIds);
 	@Query("SELECT r FROM Records r JOIN FETCH r.addressInfo JOIN FETCH r.contents WHERE r.id = :id")
 	Optional<Records> findFetchById(Long id);
-	Slice<Records> findByUsers(Users users, Pageable pageable);
+	Page<Records> findByUsers(Users users, Pageable pageable);
 	Optional<Records> findByUsersAndId(Users users, Long id);
+	Page<Records> findAll(Pageable pageable);
 }
