@@ -30,7 +30,7 @@ public class InterestService {
 
     @Transactional
     public void saveUserInterests(String socialUserId, List<String> touristCategoryNames, List<String> restaurantCategoryNames) {
-        log.info("유저의 관심사를 저장합니다. 유저 ID: {}", socialUserId);
+        log.info("유저의 관심사를 저장하거나 업데이트합니다. 유저 ID: {}", socialUserId);
 
         // 유저 조회
         Users users = userRepository.findBySocialUserId(socialUserId)
@@ -39,29 +39,43 @@ public class InterestService {
                     return new EntityNotFoundException("회원 가입 안되었습니다.");
                 });
 
-        log.info("유저를 찾았습니다. 유저 ID: {}", users.getId());
+        // 유저의 기존 관심사 조회
+        List<UserInterest> existingUserInterests = userInterestRepository.findByUsers(users);
 
-        // 그대로 문자열 리스트를 저장
-        List<String> touristCategories = new ArrayList<>(touristCategoryNames);
-        List<String> restaurantCategories = new ArrayList<>(restaurantCategoryNames);
+        List<String> touristCategories = touristCategoryNames != null ? new ArrayList<>(touristCategoryNames) : new ArrayList<>();
+        List<String> restaurantCategories = restaurantCategoryNames != null ? new ArrayList<>(restaurantCategoryNames) : new ArrayList<>();
 
         log.debug("관광 카테고리 리스트: {}", touristCategories);
         log.debug("레스토랑 카테고리 리스트: {}", restaurantCategories);
 
-        // 새로운 Interest 생성 및 저장
-        Interest interest = Interest.builder()
-                .touristCategories(touristCategories)
-                .restaurantCategories(restaurantCategories)
-                .build();
+        if (existingUserInterests != null && !existingUserInterests.isEmpty()) {
+            // 기존 관심사가 있으면 각 관심사를 업데이트
+            for (UserInterest userInterest : existingUserInterests) {
+                Interest existingInterest = userInterest.getInterest();
 
-        interestRepository.save(interest);
-        log.info("Interest가 성공적으로 저장되었습니다. Interest ID: {}", interest.getId());
+                // 동일하지 않은 경우에만 업데이트
+                if (!existingInterest.getTouristCategories().equals(touristCategories) ||
+                        !existingInterest.getRestaurantCategories().equals(restaurantCategories)) {
+                    existingInterest.updateCategories(touristCategories, restaurantCategories);
+                    interestRepository.save(existingInterest);  // 업데이트된 Interest 저장
+                    log.info("기존 Interest가 업데이트되었습니다. Interest ID: {}", existingInterest.getId());
+                }
+            }
+        } else {
+            // 관심사가 없으면 새로 생성
+            Interest newInterest = Interest.builder()
+                    .touristCategories(touristCategories)
+                    .restaurantCategories(restaurantCategories)
+                    .build();
 
+            interestRepository.save(newInterest);
+            log.info("새로운 Interest가 생성되었습니다. Interest ID: {}", newInterest.getId());
 
-        UserInterest userInterest = new UserInterest(users, interest);
-
-        userInterestRepository.save(userInterest);
-        log.info("UserInterest가 성공적으로 저장되었습니다. 유저 ID: {}, Interest ID: {}", users.getId(), interest.getId());
+            // 새로운 UserInterest를 생성하여 연결
+            UserInterest newUserInterest = new UserInterest(users, newInterest);
+            userInterestRepository.save(newUserInterest);  // 새로운 UserInterest 저장
+            log.info("새로운 UserInterest가 생성되었습니다. 유저 ID: {}, Interest ID: {}", users.getId(), newInterest.getId());
+        }
     }
 
 

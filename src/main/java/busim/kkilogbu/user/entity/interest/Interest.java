@@ -39,4 +39,19 @@ public class Interest {
     @Builder.Default
     @OneToMany(mappedBy = "interest", cascade = CascadeType.ALL)
     private List<UserInterest> userInterests = new ArrayList<>();
+
+    // 기존 카테고리 리스트를 업데이트하는 메서드
+    public Interest updateCategories(List<String> newTouristCategories, List<String> newRestaurantCategories) {
+        // 관광지 카테고리가 null이 아닌 경우에만 업데이트
+        if (newTouristCategories != null) {
+            this.touristCategories = new ArrayList<>(newTouristCategories);
+        }
+
+        // 레스토랑 카테고리가 null이 아닌 경우에만 업데이트
+        if (newRestaurantCategories != null) {
+            this.restaurantCategories = new ArrayList<>(newRestaurantCategories);
+        }
+
+        return this;
+    }
 }
