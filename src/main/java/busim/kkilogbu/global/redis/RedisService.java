@@ -6,10 +6,14 @@ import java.util.stream.Collectors;
 
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantMapper;
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantResponseDto;
+import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
 import busim.kkilogbu.api.restaurantAPI.repository.RestaurantRepository;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristResponseDto;
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResult;
@@ -36,7 +40,6 @@ import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.repository.PlaceRepository;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.repository.RecordRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -313,17 +316,31 @@ public class RedisService {
 	 * Restaurant 데이터를 Redis에 저장
 	 */
 	public void saveRestaurantDataInRedis(){
-		List<RestaurantResponseDto> allRestaurants = restaurantRepository.findAll().stream()
+		int batchSize = 100; // 한 번에 처리할 배치 크기
+		int page = 0;
+		boolean hasMoreData = true;
+
+		while (hasMoreData) {
+			PageRequest pageRequest = PageRequest.of(page, batchSize);
+			Page<Restaurant> restaurantPage = restaurantRepository.findAll(pageRequest);
+
+			List<RestaurantResponseDto> allRestaurants = restaurantPage.stream()
 				.map(RestaurantMapper::toRestaurantResponseDto)  // Mapper 클래스를 사용하여 변환
 				.toList();
 
-		// 각 RestaurantResponseDto 데이터를 Redis에 저장
-		allRestaurants.forEach(restaurant -> saveTotalRestaurantInRedis(
+			// 각 RestaurantResponseDto 데이터를 Redis에 저장
+			allRestaurants.forEach(restaurant -> saveTotalRestaurantInRedis(
 				restaurant.getLatitude(),
 				restaurant.getLongitude(),
 				restaurant,
 				"restaurant",
 				RestaurantCategory.fromType(restaurant.getType())));  // type을 카테고리처럼 사용
+
+			// 다음 페이지로 이동
+			page++;
+			// 더 이상 데이터가 없을 경우 루프를 종료
+			hasMoreData = restaurantPage.hasNext();
+		}
 	}
 
 
@@ -346,22 +363,17 @@ public class RedisService {
 				TouristCategory.fromString(tourist.getCategoryLarge())));  // categoryLarge를 사용해 대분류 저장
 	}
 
-	@PostConstruct
-	public void init() {
-		dailyRedisUpdateAt4AM();
-	}
-
 	/**
 	 * Redis 데이터 주기적 업데이트 (스케줄링)
 	 */
 	@Scheduled(cron = "0 0 0 19 * *", zone = "Asia/Seoul")
 	public void dailyRedisUpdateAt4AM() {
 		deleteKey();
-		saveRecordDataInRedis();
 		saveTouristDataInRedis();
-		saveRestaurantDataInRedis();
-		saveToiletDataInRedis();
 		saveParkDataInRedis();
+		saveRecordDataInRedis();
+		saveToiletDataInRedis();
+		saveRestaurantDataInRedis();
 	}
 
 	private void deleteKey() {
