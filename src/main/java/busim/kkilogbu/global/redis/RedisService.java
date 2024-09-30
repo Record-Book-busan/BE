@@ -36,6 +36,7 @@ import busim.kkilogbu.place.dto.PlaceMarkResponse;
 import busim.kkilogbu.place.repository.PlaceRepository;
 import busim.kkilogbu.record.dto.RecordMarkResponse;
 import busim.kkilogbu.record.repository.RecordRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -346,6 +347,10 @@ public class RedisService {
 				TouristCategory.fromString(tourist.getCategoryLarge())));  // categoryLarge를 사용해 대분류 저장
 	}
 
+	@PostConstruct
+	public void init() {
+		dailyRedisUpdateAt4AM();
+	}
 
 	/**
 	 * Redis 데이터 주기적 업데이트 (스케줄링)
