@@ -16,4 +16,10 @@ public class RedisController {
 		redisService.dailyRedisUpdateAt4AM();
 		return "ok";
 	}
+
+	@GetMapping("/redis1")
+	public String redis1() {
+		redisService.dailyRestaurantRedisUpdateAt4AM();
+		return "ok";
+	}
 }
