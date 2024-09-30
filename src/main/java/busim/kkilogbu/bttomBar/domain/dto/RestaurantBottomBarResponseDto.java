@@ -1,4 +1,4 @@
-package busim.kkilogbu.place.dto;
+package busim.kkilogbu.bttomBar.domain.dto;
 
 
 import lombok.Builder;
