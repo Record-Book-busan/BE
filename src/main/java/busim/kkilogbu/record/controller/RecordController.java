@@ -1,5 +1,6 @@
 package busim.kkilogbu.record.controller;
 
+import busim.kkilogbu.api.externalTouristAPI.service.ExternalTouristService;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristIdImageResponse;
 import busim.kkilogbu.bookmark.service.BookmarkService;
 import busim.kkilogbu.global.Ex.BaseException;
@@ -67,16 +68,11 @@ public class RecordController {
 
 	}
 
-
-
-
-/*--------------------------------- 페이크 기록 글 조회 ---------------------------------*/
-	 // TODO 페이크 기록 글 조회
 	@GetMapping("/images")
 	public ResponseEntity<List<TouristIdImageResponse>> fetchTouristImages(
 			// @Parameter(description = "검색어", example = "서울") @RequestParam String query,
 			@Parameter(description = "데이터의 시작점", example = "0") @RequestParam(defaultValue = "0") int offset,
-			@Parameter(description = "한 번에 가져올 데이터 수", example = "9") @RequestParam(defaultValue = "9") int limit) {
+			@Parameter(description = "한 번에 가져올 데이터 수", example = "9") @RequestParam(defaultValue = "6") int limit) {
 		List<TouristIdImageResponse> imageUrls = recordService.getTouristGrid(offset, limit);
 		return ResponseEntity.ok(imageUrls);
 	}

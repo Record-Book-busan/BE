@@ -50,5 +50,6 @@ springdoc:
     display-query-params-without-oauth2: true
     doc-expansion: none
 
-
-
+data:
+  tourInfo:
+    serviceKey: ${TOUR_API_KEY}
