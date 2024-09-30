@@ -1,16 +1,12 @@
 package busim.kkilogbu.place.service;
 
 import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantMapper;
-import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantResponseDto;
 
 import busim.kkilogbu.api.restaurantAPI.repository.RestaurantRepository;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristMapper;
-import busim.kkilogbu.api.touristAPI.domain.dto.TouristResponseDto;
 
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
 import busim.kkilogbu.global.Ex.BaseException;
-import busim.kkilogbu.place.dto.RestaurantCategory;
-import busim.kkilogbu.place.dto.TouristCategory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
