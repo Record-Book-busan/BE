@@ -1,8 +1,9 @@
 package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
+import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantResponseDto;
 import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
+import busim.kkilogbu.bttomBar.domain.dto.RestaurantBottomBarResponseDto;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
-import busim.kkilogbu.place.dto.RestaurantBottomBarResponseDto;
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.SearchResultResponse;
 
@@ -77,7 +78,7 @@ public class RestaurantMapper {
 
     public static List<RestaurantBottomBarResponseDto> toRestaurantBottomBarResponseDtoList(List<Restaurant> restaurants) {
         return restaurants.stream()
-                .map(busim.kkilogbu.place.dto.RestaurantMapper::toRestaurantBottomBarResponseDto)
+                .map(RestaurantMapper::toRestaurantBottomBarResponseDto)
                 .collect(Collectors.toList());
     }
 }
