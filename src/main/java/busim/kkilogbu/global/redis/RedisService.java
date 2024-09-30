@@ -366,13 +366,17 @@ public class RedisService {
 	/**
 	 * Redis 데이터 주기적 업데이트 (스케줄링)
 	 */
-	@Scheduled(cron = "0 0 0 19 * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 0 4 * * *", zone = "Asia/Seoul")
 	public void dailyRedisUpdateAt4AM() {
 		deleteKey();
 		saveTouristDataInRedis();
 		saveParkDataInRedis();
 		saveRecordDataInRedis();
 		saveToiletDataInRedis();
+	}
+
+	@Scheduled(cron = "0 30 4 * * *", zone = "Asia/Seoul")
+	public void dailyRestaurantRedisUpdateAt4AM() {
 		saveRestaurantDataInRedis();
 	}
 
