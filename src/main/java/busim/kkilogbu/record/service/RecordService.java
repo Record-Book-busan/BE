@@ -1,6 +1,7 @@
 package busim.kkilogbu.record.service;
 
 import busim.kkilogbu.addressInfo.entity.AddressInfo;
+import busim.kkilogbu.api.externalTouristAPI.service.ExternalTouristService;
 import busim.kkilogbu.api.touristAPI.domain.dto.TouristIdImageResponse;
 import busim.kkilogbu.api.touristAPI.repository.TouristRepository;
 import busim.kkilogbu.contents.entity.Contents;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class RecordService {
 	private final AddressInfoRepository addressInfoRepository;
 	private final RedisService redisService;
 	private final BlackListService blackListService;
-	private final TouristRepository touristRepository;
+	private final ExternalTouristService externalTouristService;
 	private final UserService userService;
 
 
@@ -50,11 +52,15 @@ public class RecordService {
 		Pageable pageable = PageRequest.of(page, limit); // 페이지와 사이즈 설정
 		// Page<Tourist> tourists = touristRepository.findByMultipleFields(query, pageable);
 		Page<Records> records = recordRepository.findAll(pageable);
-
+		List<TouristIdImageResponse> externalRecord = externalTouristService.fetchTourInfoDate();
 		// Tourist 객체에서 id와 imageUrl만 추출하여 TouristIdImageResponse로 변환
-		return records.stream()
-				.map(tourist -> new TouristIdImageResponse(tourist.getId(), tourist.getContents().getImageUrl()))  // id와 imageUrl 추출
-				.collect(Collectors.toList());
+		List<TouristIdImageResponse> recordDto = records.stream()
+			.map(tourist -> new TouristIdImageResponse(tourist.getId(),
+				tourist.getContents().getImageUrl()))  // id와 imageUrl 추출
+			.toList();
+		recordDto.forEach(System.out::println);
+		return Stream.concat(recordDto.stream(), externalRecord.stream())
+			.collect(Collectors.toList());
 	}
 
 
@@ -168,13 +174,4 @@ public class RecordService {
 		}
 		recordRepository.delete(records);
 	}
-
-//	private RecordMarkResponse createRecordMarkResponse(Records records) {
-//		return RecordMarkResponse.builder()
-//			.id(records.getId())
-//			.lat(records.getAddressInfo().getLatitude())
-//			.lng(records.getAddressInfo().getLongitude())
-//			.imageUrl(records.getContents().getImageUrl())
-//			.build();
-//	}
 }
