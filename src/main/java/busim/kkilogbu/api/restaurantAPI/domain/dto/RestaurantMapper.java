@@ -2,8 +2,12 @@ package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
 import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
+import busim.kkilogbu.place.dto.RestaurantBottomBarResponseDto;
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.SearchResultResponse;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RestaurantMapper {
 
@@ -58,5 +62,22 @@ public class RestaurantMapper {
                 .phoneNumber(restaurant.getPhoneNumber())
                 .businessType(restaurant.getBusinessType())
                 .build();
+    }
+
+    public static RestaurantBottomBarResponseDto toRestaurantBottomBarResponseDto(Restaurant restaurant) {
+        return RestaurantBottomBarResponseDto.builder()
+                .id(restaurant.getId())
+                .title(restaurant.getTitle())
+                .categories(restaurant.getCategories())
+                .detailedInformation(restaurant.getDetailedInformation())
+                .build();
+    }
+
+
+
+    public static List<RestaurantBottomBarResponseDto> toRestaurantBottomBarResponseDtoList(List<Restaurant> restaurants) {
+        return restaurants.stream()
+                .map(busim.kkilogbu.place.dto.RestaurantMapper::toRestaurantBottomBarResponseDto)
+                .collect(Collectors.toList());
     }
 }
