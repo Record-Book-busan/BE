@@ -22,7 +22,7 @@ public class ExternalTouristService {
 	private final Random random = new Random();
 	@Value("${data.tourInfo.serviceKey}")
 	private String SERVICE_KEY;
-	private static final int NUM_OF_ROWS = 3;
+	private static final int NUM_OF_ROWS = 12;
 	private static final String KEYWORD = "부산";
 	private static final String BASE_URL = "https://apis.data.go.kr/B551011/KorService1/searchKeyword1";
 	private static final String ARRANGE = "R";
