@@ -30,7 +30,8 @@ public class ExternalTouristService {
 
 	public List<TouristIdImageResponse> fetchTourInfoDate(){
 		RestTemplate restTemplate = new RestTemplate();
-		int page = random.nextInt(130) + 1;
+		int page = random.nextInt(57) + 1;
+		System.out.println("page = " + page);
 		String apiUrl = buildUrl(page);
 		String responseString = restTemplate.getForObject(apiUrl, String.class);
 		List<TouristIdImageResponse> responses = new ArrayList<>();
