@@ -21,18 +21,21 @@ public class BottomBarRestaurantService {
     private final RestaurantRepository restaurantRepository;
 
 
-    public List<RestaurantBottomBarResponseDto> getRestaurants(Integer page, Integer size, CategoryType category) {
-        Pageable pageable = PageRequest.of(page, size);
+    public List<RestaurantBottomBarResponseDto> getRestaurants(Integer offset, Integer limit, CategoryType category) {
+        // offset과 limit을 사용해 PageRequest 생성 (offset / limit = pageNumber)
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+
         List<Restaurant> restaurants;
-        log.info("서비스 카테고리 string : " + category.getDescription()) ;
-        // 카테고리가 ALL이면 모든 데이터를 반환, 그렇지 않으면 해당 카테고리로 필터링
+        log.info("서비스 카테고리: " + category.getDescription());
+
+        // 카테고리가 ALL일 경우는 findAll을 사용하고, 그 외에는 카테고리를 필터링
         if (category == CategoryType.ALL) {
             restaurants = restaurantRepository.findAll(pageable).getContent();
         } else {
-
             restaurants = restaurantRepository.findByCategory(category.getDescription(), pageable);
         }
-        log.info(" 음식점  : " + restaurants) ;
+
+        log.info("가져온 음식점 목록: " + restaurants);
 
         // 엔티티 리스트를 DTO 리스트로 변환하여 반환
         return RestaurantMapper.toRestaurantBottomBarResponseDtoList(restaurants);

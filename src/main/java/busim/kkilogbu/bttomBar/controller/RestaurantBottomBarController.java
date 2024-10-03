@@ -17,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/test/place/bottom-bar")
+@RequestMapping("/kki/place/bottom-bar")
 @RequiredArgsConstructor
 public class RestaurantBottomBarController {
 
@@ -27,14 +27,14 @@ public class RestaurantBottomBarController {
     // 페이징 및 카테고리 필터링 (디폴트로 TOURISM_RECOMMENDED 사용)
     @GetMapping
     public ResponseEntity<List<RestaurantBottomBarResponseDto>> getRestaurants(
-            @RequestParam(required = false, defaultValue = "4", name = "page") Integer page,    // 디폴트 페이지 0
-            @RequestParam(required = false, defaultValue = "10", name = "size") Integer size,   // 디폴트 항목 수 10
+            @RequestParam(required = false, defaultValue = "0", name = "offset") Integer offset,    // 디폴트 offset 0
+            @RequestParam(required = false, defaultValue = "10", name = "limit") Integer limit,     // 디폴트 limit 10
             @RequestParam(required = false, defaultValue = "TOURISM_RECOMMENDED", name = "category") CategoryType category // 디폴트 카테고리: TOURISM_RECOMMENDED
     ) {
 
         log.info("바텀바 조회를 시작 합니다. 카테고리 : " + category);
         // 서비스 레이어로 페이지, 크기, 카테고리 설명을 전달하여 식당 목록을 받아옴
-        List<RestaurantBottomBarResponseDto> restaurants = restaurantService.getRestaurants(page, size, category);
+        List<RestaurantBottomBarResponseDto> restaurants = restaurantService.getRestaurants(offset, limit, category);
         return ResponseEntity.ok(restaurants);  // 받은 데이터를 클라이언트에게 반환
     }
 }
