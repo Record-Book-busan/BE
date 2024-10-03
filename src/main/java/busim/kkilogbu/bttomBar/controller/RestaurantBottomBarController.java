@@ -17,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/kki/place/bottom-bar")
+@RequestMapping("/kkilogbu/place/bottom-bar")
 @RequiredArgsConstructor
 public class RestaurantBottomBarController {
 
