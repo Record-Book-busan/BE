@@ -30,8 +30,10 @@ public class SecurityConfig {
                         // 로그인 경로는 인증 없이 접근 가능
                         .requestMatchers("/kkilogbu/users/signin/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/test/**").permitAll()
-                        // Swagger 및 정적 리소스 경로 접근 허용
+
+                    .requestMatchers("/redis").permitAll()
+                    .requestMatchers("/redis1").permitAll()
+                    // Swagger 및 정적 리소스 경로 접근 허용
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/static/**", "/css/**", "/image/**", "/favicon.ico/**").permitAll()
                         // 회원 전용 경로 설정
                         .requestMatchers("/kkilogbu/record/auth/**").hasAuthority("USER")
