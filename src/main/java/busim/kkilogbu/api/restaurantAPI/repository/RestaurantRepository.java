@@ -18,4 +18,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
             "LOWER(r.businessType) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Restaurant> findByMultipleFields(@Param("query") String query, Pageable pageable);
 
+    @Query("SELECT r FROM Restaurant r JOIN r.categories c WHERE c = :category")
+    List<Restaurant> findByCategory(@Param("category") String category, Pageable pageable);
+
 }

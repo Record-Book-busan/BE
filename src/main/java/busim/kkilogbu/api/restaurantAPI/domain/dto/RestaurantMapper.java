@@ -1,9 +1,14 @@
 package busim.kkilogbu.api.restaurantAPI.domain.dto;
 
+import busim.kkilogbu.api.restaurantAPI.domain.dto.RestaurantResponseDto;
 import busim.kkilogbu.api.restaurantAPI.domain.entity.Restaurant;
+import busim.kkilogbu.bttomBar.domain.dto.RestaurantBottomBarResponseDto;
 import busim.kkilogbu.place.dto.PlaceDetailResponse;
 import busim.kkilogbu.place.dto.RestaurantCategory;
 import busim.kkilogbu.place.dto.SearchResultResponse;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RestaurantMapper {
 
@@ -23,7 +28,6 @@ public class RestaurantMapper {
                 .businessType(restaurant.getBusinessType())
                 .detailedInformation(restaurant.getDetailedInformation())
                 .imageUrl(image)
-                .restaurantName(restaurant.getRestaurantName())
                 .categories(restaurant.getCategories()) // 카테고리 리스트를 DTO로 변환
                 .type(restaurant.getType())
                 .build();
@@ -47,7 +51,7 @@ public class RestaurantMapper {
     public static PlaceDetailResponse toPlaceDetailResponse(Restaurant restaurant) {
         return PlaceDetailResponse.builder()
                 .id(restaurant.getId())
-                .title(restaurant.getRestaurantName()) // 맛집 이름
+                .title(restaurant.getTitle()) // 맛집 이름
                 .address(restaurant.getAddress()) // 주소
                 .lng(restaurant.getLongitude()) // 경도
                 .lat(restaurant.getLatitude()) // 위도
@@ -58,5 +62,24 @@ public class RestaurantMapper {
                 .phoneNumber(restaurant.getPhoneNumber())
                 .businessType(restaurant.getBusinessType())
                 .build();
+    }
+
+    public static RestaurantBottomBarResponseDto toRestaurantBottomBarResponseDto(Restaurant restaurant) {
+        return RestaurantBottomBarResponseDto.builder()
+                .id(restaurant.getId())
+                .title(restaurant.getTitle())
+                .categories(restaurant.getCategories())
+                .detailedInformation(restaurant.getDetailedInformation())
+                .images(restaurant.getImageUrls().get(0))
+                .build();
+    }
+
+
+
+
+    public static List<RestaurantBottomBarResponseDto> toRestaurantBottomBarResponseDtoList(List<Restaurant> restaurants) {
+        return restaurants.stream()
+                .map(RestaurantMapper::toRestaurantBottomBarResponseDto)
+                .collect(Collectors.toList());
     }
 }

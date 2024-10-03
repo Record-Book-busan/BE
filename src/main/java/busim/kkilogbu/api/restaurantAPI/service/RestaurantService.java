@@ -41,25 +41,26 @@ public class RestaurantService {
 			for (CSVRecord csvRecord : csvRecords) {
 				log.debug("처리 중인 레코드: {}", csvRecord);  // 각 레코드의 전체 데이터 로그로 출력
 
-				// 레스토랑 객체 빌드 시작 전 파라미터 로그로 확인
-				log.debug("제목: {}, 도로명주소: {}, 지번주소: {}, 위도: {}, 경도: {}, 대표전화: {}, 업태구분: {}, 상세내용: {}, 이미지: {}, 분류: {}, 유형: {}",
-						csvRecord.get("제목"), csvRecord.get("도로명주소"), csvRecord.get("지번주소"),
-						csvRecord.get("위도"), csvRecord.get("경도"), csvRecord.get("식당대표전화번호"),
-						csvRecord.get("업태구분명"), csvRecord.get("상세내용"), csvRecord.get("이미지"),
-						csvRecord.get("분류"), csvRecord.get("유형"));
+//				// 레스토랑 객체 빌드 시작 전 파라미터 로그로 확인
+//				log.debug("식당명_x: {}, 도로명주소: {}, 지번주소: {}, 위도: {}, 경도: {}, 대표전화: {}, 업태구분: {}, 상세내용: {}, 이미지: {}, 분류: {}, 유형: {}",
+//						csvRecord.get("식당명_x"), csvRecord.get("도로명주소"), csvRecord.get("지번주소"),
+//						csvRecord.get("위도"), csvRecord.get("경도"), csvRecord.get("식당대표전화번호"),
+//						csvRecord.get("업태구분명"), csvRecord.get("상세내용"), csvRecord.get("이미지"),
+//						csvRecord.get("분류"), csvRecord.get("유형"));
 
 				Restaurant restaurant = Restaurant.builder()
-						.title(csvRecord.get("제목"))
-						.address(csvRecord.get("도로명주소"))  // 주소를 도로명주소로 수정
+						.title(csvRecord.get("식당명_x"))
+						.address(csvRecord.get("도로명주소"))
 						.landLotAddress(csvRecord.get("지번주소"))  // 지번주소는 별도 필드로 처리
-						.latitude(parseDouble(csvRecord.get("위도")))
-						.longitude(parseDouble(csvRecord.get("경도")))
+						.latitude(parseDouble(csvRecord.get("식당위도")))
+						.longitude(parseDouble(csvRecord.get("식당경도")))
 						.phoneNumber(csvRecord.get("식당대표전화번호"))
-						.businessType(csvRecord.get("업태구분명"))
-						.detailedInformation(csvRecord.get("상세내용"))
+						.businessType(csvRecord.get("영업신고증업태명"))
+						.detailedInformation(csvRecord.get("음식점소개내용"))
 						.imageUrls(parseImageUrls(csvRecord.get("이미지")))  // 쉼표로 구분된 이미지 처리
 						.categories(parseCategories(csvRecord.get("분류")))  // 쉼표로 구분된 카테고리 처리
 						.type(csvRecord.get("유형"))  // 유형 처리
+						.source(csvRecord.get("출처"))
 						.build();
 
 				restaurantList.add(restaurant);

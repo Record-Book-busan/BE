@@ -30,6 +30,7 @@ public class SecurityConfig {
                         // 로그인 경로는 인증 없이 접근 가능
                         .requestMatchers("/kkilogbu/users/signin/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
+
                     .requestMatchers("/redis").permitAll()
                     .requestMatchers("/redis1").permitAll()
                     // Swagger 및 정적 리소스 경로 접근 허용
