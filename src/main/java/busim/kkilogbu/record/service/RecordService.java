@@ -49,7 +49,7 @@ public class RecordService {
 	public List<TouristIdImageResponse> getTouristGrid(int offset, int limit) {
 		int page = offset / limit;  // offset을 페이지 번호로 변환
 
-		Pageable pageable = PageRequest.of(page, limit); // 페이지와 사이즈 설정
+		Pageable pageable = PageRequest.of(page, 20); // 페이지와 사이즈 설정
 		// Page<Tourist> tourists = touristRepository.findByMultipleFields(query, pageable);
 		Page<Records> records = recordRepository.findAll(pageable);
 		List<TouristIdImageResponse> externalRecord = externalTouristService.fetchTourInfoDate();
